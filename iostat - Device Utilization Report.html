@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>iostat - Device Utilization Report</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="shenghui">
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="/theme/css/bootstrap.min.css" type="text/css" />
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+      .tag-1 {
+        font-size: 13pt;
+      }
+      .tag-2 {
+        font-size: 10pt;
+      }
+      .tag-2 {
+        font-size: 8pt;
+      }
+      .tag-4 {
+        font-size: 6pt;
+     }
+    </style>
+    <link href="/theme/css/bootstrap-responsive.min.css" rel="stylesheet">
+        <link href="/theme/css/font-awesome.css" rel="stylesheet">
+
+    <link href="/theme/css/pygments.css" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="/theme/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/theme/images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/theme/images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/theme/images/apple-touch-icon-114x114.png">
+
+    <link href="/" type="application/atom+xml" rel="alternate" title="shhuiw's Technotes ATOM Feed" />
+
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/index.html">shhuiw's Technotes </a>
+          <div class="nav-collapse">
+            <ul class="nav">
+                          <li class="divider-vertical"></li>
+                  <li class="active">
+                    <a href="/category/block-io.html">
+						<i class="icon-folder-open icon-large"></i>Block I/O
+					</a>
+                  </li>
+
+                          <ul class="nav pull-right">
+                                <li><a href="/archives.html"><i class="icon-th-list"></i>Archives</a></li>
+                          </ul>
+
+            </ul>
+            <!--<p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>-->
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span9" id="content">
+<section id="content">
+        <article>
+                <header>
+                        <h1>
+                                <a href=""
+                                        rel="bookmark"
+                                        title="Permalink to iostat - Device Utilization Report">
+                                        iostat - Device Utilization Report
+                                </a>
+                        </h1>
+                </header>
+                <div class="entry-content">
+                <div class="well">
+<footer class="post-info">
+<span class="label">Date</span>
+<abbr class="published" title="2018-10-01T00:00:00+08:00">
+        <i class="icon-calendar"></i>Mon 01 October 2018
+</abbr>
+<span class="label">By</span>
+<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
+<span class="label">Category</span>
+<a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
+
+
+<span class="label">Tags</span>
+	<a href="/tag/iostat.html"><i class="icon-tag"></i>iostat</a>
+</footer><!-- /.post-info -->                </div>
+                <p><a href="https://linux.die.net/man/1/iostat">https://linux.die.net/man/1/iostat</a></p>
+<div class="highlight"><pre><span></span>IO statistics
+        /proc/diskstats
+        /sys/block/&lt;disk&gt;/stat
+        /sys/block/&lt;disk&gt;/&lt;partiton&gt;/stat
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>    -t      Print the time for each report displayed. The timestamp format may
+            depend on the value of the S_TIME_FORMAT environment variable 
+
+    -x      Display extended statistics.
+
+The interval parameter &#39;-d&#39; specifies the amount of time in seconds between
+each report. The count parameter can be specified in conjunction with the
+interval parameter. If the count parameter is specified, the value of count
+determines the number of reports generated at interval seconds apart. If the
+interval parameter is specified without the count parameter, the iostat command
+generates reports continuously.
+        iostat -d 2 6       每隔 2s 报告一次，打印 6 次报告
+        iostat -d 2         每隔 2s 报告一次，没有次数限制，连续打印
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">The</span> <span class="n">device</span> <span class="n">report</span> <span class="n">provides</span> <span class="n">statistics</span> <span class="n">on</span> <span class="n">a</span> <span class="n">per</span> <span class="n">physical</span> <span class="n">device</span> <span class="n">or</span> <span class="n">partition</span>
+<span class="n">basis</span><span class="p">.</span> <span class="n">Block</span> <span class="n">devices</span> <span class="n">and</span> <span class="n">partitions</span> <span class="k">for</span> <span class="n">which</span> <span class="n">statistics</span> <span class="n">are</span> <span class="n">to</span> <span class="n">be</span> <span class="n">displayed</span>
+<span class="n">may</span> <span class="n">be</span> <span class="n">entered</span> <span class="n">on</span> <span class="n">the</span> <span class="n">command</span> <span class="n">line</span><span class="p">.</span> <span class="n">If</span> <span class="n">no</span> <span class="n">device</span> <span class="n">nor</span> <span class="n">partition</span> <span class="n">is</span> <span class="n">entered</span><span class="p">,</span>
+<span class="n">then</span> <span class="n">statistics</span> <span class="n">are</span> <span class="n">displayed</span> <span class="k">for</span> <span class="n">every</span> <span class="n">device</span> <span class="n">used</span> <span class="n">by</span> <span class="n">the</span> <span class="n">system</span><span class="p">,</span> <span class="n">and</span>
+<span class="n">providing</span> <span class="n">that</span> <span class="n">the</span> <span class="n">kernel</span> <span class="n">maintains</span> <span class="n">statistics</span> <span class="k">for</span> <span class="n">it</span><span class="p">.</span> <span class="n">If</span> <span class="n">the</span> <span class="n">ALL</span> <span class="n">keyword</span> <span class="n">is</span>
+<span class="n">given</span> <span class="n">on</span> <span class="n">the</span> <span class="n">command</span> <span class="n">line</span><span class="p">,</span> <span class="n">then</span> <span class="n">statistics</span> <span class="n">are</span> <span class="n">displayed</span> <span class="k">for</span> <span class="n">every</span> <span class="n">device</span>
+<span class="n">defined</span> <span class="n">by</span> <span class="n">the</span> <span class="n">system</span><span class="p">,</span> <span class="n">including</span> <span class="n">those</span> <span class="n">that</span> <span class="n">have</span> <span class="n">never</span> <span class="n">been</span> <span class="n">used</span><span class="p">.</span>
+
+<span class="n">Transfer</span> <span class="n">rates</span> <span class="n">are</span> <span class="n">shown</span> <span class="n">in</span> <span class="mi">1</span><span class="n">K</span> <span class="n">blocks</span> <span class="n">by</span>  <span class="k">default</span><span class="p">,</span> <span class="n">unless</span> <span class="n">the</span> <span class="n">environment</span>
+<span class="n">variable</span> <span class="n">POSIXLY_CORRECT</span> <span class="n">is</span> <span class="n">set</span><span class="p">,</span> <span class="n">in</span> <span class="n">which</span> <span class="k">case</span> <span class="mi">512</span><span class="o">-</span><span class="n">byte</span> <span class="n">blocks</span> <span class="n">are</span> <span class="n">used</span><span class="p">.</span>
+
+<span class="n">The</span> <span class="n">report</span> <span class="n">may</span> <span class="n">show</span> <span class="n">the</span> <span class="n">following</span> <span class="n">fields</span><span class="p">,</span> <span class="n">depending</span> <span class="n">on</span> <span class="n">the</span> <span class="n">flags</span> <span class="nl">used</span><span class="p">:</span>
+
+    <span class="n">Device</span>      <span class="n">This</span> <span class="n">column</span> <span class="n">gives</span> <span class="n">the</span> <span class="n">device</span>  <span class="p">(</span><span class="n">or</span> <span class="n">partition</span><span class="p">)</span> <span class="n">name</span> <span class="n">as</span> <span class="n">listed</span>
+                <span class="n">in</span> <span class="n">the</span> <span class="o">/</span><span class="n">dev</span> <span class="n">directory</span><span class="p">.</span>
+
+    <span class="n">tps</span>         <span class="n">Indicate</span> <span class="n">the</span> <span class="n">number</span> <span class="n">of</span> <span class="n">transfers</span> <span class="n">per</span> <span class="n">second</span> <span class="n">that</span> <span class="n">were</span> <span class="n">issued</span>
+                <span class="n">to</span> <span class="n">the</span> <span class="n">device</span><span class="p">.</span>
+                <span class="n">A</span> <span class="n">transfer</span> <span class="n">is</span> <span class="n">an</span> <span class="n">I</span><span class="o">/</span><span class="n">O</span> <span class="n">request</span> <span class="n">to</span> <span class="n">the</span> <span class="n">device</span><span class="p">.</span> <span class="n">Multiple</span> <span class="n">logical</span>
+                <span class="n">requests</span> <span class="n">can</span> <span class="n">be</span> <span class="n">combined</span> <span class="n">into</span> <span class="n">a</span> <span class="n">single</span> <span class="n">I</span><span class="o">/</span><span class="n">O</span> <span class="n">request</span> <span class="n">to</span> <span class="n">the</span> <span class="n">device</span><span class="p">.</span>
+                <span class="n">A</span> <span class="n">transfer</span> <span class="n">is</span> <span class="n">of</span> <span class="n">indeterminate</span> <span class="n">size</span><span class="p">.</span>
+
+    <span class="n">Blk_read</span><span class="o">/</span><span class="n">s</span> <span class="p">(</span><span class="n">kB_read</span><span class="o">/</span><span class="n">s</span><span class="p">,</span> <span class="n">MB_read</span><span class="o">/</span><span class="n">s</span><span class="p">)</span>
+                <span class="n">Indicate</span> <span class="n">the</span> <span class="n">amount</span> <span class="n">of</span> <span class="n">data</span> <span class="n">read</span> <span class="n">from</span> <span class="n">the</span> <span class="n">device</span> <span class="n">expressed</span> <span class="n">in</span>
+                <span class="n">a</span> <span class="n">number</span> <span class="n">of</span> <span class="n">blocks</span> <span class="p">(</span><span class="n">kilobytes</span><span class="p">,</span> <span class="n">megabytes</span><span class="p">)</span> <span class="n">per</span> <span class="n">second</span><span class="p">.</span> <span class="n">Blocks</span>
+                <span class="n">are</span> <span class="n">equivalent</span> <span class="n">to</span> <span class="n">sectors</span> <span class="n">and</span> <span class="n">therefore</span> <span class="n">have</span> <span class="n">a</span> <span class="n">size</span> <span class="n">of</span> <span class="mi">512</span> <span class="n">bytes</span><span class="p">.</span>
+    <span class="n">Blk_wrtn</span><span class="o">/</span><span class="n">s</span> <span class="p">(</span><span class="n">kB_wrtn</span><span class="o">/</span><span class="n">s</span><span class="p">,</span> <span class="n">MB_wrtn</span><span class="o">/</span><span class="n">s</span><span class="p">)</span>
+                <span class="n">Indicate</span> <span class="n">the</span> <span class="n">amount</span> <span class="n">of</span> <span class="n">data</span> <span class="n">written</span> <span class="n">to</span> <span class="n">the</span> <span class="n">device</span> <span class="n">expressed</span> <span class="n">in</span>
+                <span class="n">a</span> <span class="n">number</span> <span class="n">of</span> <span class="n">blocks</span> <span class="p">(</span><span class="n">kilobytes</span><span class="p">,</span> <span class="n">megabytes</span><span class="p">)</span> <span class="n">per</span> <span class="n">second</span><span class="p">.</span>
+
+    <span class="n">Blk_read</span> <span class="p">(</span><span class="n">kB_read</span><span class="p">,</span> <span class="n">MB_read</span><span class="p">)</span>
+                <span class="n">The</span> <span class="n">total</span> <span class="n">number</span> <span class="n">of</span> <span class="n">blocks</span> <span class="p">(</span><span class="n">kilobytes</span><span class="p">,</span> <span class="n">megabytes</span><span class="p">)</span> <span class="n">read</span><span class="p">.</span>
+    <span class="n">Blk_wrtn</span> <span class="p">(</span><span class="n">kB_wrtn</span><span class="p">,</span> <span class="n">MB_wrtn</span><span class="p">)</span>
+                <span class="n">The</span> <span class="n">total</span> <span class="n">number</span> <span class="n">of</span> <span class="n">blocks</span> <span class="p">(</span><span class="n">kilobytes</span><span class="p">,</span> <span class="n">megabytes</span><span class="p">)</span> <span class="n">written</span><span class="p">.</span>
+
+    <span class="n">r</span><span class="o">/</span><span class="n">s</span>         <span class="n">The</span> <span class="n">number</span> <span class="p">(</span><span class="n">after</span> <span class="n">merges</span><span class="p">)</span> <span class="n">of</span> <span class="n">read</span> <span class="n">requests</span> <span class="n">completed</span> <span class="n">per</span> <span class="n">second</span>
+                <span class="k">for</span> <span class="n">the</span> <span class="n">device</span><span class="p">.</span>
+    <span class="n">w</span><span class="o">/</span><span class="n">s</span>         <span class="n">The</span> <span class="n">number</span> <span class="p">(</span><span class="n">after</span> <span class="n">merges</span><span class="p">)</span> <span class="n">of</span> <span class="n">write</span> <span class="n">requests</span> <span class="n">completed</span> <span class="n">per</span> <span class="n">second</span>
+                <span class="k">for</span> <span class="n">the</span> <span class="n">device</span><span class="p">.</span>
+
+    <span class="n">sec</span><span class="o">/</span><span class="n">s</span> <span class="p">(</span><span class="n">kB</span><span class="o">/</span><span class="n">s</span><span class="p">,</span> <span class="n">MB</span><span class="o">/</span><span class="n">s</span><span class="p">)</span>
+                <span class="n">The</span> <span class="n">number</span> <span class="n">of</span> <span class="n">sectors</span> <span class="p">(</span><span class="n">kilobytes</span><span class="p">,</span> <span class="n">megabytes</span><span class="p">)</span> <span class="n">read</span> <span class="n">from</span> <span class="n">or</span> <span class="n">written</span>
+                <span class="n">to</span> <span class="n">the</span> <span class="n">device</span> <span class="n">per</span> <span class="n">second</span><span class="p">.</span>
+    <span class="n">rsec</span><span class="o">/</span><span class="n">s</span> <span class="p">(</span><span class="n">rkB</span><span class="o">/</span><span class="n">s</span><span class="p">,</span> <span class="n">rMB</span><span class="o">/</span><span class="n">s</span><span class="p">)</span>
+                <span class="n">The</span> <span class="n">number</span> <span class="n">of</span> <span class="n">sectors</span> <span class="p">(</span><span class="n">kilobytes</span><span class="p">,</span> <span class="n">megabytes</span><span class="p">)</span> <span class="n">read</span> <span class="n">from</span> <span class="n">the</span> <span class="n">device</span>
+                <span class="n">per</span> <span class="n">second</span><span class="p">.</span>
+    <span class="n">wsec</span><span class="o">/</span><span class="n">s</span> <span class="p">(</span><span class="n">wkB</span><span class="o">/</span><span class="n">s</span><span class="p">,</span> <span class="n">wMB</span><span class="o">/</span><span class="n">s</span><span class="p">)</span>
+                <span class="n">The</span> <span class="n">number</span> <span class="n">of</span> <span class="n">sectors</span> <span class="p">(</span><span class="n">kilobytes</span><span class="p">,</span> <span class="n">megabytes</span><span class="p">)</span> <span class="n">written</span> <span class="n">to</span> <span class="n">the</span> <span class="n">device</span>
+                <span class="n">per</span> <span class="n">second</span><span class="p">.</span>
+
+    <span class="n">rqm</span><span class="o">/</span><span class="n">s</span>       <span class="n">The</span> <span class="n">number</span> <span class="n">of</span> <span class="n">I</span><span class="o">/</span><span class="n">O</span> <span class="n">requests</span> <span class="n">merged</span> <span class="n">per</span> <span class="n">second</span> <span class="n">that</span> <span class="n">were</span> <span class="n">queued</span> <span class="n">to</span>
+                <span class="n">the</span> <span class="n">device</span><span class="p">.</span>
+    <span class="n">rrqm</span><span class="o">/</span><span class="n">s</span>      <span class="n">The</span> <span class="n">number</span> <span class="n">of</span> <span class="n">read</span> <span class="n">requests</span> <span class="n">merged</span> <span class="n">per</span> <span class="n">second</span> <span class="n">that</span> <span class="n">were</span> <span class="n">queued</span> <span class="n">to</span>
+                <span class="n">the</span> <span class="n">device</span><span class="p">.</span>
+    <span class="n">wrqm</span><span class="o">/</span><span class="n">s</span>      <span class="n">The</span> <span class="n">number</span> <span class="n">of</span> <span class="n">write</span> <span class="n">requests</span> <span class="n">merged</span> <span class="n">per</span> <span class="n">second</span> <span class="n">that</span> <span class="n">were</span> <span class="n">queued</span> <span class="n">to</span>
+                <span class="n">the</span> <span class="n">device</span><span class="p">.</span>
+
+    <span class="nf">%rrqm</span>       <span class="n">The</span> <span class="n">percentage</span> <span class="n">of</span> <span class="n">read</span> <span class="n">requests</span> <span class="n">merged</span> <span class="n">together</span> <span class="n">before</span> <span class="n">being</span> <span class="n">sent</span>
+                <span class="n">to</span> <span class="n">the</span> <span class="n">device</span><span class="p">.</span>
+    <span class="nf">%wrqm</span>       <span class="n">The</span> <span class="n">percentage</span> <span class="n">of</span> <span class="n">write</span> <span class="n">requests</span> <span class="n">merged</span> <span class="n">together</span> <span class="n">before</span> <span class="n">being</span> <span class="n">sent</span>
+                <span class="n">to</span> <span class="n">the</span> <span class="n">device</span><span class="p">.</span>
+
+    <span class="n">areq</span><span class="o">-</span><span class="n">sz</span>     <span class="n">The</span> <span class="n">average</span> <span class="n">size</span> <span class="p">(</span><span class="n">in</span> <span class="n">kilobytes</span><span class="p">)</span> <span class="n">of</span> <span class="n">the</span> <span class="n">I</span><span class="o">/</span><span class="n">O</span> <span class="n">requests</span> <span class="n">that</span> <span class="n">were</span> <span class="n">issued</span>
+                <span class="n">to</span> <span class="n">the</span> <span class="n">device</span><span class="p">.</span>
+                <span class="nl">Note</span><span class="p">:</span> <span class="n">In</span> <span class="n">previous</span> <span class="n">versions</span><span class="p">,</span> <span class="k">this</span> <span class="n">field</span> <span class="n">was</span> <span class="n">known</span> <span class="n">as</span> <span class="n">avgrq</span><span class="o">-</span><span class="n">sz</span> <span class="n">and</span> <span class="n">was</span>
+                      <span class="n">expressed</span> <span class="n">in</span> <span class="n">sectors</span><span class="p">.</span>
+    <span class="n">rareq</span><span class="o">-</span><span class="n">sz</span>    <span class="n">The</span> <span class="n">average</span> <span class="n">size</span> <span class="p">(</span><span class="n">in</span> <span class="n">kilobytes</span><span class="p">)</span> <span class="n">of</span> <span class="n">the</span> <span class="n">read</span> <span class="n">requests</span> <span class="n">that</span> <span class="n">were</span> <span class="n">issued</span>
+                <span class="n">to</span> <span class="n">the</span> <span class="n">device</span><span class="p">.</span>
+    <span class="n">wareq</span><span class="o">-</span><span class="n">sz</span>    <span class="n">The</span> <span class="n">average</span> <span class="n">size</span> <span class="p">(</span><span class="n">in</span> <span class="n">kilobytes</span><span class="p">)</span> <span class="n">of</span> <span class="n">the</span> <span class="n">write</span> <span class="n">requests</span> <span class="n">that</span> <span class="n">were</span> <span class="n">issued</span>
+                <span class="n">to</span> <span class="n">the</span> <span class="n">device</span><span class="p">.</span>
+
+    <span class="n">await</span>       <span class="n">The</span> <span class="n">average</span> <span class="n">time</span> <span class="p">(</span><span class="n">in</span> <span class="n">milliseconds</span><span class="p">)</span> <span class="k">for</span> <span class="n">I</span><span class="o">/</span><span class="n">O</span> <span class="n">requests</span> <span class="n">issued</span> <span class="n">to</span> <span class="n">the</span> <span class="n">device</span>
+                <span class="n">to</span> <span class="n">be</span> <span class="n">served</span><span class="p">.</span> <span class="n">This</span> <span class="n">includes</span> <span class="n">the</span> <span class="n">time</span> <span class="n">spent</span> <span class="n">by</span> <span class="n">the</span> <span class="n">requests</span> <span class="n">in</span> <span class="n">queue</span> <span class="n">and</span>
+                <span class="n">the</span> <span class="n">time</span> <span class="n">spent</span> <span class="n">servicing</span> <span class="n">them</span><span class="p">.</span>
+    <span class="n">r_await</span>     <span class="n">The</span> <span class="n">average</span> <span class="n">time</span> <span class="p">(</span><span class="n">in</span> <span class="n">milliseconds</span><span class="p">)</span> <span class="k">for</span> <span class="n">read</span> <span class="n">requests</span> <span class="n">issued</span> <span class="n">to</span> <span class="n">the</span> <span class="n">device</span>
+                <span class="n">to</span> <span class="n">be</span> <span class="n">served</span><span class="p">.</span> <span class="n">This</span> <span class="n">includes</span> <span class="n">the</span> <span class="n">time</span> <span class="n">spent</span> <span class="n">by</span> <span class="n">the</span> <span class="n">requests</span> <span class="n">in</span> <span class="n">queue</span> <span class="n">and</span>
+                <span class="n">the</span> <span class="n">time</span> <span class="n">spent</span> <span class="n">servicing</span> <span class="n">them</span><span class="p">.</span>
+    <span class="n">w_await</span>     <span class="n">The</span> <span class="n">average</span> <span class="n">time</span> <span class="p">(</span><span class="n">in</span> <span class="n">milliseconds</span><span class="p">)</span> <span class="k">for</span> <span class="n">write</span> <span class="n">requests</span> <span class="n">issued</span> <span class="n">to</span> <span class="n">the</span> <span class="n">device</span>
+                <span class="n">to</span> <span class="n">be</span> <span class="n">served</span><span class="p">.</span> <span class="n">This</span> <span class="n">includes</span> <span class="n">the</span> <span class="n">time</span> <span class="n">spent</span> <span class="n">by</span> <span class="n">the</span> <span class="n">requests</span> <span class="n">in</span> <span class="n">queue</span> <span class="n">and</span>
+                <span class="n">the</span> <span class="n">time</span> <span class="n">spent</span> <span class="n">servicing</span> <span class="n">them</span><span class="p">.</span>
+
+    <span class="n">aqu</span><span class="o">-</span><span class="n">sz</span>      <span class="n">The</span> <span class="n">average</span> <span class="n">queue</span> <span class="n">length</span> <span class="n">of</span> <span class="n">the</span> <span class="n">requests</span> <span class="n">that</span> <span class="n">were</span> <span class="n">issued</span> <span class="n">to</span> <span class="n">the</span> <span class="n">device</span><span class="p">.</span>
+                <span class="nl">Note</span><span class="p">:</span> <span class="n">In</span> <span class="n">previous</span> <span class="n">versions</span><span class="p">,</span> <span class="k">this</span> <span class="n">field</span> <span class="n">was</span> <span class="n">known</span> <span class="n">as</span> <span class="n">avgqu</span><span class="o">-</span><span class="n">sz</span><span class="p">.</span>
+
+    <span class="n">svctm</span>       <span class="n">The</span> <span class="n">average</span> <span class="n">service</span> <span class="n">time</span> <span class="p">(</span><span class="n">in</span> <span class="n">milliseconds</span><span class="p">)</span> <span class="k">for</span> <span class="n">I</span><span class="o">/</span><span class="n">O</span> <span class="n">requests</span> <span class="n">that</span> <span class="n">were</span>
+                <span class="n">issued</span> <span class="n">to</span> <span class="n">the</span> <span class="n">device</span><span class="p">.</span> 
+                <span class="n">Warning</span><span class="o">!</span>
+                    <span class="n">Do</span> <span class="n">not</span> <span class="n">trust</span> <span class="k">this</span> <span class="n">field</span> <span class="n">any</span> <span class="n">more</span><span class="p">.</span>
+                    <span class="n">This</span> <span class="n">field</span> <span class="n">will</span> <span class="n">be</span> <span class="n">removed</span> <span class="n">in</span> <span class="n">a</span> <span class="n">future</span> <span class="n">sysstat</span> <span class="n">version</span><span class="p">.</span>
+
+    <span class="nf">%util</span>       <span class="n">Percentage</span> <span class="n">of</span> <span class="n">elapsed</span> <span class="n">time</span> <span class="n">during</span> <span class="n">which</span> <span class="n">I</span><span class="o">/</span><span class="n">O</span> <span class="n">requests</span> <span class="n">were</span> <span class="n">issued</span>
+                <span class="n">to</span> <span class="n">the</span> <span class="n">device</span> <span class="p">(</span><span class="n">bandwidth</span> <span class="n">utilization</span> <span class="k">for</span> <span class="n">the</span> <span class="n">device</span><span class="p">).</span> 
+                <span class="n">Device</span> <span class="n">saturation</span> <span class="n">occurs</span> <span class="n">when</span> <span class="k">this</span> <span class="n">value</span> <span class="n">is</span> <span class="n">close</span> <span class="n">to</span> <span class="mi">100</span><span class="o">%</span> <span class="k">for</span> <span class="n">devices</span>
+                <span class="n">serving</span> <span class="n">requests</span> <span class="n">serially</span><span class="p">.</span> <span class="n">But</span> <span class="k">for</span> <span class="n">devices</span> <span class="n">serving</span> <span class="n">requests</span> <span class="n">in</span> <span class="n">parallel</span><span class="p">,</span>
+                <span class="n">such</span> <span class="n">as</span> <span class="n">RAID</span> <span class="n">arrays</span> <span class="n">and</span> <span class="n">modern</span> <span class="n">SSDs</span><span class="p">,</span> <span class="k">this</span> <span class="n">number</span> <span class="n">does</span> <span class="n">not</span> <span class="n">reflect</span> <span class="n">their</span>
+                <span class="n">performance</span> <span class="n">limits</span><span class="p">.</span>
+</pre></div>
+                </div><!-- /.entry-content -->
+        </article>
+</section>
+        </div><!--/span-->
+
+                <div class="span3 well sidebar-nav" id="sidebar">
+<ul class="nav nav-list">
+
+<li class="nav-header"><h4><i class="icon-folder-close icon-large"></i>Categories</h4></li>
+<li>
+<a href="/category/block-io.html">
+    <i class="icon-folder-open icon-large"></i>Block I/O
+</a>
+</li>
+
+<li class="nav-header"><h4><i class="icon-tags icon-large"></i>Tags</h4></li>
+<li class="tag-4">
+    <a href="/tag/iostat.html">
+        <i class="icon-tag icon-large"></i>iostat
+    </a>
+</li>
+
+
+</ul>        </div><!--/.well -->
+
+      </div><!--/row-->
+
+      <hr>
+
+      <footer>
+        <address id="about">
+                Proudly powered by <a href="http://pelican.notmyidea.org/">Pelican <i class="icon-external-link"></i></a>,
+                                which takes great advantage of <a href="http://python.org">Python <i class="icon-external-link"></i></a>.
+        </address><!-- /#about -->
+
+        <p>The theme is from <a href="http://twitter.github.com/bootstrap/">Bootstrap from Twitter <i class="icon-external-link"></i></a>,
+                   and <a href="http://fortawesome.github.com/Font-Awesome/">Font-Awesome <i class="icon-external-link"></i></a>, thanks!</p>
+      </footer>
+
+    </div><!--/.fluid-container-->
+
+
+
+    <!-- Le javascript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/theme/js/jquery-1.7.2.min.js"></script>
+    <script src="/theme/js/bootstrap.min.js"></script>
+  </body>
+</html>
