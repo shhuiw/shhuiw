@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>kcopyd</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="shenghui">
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="/theme/css/bootstrap.min.css" type="text/css" />
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+      .tag-1 {
+        font-size: 13pt;
+      }
+      .tag-2 {
+        font-size: 10pt;
+      }
+      .tag-2 {
+        font-size: 8pt;
+      }
+      .tag-4 {
+        font-size: 6pt;
+     }
+    </style>
+    <link href="/theme/css/bootstrap-responsive.min.css" rel="stylesheet">
+        <link href="/theme/css/font-awesome.css" rel="stylesheet">
+
+    <link href="/theme/css/pygments.css" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="/theme/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/theme/images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/theme/images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/theme/images/apple-touch-icon-114x114.png">
+
+    <link href="/" type="application/atom+xml" rel="alternate" title="shhuiw's Technotes ATOM Feed" />
+
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/index.html">shhuiw's Technotes </a>
+          <div class="nav-collapse">
+            <ul class="nav">
+                          <li class="divider-vertical"></li>
+                  <li >
+                    <a href="/category/block-io.html">
+						<i class="icon-folder-open icon-large"></i>Block I/O
+					</a>
+                  </li>
+                  <li class="active">
+                    <a href="/category/device-mapper.html">
+						<i class="icon-folder-open icon-large"></i>device-mapper
+					</a>
+                  </li>
+
+                          <ul class="nav pull-right">
+                                <li><a href="/archives.html"><i class="icon-th-list"></i>Archives</a></li>
+                          </ul>
+
+            </ul>
+            <!--<p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>-->
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span9" id="content">
+<section id="content">
+        <article>
+                <header>
+                        <h1>
+                                <a href=""
+                                        rel="bookmark"
+                                        title="Permalink to kcopyd">
+                                        kcopyd
+                                </a>
+                        </h1>
+                </header>
+                <div class="entry-content">
+                <div class="well">
+<footer class="post-info">
+<span class="label">Date</span>
+<abbr class="published" title="2018-10-09T00:00:00+08:00">
+        <i class="icon-calendar"></i>Tue 09 October 2018
+</abbr>
+<span class="label">By</span>
+<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
+<span class="label">Category</span>
+<a href="/category/device-mapper.html"><i class="icon-folder-open"></i>device-mapper</a>.
+
+
+<span class="label">Tags</span>
+	<a href="/tag/device-mapper.html"><i class="icon-tag"></i>device-mapper</a>
+</footer><!-- /.post-info -->                </div>
+                <ul>
+<li><a href="https://elixir.bootlin.com/linux/latest/source/Documentation/device-mapper/kcopyd.txt">linux/Documentation/device-mapper/kcopyd.txt</a></li>
+<li><a href="https://elixir.bootlin.com/linux/latest/source/drivers/md/dm-kcopyd.c">linux/drivers/md/dm-kcopyd.c</a></li>
+</ul>
+<p>kcopyd 提供的是一个易于使用的接口，kcopyd 重点在于 <strong>"d"</strong>，而 copy 相关的具体 <strong>IO 细节在 dm-io.c</strong> 中实现</p>
+<p>kcopyd provides the ability to copy <strong>a range of sectors</strong> <strong>from one</strong> block-device
+<strong>to one or more other</strong> block-devices, with an <strong>asynchronous completion
+notification</strong>. </p>
+<p>It is used by various dm target types, including mirror, thin, snapshot, cache, writeback, and zoned.</p>
+<p>Users of kcopyd must first create a dm_kcopyd_client object. This is done with a call to dm_kcopyd_client_create(). The throttle arg can be NULL if users don't want any throttling.</p>
+<div class="highlight"><pre><span></span>    struct dm_kcopyd_client *dm_kcopyd_client_create(struct dm_kcopyd_throttle *throttle);
+</pre></div>
+
+
+<p>To start a copy job, the user must set up dm_io_region structures to describe
+the source and destinations of the copy. Each dm_io_region indicates a
+block-device along with the starting sector and size of the region. The source
+of the copy is given as one dm_io_region structure, and the destinations of the
+copy are given as an array of dm_io_region structures.</p>
+<div class="highlight"><pre><span></span>    struct dm_io_region {
+        struct block_device *bdev;
+        sector_t            sector;
+        sector_t            count;
+   };
+</pre></div>
+
+
+<p>To start the copy, the user calls dm_kcopyd_copy(), passing in the client
+pointer, pointers to the source and destination dm_io_regions, the name of a
+completion callback routine, and a pointer to some context data for the copy.</p>
+<div class="highlight"><pre><span></span>    int dm_kcopyd_copy(struct dm_kcopyd_client *kc, 
+                       struct dm_io_region *from,
+                       unsigned int num_dests, 
+                       struct dm_io_region *dests,
+                       unsigned int flags,
+                       dm_kcopyd_notify_fn fn,
+                       void *context);
+
+    typedef void (*dm_kcopyd_notify_fn)(int read_err,
+                                        unsigned long write_err,
+                                        void *context);
+</pre></div>
+
+
+<p><strong>When the copy completes, kcopyd will call the user's completion routine,
+passing back the user's context pointer. It will also indicate if a read or
+write error occurred during the copy.</strong></p>
+<p>When a user is done with all their copy jobs, they should call
+dm_kcopyd_client_destroy() to delete the kcopyd client, which will release the
+associated memory pages.</p>
+<div class="highlight"><pre><span></span>    void dm_kcopyd_client_destroy(struct dm_kcopyd_client *kc);
+</pre></div>
+
+
+<h3>struct dm_kcopyd_throttle</h3>
+<div class="highlight"><pre><span></span>commit df5d2e9089c7d5b8c46f767e4278610ea3e815b9
+Author: Mikulas Patocka &lt;mpatocka@redhat.com&gt;
+Date:   Fri Mar 1 22:45:49 2013 +0000
+
+    dm kcopyd: introduce configurable throttling
+
+    This patch allows the administrator to reduce the rate at which kcopyd
+    issues I/O.
+
+    Each module that uses kcopyd acquires a throttle parameter that can be
+    set in /sys/module/*/parameters.
+
+    We maintain a history of kcopyd usage by each module in the variables
+    io_period and total_period in struct dm_kcopyd_throttle. The actual
+    kcopyd activity is calculated as a percentage of time equal to
+    &quot;(100 * io_period / total_period)&quot;.  This is compared with the user-defined
+    throttle percentage threshold and if it is exceeded, we sleep.
+
+    Signed-off-by: Mikulas Patocka &lt;mpatocka@redhat.com&gt;
+    Signed-off-by: Alasdair G Kergon &lt;agk@redhat.com&gt;
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>    struct dm_kcopyd_throttle {
+        unsigned    throttle;
+        unsigned    num_io_jobs;
+        unsigned    io_period;
+        unsigned    total_period;
+        unsigned    last_jiffies;
+    };
+
+    /*
+     * kcopyd clients that want to support throttling must pass an initialised
+     * dm_kcopyd_throttle struct into dm_kcopyd_client_create().
+     * Two or more clients may share the same instance of this struct between
+     * them if they wish to be throttled as a group.
+     *
+     * This macro also creates a corresponding module parameter to configure
+     * the amount of throttling.
+     */
+    #define DECLARE_DM_KCOPYD_THROTTLE_WITH_MODULE_PARM(name, description)  \
+        static struct dm_kcopyd_throttle dm_kcopyd_throttle = { 100, 0, 0, 0, 0 }; \
+        module_param_named(name, dm_kcopyd_throttle.throttle, uint, 0644); \
+        MODULE_PARM_DESC(name, description)
+</pre></div>
+
+
+<h3>struct dm_kcopyd_client</h3>
+<div class="highlight"><pre><span></span>    #define SUB_JOB_SIZE    128
+    #define SPLIT_COUNT     8
+    #define MIN_JOBS        8
+    #define RESERVE_PAGES   (DIV_ROUND_UP(SUB_JOB_SIZE &lt;&lt; SECTOR_SHIFT, PAGE_SIZE))
+
+
+    /*-----------------------------------------------------------------
+     * Each kcopyd client has its own little pool of preallocated
+     * pages for kcopyd io.
+     *---------------------------------------------------------------*/
+    struct dm_kcopyd_client {
+        struct page_list            *pages;
+                                        调用 dm_kcopyd_client_create 的时候会通过
+                                        client_reserve_pages 预分配 RESERVE_PAGES
+                                        个 pages
+        unsigned                    nr_reserved_pages;  初始化为 RESERVE_PAGES
+        unsigned                    nr_free_pages;      初始化为 RESERVE_PAGES
+
+        struct dm_io_client         *io_client;
+
+        wait_queue_head_t           destroyq;
+
+        mempool_t                   job_pool;
+
+        struct workqueue_struct     *kcopyd_wq;
+                                        alloc_workqueue(&quot;kcopyd&quot;, WQ_MEM_RECLAIM, 0)
+        struct work_struct          kcopyd_work;
+                                        关联 dm-kcopyd.c/do_work
+                                        kcopyd does this every time it&#39;s woken up
+
+        struct dm_kcopyd_throttle   *throttle;
+
+        atomic_t                    nr_jobs;            初始化为 0
+
+    /*
+     * We maintain three lists of jobs:
+     *
+     * i)   jobs waiting for pages
+     * ii)  jobs that have pages, and are waiting for the io to be issued.
+     * iii) jobs that have completed.
+     *
+     * All three of these are protected by job_lock.
+     */
+        spinlock_t                  job_lock;
+        struct list_head            complete_jobs;
+        struct list_head            io_jobs;
+        struct list_head            pages_jobs;
+    };
+
+
+    struct dm_io_client {
+        mempool_t   pool;
+        struct bio_set  bios;
+    };
+</pre></div>
+                </div><!-- /.entry-content -->
+        </article>
+</section>
+        </div><!--/span-->
+
+                <div class="span3 well sidebar-nav" id="sidebar">
+<ul class="nav nav-list">
+
+<li class="nav-header"><h4><i class="icon-folder-close icon-large"></i>Categories</h4></li>
+<li>
+<a href="/category/block-io.html">
+    <i class="icon-folder-open icon-large"></i>Block I/O
+</a>
+</li>
+<li>
+<a href="/category/device-mapper.html">
+    <i class="icon-folder-open icon-large"></i>device-mapper
+</a>
+</li>
+
+<li class="nav-header"><h4><i class="icon-tags icon-large"></i>Tags</h4></li>
+<li class="tag-4">
+    <a href="/tag/device-mapper.html">
+        <i class="icon-tag icon-large"></i>device-mapper
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/iostat.html">
+        <i class="icon-tag icon-large"></i>iostat
+    </a>
+</li>
+
+
+</ul>        </div><!--/.well -->
+
+      </div><!--/row-->
+
+      <hr>
+
+      <footer>
+        <address id="about">
+                Proudly powered by <a href="http://pelican.notmyidea.org/">Pelican <i class="icon-external-link"></i></a>,
+                                which takes great advantage of <a href="http://python.org">Python <i class="icon-external-link"></i></a>.
+        </address><!-- /#about -->
+
+        <p>The theme is from <a href="http://twitter.github.com/bootstrap/">Bootstrap from Twitter <i class="icon-external-link"></i></a>,
+                   and <a href="http://fortawesome.github.com/Font-Awesome/">Font-Awesome <i class="icon-external-link"></i></a>, thanks!</p>
+      </footer>
+
+    </div><!--/.fluid-container-->
+
+
+
+    <!-- Le javascript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/theme/js/jquery-1.7.2.min.js"></script>
+    <script src="/theme/js/bootstrap.min.js"></script>
+  </body>
+</html>
