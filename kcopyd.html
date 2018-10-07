@@ -104,8 +104,8 @@
                 <div class="well">
 <footer class="post-info">
 <span class="label">Date</span>
-<abbr class="published" title="2018-10-09T00:00:00+08:00">
-        <i class="icon-calendar"></i>Tue 09 October 2018
+<abbr class="published" title="2018-10-08T00:00:00+08:00">
+        <i class="icon-calendar"></i>Mon 08 October 2018
 </abbr>
 <span class="label">By</span>
 <a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
@@ -120,10 +120,11 @@
 <li><a href="https://elixir.bootlin.com/linux/latest/source/Documentation/device-mapper/kcopyd.txt">linux/Documentation/device-mapper/kcopyd.txt</a></li>
 <li><a href="https://elixir.bootlin.com/linux/latest/source/drivers/md/dm-kcopyd.c">linux/drivers/md/dm-kcopyd.c</a></li>
 </ul>
-<p>kcopyd 提供的是一个易于使用的接口，kcopyd 重点在于 <strong>"d"</strong>，而 copy 相关的具体 <strong>IO 细节在 dm-io.c</strong> 中实现</p>
+<p>kcopyd 提供的是一个易于使用的接口，<strong>隐藏了异步</strong>：dm-kcopyd.c 重点在于 <strong>"d"</strong>，即对 <strong>kcopyd_job</strong>s 的异步管理，而 copy 相关的具体 <strong>async IO 细节在 dm-io.c</strong> 中实现</p>
 <p>kcopyd provides the ability to copy <strong>a range of sectors</strong> <strong>from one</strong> block-device
 <strong>to one or more other</strong> block-devices, with an <strong>asynchronous completion
-notification</strong>. </p>
+notification (dm-io 提供了 async/sync IO service，kcopyd 使用了 async IO service)</strong>. </p>
+<p>使用者只需要提供自己的 <strong>dm_kcopyd_throttle (可以为 NULL)、src dm_io_region 和 dest dm_io_region(s)、dm_kcopyd_notify_fn</strong>，<strong>异步由 kcopyd 负责</strong>，用户不需要关心</p>
 <p>It is used by various dm target types, including mirror, thin, snapshot, cache, writeback, and zoned.</p>
 <p>Users of kcopyd must first create a dm_kcopyd_client object. This is done with a call to dm_kcopyd_client_create(). The throttle arg can be NULL if users don't want any throttling.</p>
 <div class="highlight"><pre><span></span>    struct dm_kcopyd_client *dm_kcopyd_client_create(struct dm_kcopyd_throttle *throttle);
@@ -270,7 +271,7 @@ Date:   Fri Mar 1 22:45:49 2013 +0000
 
 
     struct dm_io_client {
-        mempool_t   pool;
+        mempool_t       pool;
         struct bio_set  bios;
     };
 </pre></div>
@@ -295,14 +296,14 @@ Date:   Fri Mar 1 22:45:49 2013 +0000
 </li>
 
 <li class="nav-header"><h4><i class="icon-tags icon-large"></i>Tags</h4></li>
-<li class="tag-1">
-    <a href="/tag/device-mapper.html">
-        <i class="icon-tag icon-large"></i>device-mapper
-    </a>
-</li>
 <li class="tag-4">
     <a href="/tag/iostat.html">
         <i class="icon-tag icon-large"></i>iostat
+    </a>
+</li>
+<li class="tag-1">
+    <a href="/tag/device-mapper.html">
+        <i class="icon-tag icon-large"></i>device-mapper
     </a>
 </li>
 
