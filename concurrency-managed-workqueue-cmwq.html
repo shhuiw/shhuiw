@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Concurrency Managed Workqueue (cmwq)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="shenghui">
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="/theme/css/bootstrap.min.css" type="text/css" />
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+      .tag-1 {
+        font-size: 13pt;
+      }
+      .tag-2 {
+        font-size: 10pt;
+      }
+      .tag-2 {
+        font-size: 8pt;
+      }
+      .tag-4 {
+        font-size: 6pt;
+     }
+    </style>
+    <link href="/theme/css/bootstrap-responsive.min.css" rel="stylesheet">
+        <link href="/theme/css/font-awesome.css" rel="stylesheet">
+
+    <link href="/theme/css/pygments.css" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="/theme/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/theme/images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/theme/images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/theme/images/apple-touch-icon-114x114.png">
+
+    <link href="/" type="application/atom+xml" rel="alternate" title="shhuiw's Technotes ATOM Feed" />
+
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/index.html">shhuiw's Technotes </a>
+          <div class="nav-collapse">
+            <ul class="nav">
+                          <li class="divider-vertical"></li>
+                  <li class="active">
+                    <a href="/category/bing-fa.html">
+						<i class="icon-folder-open icon-large"></i>并发
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/block-io.html">
+						<i class="icon-folder-open icon-large"></i>Block I/O
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/device-mapper.html">
+						<i class="icon-folder-open icon-large"></i>device-mapper
+					</a>
+                  </li>
+
+                          <ul class="nav pull-right">
+                                <li><a href="/archives.html"><i class="icon-th-list"></i>Archives</a></li>
+                          </ul>
+
+            </ul>
+            <!--<p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>-->
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span9" id="content">
+<section id="content">
+        <article>
+                <header>
+                        <h1>
+                                <a href=""
+                                        rel="bookmark"
+                                        title="Permalink to Concurrency Managed Workqueue (cmwq)">
+                                        Concurrency Managed Workqueue (cmwq)
+                                </a>
+                        </h1>
+                </header>
+                <div class="entry-content">
+                <div class="well">
+<footer class="post-info">
+<span class="label">Date</span>
+<abbr class="published" title="2018-10-11T00:00:00+08:00">
+        <i class="icon-calendar"></i>Thu 11 October 2018
+</abbr>
+<span class="label">By</span>
+<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
+<span class="label">Category</span>
+<a href="/category/bing-fa.html"><i class="icon-folder-open"></i>并发</a>.
+
+
+<span class="label">Tags</span>
+	<a href="/tag/workqueue.html"><i class="icon-tag"></i>workqueue</a>
+</footer><!-- /.post-info -->                </div>
+                <ul>
+<li><a href="https://elixir.bootlin.com/linux/latest/source/Documentation/core-api/workqueue.rst">linux/Documentation/core-api/workqueue.rst</a></li>
+</ul>
+<p><strong>Whenever a driver or subsystem wants a function to be executed asynchronously it has to set up a work item pointing to that function and queue that work item on a workqueue.</strong></p>
+<p>There are many cases where an <strong>asynchronous process execution context</strong> is needed and the workqueue (wq) API is the most commonly used mechanism for such cases.</p>
+<p>When such an asynchronous execution context is needed, a <strong>work item describing which function to execute</strong> is put on a queue.  An independent thread serves as the asynchronous execution context.  The queue is called <strong>workqueue</strong> and the thread is called <strong>worker</strong>.</p>
+<div class="highlight"><pre><span></span>    workqueue 
+            --- worker threads pool 
+                    --- work threads 
+                            --- execute functions specified by work items
+</pre></div>
+
+
+<h3>Guidelines</h3>
+<ul>
+<li>
+<p><strong>Do not forget to use <code>WQ_MEM_RECLAIM</code> if a wq may process work items which are used during memory reclaim.</strong> Each wq with <code>WQ_MEM_RECLAIM</code> set has an execution context reserved for it. If there is dependency among multiple work items used during memory reclaim, they should be queued to separate wq each with <code>WQ_MEM_RECLAIM</code>.</p>
+</li>
+<li>
+<p>Unless strict ordering is required, there is no need to use ST wq.</p>
+</li>
+<li>
+<p><strong>Unless there is a specific need, using 0 for @max_active is recommended.  In most use cases, concurrency level usually stays well under the default limit</strong>.</p>
+</li>
+<li>
+<p>A wq serves as a domain for forward progress guarantee (<code>WQ_MEM_RECLAIM</code>, flush and work item attributes.  Work items which are not involved in memory reclaim and don't need to be flushed as a part of a group of work items, and don't require any special attribute, can use one of the system wq.  There is no difference in execution characteristics between using a dedicated wq and a system wq.</p>
+</li>
+<li>
+<p>Unless work items are expected to consume a huge amount of CPU cycles, using a bound wq is usually beneficial due to the increased level of locality in wq operations and work item execution.</p>
+</li>
+</ul>
+<h3>Application Programming Interface (API)</h3>
+<div class="highlight"><pre><span></span>    alloc_workqueue()       allocates a wq. 
+            @name       name of the wq and also used as the name of 
+                        the rescuer thread if there is one.
+            @flags
+            @max_active A wq no longer manages execution resources
+                        but serves as a domain for forward progress 
+                        guarantee, flush and work item attributes. 
+                        @flags and @max_active control how work items
+                        are assigned execution resources, scheduled and
+                        executed.
+
+    create_*workqueue()     deprecated and scheduled for removal.  
+</pre></div>
+
+
+<h3>调试</h3>
+<p>Because the work functions are executed by generic worker threads there are a few tricks needed to shed some light on misbehaving workqueue users.</p>
+<p>Worker threads show up in the process list as: ::</p>
+<div class="highlight"><pre><span></span>      root      5671  0.0  0.0      0     0 ?        S    12:07   0:00 [kworker/0:1]
+      root      5672  0.0  0.0      0     0 ?        S    12:07   0:00 [kworker/1:2]
+      root      5673  0.0  0.0      0     0 ?        S    12:12   0:00 [kworker/0:0]
+      root      5674  0.0  0.0      0     0 ?        S    12:13   0:00 [kworker/1:0]
+</pre></div>
+
+
+<p>If kworkers are going crazy (using too much cpu), there are two types of possible problems:</p>
+<div class="highlight"><pre><span></span>1. **Something being scheduled in rapid succession**
+2. **A single work item that consumes lots of cpu cycles**
+</pre></div>
+
+
+<p>The first one can be tracked using tracing :</p>
+<div class="highlight"><pre><span></span>    $ echo workqueue:workqueue_queue_work &gt; /sys/kernel/debug/tracing/set_event
+    $ cat /sys/kernel/debug/tracing/trace_pipe &gt; out.txt
+    (wait a few secs)
+    ^C
+</pre></div>
+
+
+<p>If something is <strong>busy looping</strong> on work queueing, it would be <strong>dominating the output</strong> and the offender can be determined with the work item function.</p>
+<p>For the second type of problems it should be possible to just check the stack trace of the offending worker thread:</p>
+<div class="highlight"><pre><span></span>    $ cat /proc/THE_OFFENDING_KWORKER/stack
+</pre></div>
+
+
+<p>The work item's function should be <strong>trivially visible in the stack trace</strong>.</p>
+<h3>@max_active</h3>
+<p>@max_active determines the <strong>maximum number of execution contexts per CPU which can be assigned to the work items of a wq</strong>.  For example, with @max_active of 16, at most 16 work items of the wq can be executing at the same time per CPU.</p>
+<p><strong>Currently, for a bound wq, the maximum limit for @max_active is 512 and the default value used when 0 is specified is 256.  For an unbound wq, the limit is higher of 512 and 4 * num_possible_cpus()</strong>.  These values are chosen sufficiently high such that they are not the limiting factor while providing protection in runaway cases.</p>
+<p>The number of active work items of a wq is usually regulated by the users of the wq, more specifically, by how many work items the users may queue at the same time. </p>
+<div class="highlight"><pre><span></span>    Unless there is a specific need for throttling the number of
+    active work items, specifying &#39;0&#39; is recommended.
+</pre></div>
+
+
+<p>Some users depend on the strict execution ordering of <strong>ST wq.  The combination of @max_active of 1 and WQ_UNBOUND</strong> used to achieve this behavior.  Work items on such wq were always queued to the unbound worker-pools and only one work item could be active at any given time thus achieving the same ordering property as ST wq.</p>
+<p>In the current implementation the above configuration only guarantees ST behavior within a given NUMA node. Instead <code>alloc_ordered_queue()</code> should be used to achieve system-wide ST behavior.</p>
+<h3>@flags</h3>
+<div class="highlight"><pre><span></span>    WQ_MEM_RECLAIM
+
+            All wq which might be used in the memory reclaim paths **MUST**
+            have this flag set. The wq is guaranteed to have at least one
+            execution context regardless of memory pressure.
+
+
+    WQ_UNBOUND
+
+            Work items queued to an unbound wq are served by the special
+            worker-pools which host workers which are not bound to any
+            specific CPU. This makes the wq behave as a simple execution
+            context provider without concurrency management. The unbound
+            worker-pools try to start execution of work items as soon as
+            possible. Unbound wq sacrifices locality but is useful for
+            the following cases.
+
+            * Wide fluctuation in the concurrency level requirement is
+              expected and using bound wq may end up creating large number
+              of mostly unused workers across different CPUs as the issuer
+              hops through different CPUs.
+
+            * Long running CPU intensive workloads which can be better
+              managed by the system scheduler.
+
+
+    WQ_FREEZABLE
+
+            A freezable wq participates in the freeze phase of the system
+            suspend operations. Work items on the wq are drained and no
+            new work item starts execution until thawed.
+
+
+    WQ_HIGHPRI
+
+            Work items of a highpri wq are queued to the highpri
+            worker-pool of the target cpu. Highpri worker-pools are
+            erved by worker threads with elevated nice level.
+
+            Note that normal and highpri worker-pools don&#39;t interact with
+            each other. Each maintains its separate pool of workers and
+            implements concurrency management among its workers.
+
+
+    WQ_CPU_INTENSIVE
+
+            Work items of a CPU intensive wq do not contribute to the
+            concurrency level. In other words, runnable CPU intensive
+            work items will not prevent other work items in the same
+            worker-pool from starting execution. This is useful for bound
+            work items which are expected to hog CPU cycles so that their
+            execution is regulated by the system scheduler.
+
+            Although CPU intensive work items don&#39;t contribute to the
+            concurrency level, start of their executions is still
+            regulated by the concurrency management and runnable
+            non-CPU-intensive work items can delay execution of CPU
+            intensive work items.
+
+            This flag is meaningless for unbound wq.
+
+
+    WQ_NON_REENTRANT
+
+            no longer exists as all workqueues are now non-reentrant -
+            any work item is guaranteed to be executed by at most one
+            worker system-wide at any given time.
+</pre></div>
+
+
+<h3>Example Execution Scenarios</h3>
+<p>The following example execution scenarios try to illustrate how cmwq behave under different configurations.</p>
+<p>Work items w0, w1, w2 are queued to a bound wq q0 on the same CPU. w0 burns CPU for 5ms then sleeps for 10ms then burns CPU for 5ms again before finishing. w1 and w2 burn CPU for 5ms then sleep for 10ms.</p>
+<p>Ignoring all other tasks, works and processing overhead, and assuming simple FIFO scheduling, the following is one highly simplified version of possible sequences of events with the original wq ::</p>
+<div class="highlight"><pre><span></span>    TIME IN MSECS   EVENT
+        0           w0 starts and burns CPU
+        5           w0 sleeps
+        15          w0 wakes up and burns CPU
+        20          w0 finishes
+        20          w1 starts and burns CPU
+        25          w1 sleeps
+        35          w1 wakes up and finishes
+        35          w2 starts and burns CPU
+        40          w2 sleeps
+        50          w2 wakes up and finishes
+</pre></div>
+
+
+<p>And with cmwq with @max_active &gt;= 3, ::</p>
+<div class="highlight"><pre><span></span>    TIME IN MSECS   EVENT
+        0           w0 starts and burns CPU
+        5           w0 sleeps
+        5           w1 starts and burns CPU
+        10          w1 sleeps
+        10          w2 starts and burns CPU
+        15          w2 sleeps
+        15          w0 wakes up and burns CPU
+        20          w0 finishes
+        20          w1 wakes up and finishes
+        25          w2 wakes up and finishes
+</pre></div>
+
+
+<p>If @max_active == 2, ::</p>
+<div class="highlight"><pre><span></span>    TIME IN MSECS   EVENT
+        0           w0 starts and burns CPU
+        5           w0 sleeps
+        5           w1 starts and burns CPU
+        10          w1 sleeps
+        15          w0 wakes up and burns CPU
+        20          w0 finishes
+        20          w1 wakes up and finishes
+        20          w2 starts and burns CPU
+        25          w2 sleeps
+        35          w2 wakes up and finishes
+</pre></div>
+
+
+<p>Now, let's assume w1 and w2 are queued to a different wq q1 which has WQ_CPU_INTENSIVE set, ::</p>
+<div class="highlight"><pre><span></span>    TIME IN MSECS   EVENT
+        0           w0 starts and burns CPU
+        5           w0 sleeps
+        5           w1 and w2 start and burn CPU
+        10          w1 sleeps
+        15          w2 sleeps
+        15          w0 wakes up and burns CPU
+        20          w0 finishes
+        20          w1 wakes up and finishes
+        25          w2 wakes up and finishes
+</pre></div>
+
+
+<h3>Design</h3>
+<p>In order to ease the asynchronous execution of functions a new abstraction, the work item, is introduced. A <strong>work item is a simple struct that holds a pointer to the function that is to be executed asynchronously</strong> </p>
+<p>Special purpose threads, called worker threads, execute the functions off of the queue, one after the other.  If no work is queued, the worker threads become idle.  These worker threads are managed in so called <strong>worker-pools</strong>.</p>
+<p>While there are work items on the workqueue the worker executes the functions associated with the work items one after the other.  <strong>When there is no work item left on the workqueue the worker becomes idle. When a new work item gets queued, the worker begins executing again.</strong> 有活干活，没活发呆</p>
+<p>In the original wq implementation, 古时候 <strong>a multi threaded (MT) wq had one worker thread per CPU and a single threaded (ST) wq had one worker thread system-wide.  A single MT wq needed to keep around the same number of workers as the number of CPUs.</strong>  The kernel grew a lot of MT wq users over the years and with the number of CPU cores continuously rising, some systems saturated the default 32k PID space just booting up.</p>
+<p>Although MT wq wasted a lot of resource, the level of concurrency provided was unsatisfactory.  The limitation was common to both ST and MT wq albeit less severe on MT.  Each wq maintained its own separate worker pool.  An MT wq could provide only one execution context per CPU while an ST wq one for the whole system.  Work items had to <strong>compete for those very limited execution contexts</strong> leading to various problems including proneness to deadlocks around the single execution context.</p>
+<p>The tension between the provided level of concurrency and resource usage also forced its users to make unnecessary tradeoffs like libata choosing to use ST wq for polling PIOs and accepting an unnecessary limitation that no two polling PIOs can progress at the same time.  As MT wq don't provide much better concurrency, users which require higher level of concurrency, like async or fscache, had to implement their own thread pool.</p>
+<h4>cmwq</h4>
+<p><strong>Concurrency Managed Workqueue (cmwq) is a reimplementation of wq</strong> with focus on the following goals.</p>
+<ul>
+<li>
+<p>Maintain compatibility with the original workqueue API.</p>
+</li>
+<li>
+<p>Use <strong>per-CPU unified worker pools shared by all wq</strong> to provide flexible level of concurrency on demand without wasting a lot of resource.</p>
+</li>
+<li>
+<p>Automatically regulate worker pool and level of concurrency so that the API users don't need to worry about such details.</p>
+</li>
+</ul>
+<p><strong>The cmwq design differentiates between the user-facing workqueues that subsystems and drivers queue work items on and the backend mechanism which manages worker-pools and processes the queued work items.</strong></p>
+<p>There are <strong>two worker-pools</strong>, one for normal work items and the other for <strong>high priority ones, for each possible CPU and some extra worker-pools to serve work items queued on unbound workqueues - the number of these backing pools is dynamic.</strong></p>
+<p>Subsystems and drivers can create and queue work items through special workqueue API functions as they see fit. They can influence some aspects of the way the work items are executed by <strong>setting flags on the workqueue</strong> they are putting the work item on. These flags include things like <strong>CPU locality, concurrency limits, priority and more</strong>.  To get a detailed overview refer to the API description of <code>alloc_workqueue()</code>.</p>
+<p>When a work item is queued to a workqueue, the target worker-pool is <strong>determined according to the queue parameters and workqueue attributes and appended on the shared worklist of the worker-pool</strong>.  For example, unless specifically overridden, a work item of a bound workqueue will be queued on the worklist of either normal or highpri worker-pool that is associated to the CPU the issuer is running on.</p>
+<p>For any worker pool implementation, managing the concurrency level (how many execution contexts are active) is an important issue.  <strong>cmwq tries to keep the concurrency at a minimal but sufficient level</strong>. Minimal to save resources and sufficient in that the system is used at its full capacity.</p>
+<p><strong>Each worker-pool bound to an actual CPU implements concurrency management by hooking into the scheduler.</strong>  The worker-pool is notified whenever an active worker wakes up or sleeps and keeps track of the number of the currently runnable workers.  Generally, work items are not expected to hog a CPU and consume many cycles.  That means maintaining just enough concurrency to prevent work processing from stalling should be optimal. <strong>As long as there are one or more runnable workers on the CPU, the worker-pool doesn't start execution of a new work, but, when the last running worker goes to sleep, it immediately schedules a new worker so that the CPU doesn't sit idle while there are pending work items.</strong> This allows using a minimal number of workers without losing execution bandwidth.</p>
+<p>Keeping idle workers around doesn't cost other than the memory space for kthreads, so cmwq holds onto idle ones for a while before killing them.</p>
+<p><strong>For unbound workqueues, the number of backing pools is dynamic.</strong> Unbound workqueue can be assigned custom attributes using <code>apply_workqueue_attrs()</code> and workqueue will <strong>automatically</strong> create backing worker pools matching the attributes. <strong>The responsibility of regulating concurrency level is on the users.</strong> There is also a flag to mark a bound wq to ignore the concurrency management.  Please refer to the API section for details.</p>
+<p>Forward progress guarantee relies on that workers can be created when more execution contexts are necessary, which in turn is guaranteed through the use of <strong>rescue workers</strong>.  All work items which might be used on code paths that handle memory reclaim are required to be queued on <strong>wq's that have a rescue-worker reserved for execution under memory pressure</strong>.  Else it is possible that the worker-pool deadlocks waiting for execution contexts to free up.</p>
+                </div><!-- /.entry-content -->
+        </article>
+</section>
+        </div><!--/span-->
+
+                <div class="span3 well sidebar-nav" id="sidebar">
+<ul class="nav nav-list">
+
+<li class="nav-header"><h4><i class="icon-folder-close icon-large"></i>Categories</h4></li>
+<li>
+<a href="/category/bing-fa.html">
+    <i class="icon-folder-open icon-large"></i>并发
+</a>
+</li>
+<li>
+<a href="/category/block-io.html">
+    <i class="icon-folder-open icon-large"></i>Block I/O
+</a>
+</li>
+<li>
+<a href="/category/device-mapper.html">
+    <i class="icon-folder-open icon-large"></i>device-mapper
+</a>
+</li>
+
+<li class="nav-header"><h4><i class="icon-tags icon-large"></i>Tags</h4></li>
+<li class="tag-4">
+    <a href="/tag/iostat.html">
+        <i class="icon-tag icon-large"></i>iostat
+    </a>
+</li>
+<li class="tag-1">
+    <a href="/tag/device-mapper.html">
+        <i class="icon-tag icon-large"></i>device-mapper
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/workqueue.html">
+        <i class="icon-tag icon-large"></i>workqueue
+    </a>
+</li>
+
+
+</ul>        </div><!--/.well -->
+
+      </div><!--/row-->
+
+      <hr>
+
+      <footer>
+        <address id="about">
+                Proudly powered by <a href="http://pelican.notmyidea.org/">Pelican <i class="icon-external-link"></i></a>,
+                                which takes great advantage of <a href="http://python.org">Python <i class="icon-external-link"></i></a>.
+        </address><!-- /#about -->
+
+        <p>The theme is from <a href="http://twitter.github.com/bootstrap/">Bootstrap from Twitter <i class="icon-external-link"></i></a>,
+                   and <a href="http://fortawesome.github.com/Font-Awesome/">Font-Awesome <i class="icon-external-link"></i></a>, thanks!</p>
+      </footer>
+
+    </div><!--/.fluid-container-->
+
+
+
+    <!-- Le javascript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/theme/js/jquery-1.7.2.min.js"></script>
+    <script src="/theme/js/bootstrap.min.js"></script>
+  </body>
+</html>
