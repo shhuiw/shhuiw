@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>shhuiw's Technotes - 未分类</title>
+    <title>shhuiw's Technotes - util-linux</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="shenghui">
@@ -79,7 +79,7 @@
 						<i class="icon-folder-open icon-large"></i>device-mapper
 					</a>
                   </li>
-                  <li class="active">
+                  <li >
                     <a href="/category/wei-fen-lei.html">
 						<i class="icon-folder-open icon-large"></i>未分类
 					</a>
@@ -100,28 +100,34 @@
       <div class="row">
         <div class="span9" id="content">
         <div class="article">
-                <h1><a href="/atomic_xchg-atomic_cmpxchg.html">atomic_xchg & atomic_cmpxchg</a></h1>
+                <h1><a href="/lsblk-list-information-about-block-devices.html">lsblk - list information about block devices</a></h1>
                 <div class="well small"><footer class="post-info">
 <span class="label">Date</span>
-<abbr class="published" title="2018-10-10T19:00:00+08:00">
-        <i class="icon-calendar"></i>Wed 10 October 2018
+<abbr class="published" title="2018-10-11T17:00:00+08:00">
+        <i class="icon-calendar"></i>Thu 11 October 2018
 </abbr>
 <span class="label">By</span>
 <a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
 <span class="label">Category</span>
-<a href="/category/wei-fen-lei.html"><i class="icon-folder-open"></i>未分类</a>.
+<a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
 
 
 <span class="label">Tags</span>
-	<a href="/tag/atomic_ops.html"><i class="icon-tag"></i>atomic_ops</a>
+	<a href="/tag/util-linux.html"><i class="icon-tag"></i>util-linux</a>
 </footer><!-- /.post-info --></div>
                 <div class="summary"><ul>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/Documentation/core-api/atomic_ops.rst">linux/Documentation/core-api/atomic_ops.rst</a></li>
+<li>
+<p><a href="http://man7.org/linux/man-pages/man8/lsblk.8.html">http://man7.org/linux/man-pages/man8/lsblk.8.html</a></p>
+</li>
+<li>
+<p><a href="https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git">https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git</a></p>
+</li>
+<li>
+<p><a href="https://github.com/karelzak/util-linux">https://github.com/karelzak/util-linux</a></p>
+</li>
 </ul>
-<p>If someone wants to use xchg(), cmpxchg() and their variants, <strong>linux/atomic.h</strong> should be included rather than <strong>asm/cmpxchg.h</strong>, unless the code is in <strong>arch/</strong>* and can take care of itself.</p>
-<div class="highlight"><pre><span></span>    &quot;compare and swap&quot; atomically:
-        1) Compares &quot;old&quot; with the value currently at …</pre></div>
-                        <a class="btn primary xsmall" href="/atomic_xchg-atomic_cmpxchg.html">more ...</a>
+<p>The lsblk command is part of the <strong>util-linux</strong> package. lsblk lists information about all available or the specified block devices. The lsblk command reads the <code>sysfs …</code></p>
+                        <a class="btn primary xsmall" href="/lsblk-list-information-about-block-devices.html">more ...</a>
                 </div>
         </div>
         <hr />
