@@ -100,6 +100,34 @@
       <div class="row">
         <div class="span9" id="content">
         <div class="article">
+                <h1><a href="/struct-target_type.html">struct target_type</a></h1>
+                <div class="well small"><footer class="post-info">
+<span class="label">Date</span>
+<abbr class="published" title="2018-10-15T13:00:00+08:00">
+        <i class="icon-calendar"></i>Mon 15 October 2018
+</abbr>
+<span class="label">By</span>
+<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
+<span class="label">Category</span>
+<a href="/category/device-mapper.html"><i class="icon-folder-open"></i>device-mapper</a>.
+
+
+<span class="label">Tags</span>
+	<a href="/tag/device-mapper.html"><i class="icon-tag"></i>device-mapper</a>
+</footer><!-- /.post-info --></div>
+                <div class="summary"><ul>
+<li><a href="https://elixir.bootlin.com/linux/latest/source/include/linux/device-mapper.h">linux/include/linux/device-mapper.h</a></li>
+<li><a href="https://elixir.bootlin.com/linux/latest/source/drivers/md/dm-target.c">linux/drivers/md/dm-target.c</a></li>
+</ul>
+<p>系统中注册的 target_type 都链入 <code>static LIST_HEAD(_targets)</code> 中</p>
+<p><code>int dm_register_target(struct target_type *tt)</code> 向系统中注册 target_type，如果之前已经注册过了则返回 -EEXIST，否则成功注册并返回 0</p>
+<p><code>void dm_unregister_target(struct target_type *tt)</code> 从系统中注销 target_type，如果之前没有注册过，则报错 <code>Unregistering unrecognised target: &lt;target_type-&gt;name&gt;</code> 并 <code>BUG()</code>，否则移出 <code>static LIST_HEAD(_targets)</code> </p>
+<p><code>int dm_target_iterate …</code></p>
+                        <a class="btn primary xsmall" href="/struct-target_type.html">more ...</a>
+                </div>
+        </div>
+        <hr />
+        <div class="article">
                 <h1><a href="/lsblk-list-information-about-block-devices.html">lsblk - list information about block devices</a></h1>
                 <div class="well small"><footer class="post-info">
 <span class="label">Date</span>
@@ -301,13 +329,18 @@ The interval parameter &#39;-d&#39; specifies …</pre></div>
 
 <li class="nav-header"><h4><i class="icon-tags icon-large"></i>Tags</h4></li>
 <li class="tag-4">
-    <a href="/tag/iostat.html">
-        <i class="icon-tag icon-large"></i>iostat
+    <a href="/tag/util-linux.html">
+        <i class="icon-tag icon-large"></i>util-linux
+    </a>
+</li>
+<li class="tag-1">
+    <a href="/tag/device-mapper.html">
+        <i class="icon-tag icon-large"></i>device-mapper
     </a>
 </li>
 <li class="tag-4">
-    <a href="/tag/util-linux.html">
-        <i class="icon-tag icon-large"></i>util-linux
+    <a href="/tag/atomic_ops.html">
+        <i class="icon-tag icon-large"></i>atomic_ops
     </a>
 </li>
 <li class="tag-4">
@@ -316,13 +349,8 @@ The interval parameter &#39;-d&#39; specifies …</pre></div>
     </a>
 </li>
 <li class="tag-4">
-    <a href="/tag/atomic_ops.html">
-        <i class="icon-tag icon-large"></i>atomic_ops
-    </a>
-</li>
-<li class="tag-1">
-    <a href="/tag/device-mapper.html">
-        <i class="icon-tag icon-large"></i>device-mapper
+    <a href="/tag/iostat.html">
+        <i class="icon-tag icon-large"></i>iostat
     </a>
 </li>
 
