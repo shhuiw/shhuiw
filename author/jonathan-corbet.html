@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>shhuiw's Technotes - workqueue</title>
+    <title>shhuiw's Technotes - Jonathan Corbet</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="shenghui">
@@ -100,27 +100,29 @@
       <div class="row">
         <div class="span9" id="content">
         <div class="article">
-                <h1><a href="/concurrency-managed-workqueue-cmwq.html">Concurrency Managed Workqueue (cmwq)</a></h1>
+                <h1><a href="/the-multiqueue-block-layer.html">The multiqueue block layer</a></h1>
                 <div class="well small"><footer class="post-info">
 <span class="label">Date</span>
-<abbr class="published" title="2018-10-11T00:00:00+08:00">
-        <i class="icon-calendar"></i>Thu 11 October 2018
+<abbr class="published" title="2018-11-30T22:00:00+08:00">
+        <i class="icon-calendar"></i>Fri 30 November 2018
 </abbr>
 <span class="label">By</span>
-<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
+<a href="/author/jonathan-corbet.html"><i class="icon-user"></i>Jonathan Corbet</a>
 <span class="label">Category</span>
-<a href="/category/bing-fa.html"><i class="icon-folder-open"></i>并发</a>.
+<a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
 
 
 <span class="label">Tags</span>
-	<a href="/tag/workqueue.html"><i class="icon-tag"></i>workqueue</a>
+	<a href="/tag/multiqueue.html"><i class="icon-tag"></i>multiqueue</a>
 </footer><!-- /.post-info --></div>
-                <div class="summary"><ul>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/Documentation/core-api/workqueue.rst">linux/Documentation/core-api/workqueue.rst</a></li>
+                <div class="summary"><p>Jonathan Corbet&emsp;&emsp;June 5, 2013, <a href="https://lwn.net">lwn.net</a></p>
+<ul>
+<li><a href="https://lwn.net/Articles/552904/">The multiqueue block layer</a></li>
+<li><a href="http://kernel.dk/systor13-final18.pdf">Linux Block IO: Introducing Multi-queue SSD Access on Multi-core Systems</a></li>
+<li><a href="https://lwn.net/Articles/552911/">null_blk.c</a></li>
 </ul>
-<p><strong>Whenever a driver or subsystem wants a function to be executed asynchronously it has to set up a work item pointing to that function and queue that work item on a workqueue.</strong></p>
-<p>There are many cases where an <strong>asynchronous process execution context</strong> is needed and …</p>
-                        <a class="btn primary xsmall" href="/concurrency-managed-workqueue-cmwq.html">more ...</a>
+<p>The kernel's block layer is charged with managing I/O to the system's block ("disk drive") devices. It was designed in an era when a high-performance drive …</p>
+                        <a class="btn primary xsmall" href="/the-multiqueue-block-layer.html">more ...</a>
                 </div>
         </div>
         <hr />
