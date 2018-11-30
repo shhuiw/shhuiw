@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>struct target_type</title>
+    <title>single queue VS multiqueue</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="shenghui">
@@ -69,12 +69,12 @@
 						<i class="icon-folder-open icon-large"></i>并发
 					</a>
                   </li>
-                  <li >
+                  <li class="active">
                     <a href="/category/block-io.html">
 						<i class="icon-folder-open icon-large"></i>Block I/O
 					</a>
                   </li>
-                  <li class="active">
+                  <li >
                     <a href="/category/device-mapper.html">
 						<i class="icon-folder-open icon-large"></i>device-mapper
 					</a>
@@ -105,8 +105,8 @@
                         <h1>
                                 <a href=""
                                         rel="bookmark"
-                                        title="Permalink to struct target_type">
-                                        struct target_type
+                                        title="Permalink to single queue VS multiqueue">
+                                        single queue VS multiqueue
                                 </a>
                         </h1>
                 </header>
@@ -114,117 +114,19 @@
                 <div class="well">
 <footer class="post-info">
 <span class="label">Date</span>
-<abbr class="published" title="2018-10-15T13:00:00+08:00">
-        <i class="icon-calendar"></i>Mon 15 October 2018
+<abbr class="published" title="2018-11-30T23:00:00+08:00">
+        <i class="icon-calendar"></i>Fri 30 November 2018
 </abbr>
 <span class="label">By</span>
 <a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
 <span class="label">Category</span>
-<a href="/category/device-mapper.html"><i class="icon-folder-open"></i>device-mapper</a>.
+<a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
 
 
 <span class="label">Tags</span>
-	<a href="/tag/device-mapper.html"><i class="icon-tag"></i>device-mapper</a>
+	<a href="/tag/multiqueue.html"><i class="icon-tag"></i>multiqueue</a>
 </footer><!-- /.post-info -->                </div>
-                <ul>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/include/linux/device-mapper.h">linux/include/linux/device-mapper.h</a></li>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/drivers/md/dm-target.c">linux/drivers/md/dm-target.c</a></li>
-</ul>
-<p>系统中注册的 target_type 都链入 <code>static LIST_HEAD(_targets)</code> 中</p>
-<p><code>int dm_register_target(struct target_type *tt)</code> 向系统中注册 target_type，如果之前已经注册过了则返回 -EEXIST，否则成功注册并返回 0</p>
-<p><code>void dm_unregister_target(struct target_type *tt)</code> 从系统中注销 target_type，如果之前没有注册过，则报错 <code>Unregistering unrecognised target: &lt;target_type-&gt;name&gt;</code> 并 <code>BUG()</code>，否则移出 <code>static LIST_HEAD(_targets)</code> </p>
-<p><code>int dm_target_iterate(void (*iter_func)(struct target_type *tt, void *param), void *param)</code> 对系统中注册的每个 target_type 执行 iter_func(target_type, param)。这个函数在执行 <strong>dmsetup targets</strong> 时会用到</p>
-<p><code>struct target_type *dm_get_target_type(const char *name)</code> 查找指定 name 对应的 target_type 并将对应的 dm-<name> 模块引用计数 +1，如果找不到则尝试先加载对应的 dm-<name> 模块；<code>void dm_put_target_type(struct target_type *tt)</code> 将 target_type 对应的 dm-<name> 模块引用计数 -1</p>
-<h3>struct target_type</h3>
-<div class="highlight"><pre><span></span>    /*
-     * Information about a target type
-     */
-    struct target_type {
-        uint64_t                    features;
-        const char                  *name;
-        struct module               *module;
-        unsigned                    version[3];
-
-        dm_ctr_fn                   ctr;
-        dm_dtr_fn                   dtr;
-        dm_map_fn                   map;
-
-        dm_clone_and_map_request_fn clone_and_map_rq;
-        dm_release_clone_request_fn release_clone_rq;
-
-        dm_endio_fn                 end_io;
-        dm_request_endio_fn         rq_end_io;
-
-        dm_presuspend_fn            presuspend;
-        dm_presuspend_undo_fn       presuspend_undo;
-        dm_postsuspend_fn           postsuspend;
-        dm_preresume_fn             preresume;
-        dm_resume_fn                resume;
-
-        dm_status_fn                status;
-        dm_message_fn               message;
-
-        dm_prepare_ioctl_fn         prepare_ioctl;
-
-        dm_busy_fn                  busy;
-        dm_iterate_devices_fn       iterate_devices;
-        dm_io_hints_fn              io_hints;
-
-        dm_dax_direct_access_fn     direct_access;
-        dm_dax_copy_iter_fn         dax_copy_from_iter;
-        dm_dax_copy_iter_fn         dax_copy_to_iter;
-
-        /* For internal device-mapper use. */
-        struct list_head            list;       链入 _targets 链表
-    };
-</pre></div>
-
-
-<h3>Target features</h3>
-<div class="highlight"><pre><span></span>    /*
-     * Any table that contains an instance of this target must have only one.
-     */
-    #define DM_TARGET_SINGLETON             0x00000001
-    #define dm_target_needs_singleton(type) ((type)-&gt;features &amp; DM_TARGET_SINGLETON)
-
-    /*
-     * Indicates that a target does not support read-only devices.
-     */
-    #define DM_TARGET_ALWAYS_WRITEABLE      0x00000002
-    #define dm_target_always_writeable(type) ((type)-&gt;features &amp; DM_TARGET_ALWAYS_WRITEABLE)
-
-    /*
-     * Any device that contains a table with an instance of this target may never
-     * have tables containing any different target type.
-     */
-    #define DM_TARGET_IMMUTABLE             0x00000004
-    #define dm_target_is_immutable(type)    ((type)-&gt;features &amp; DM_TARGET_IMMUTABLE)
-
-    /*
-     * Indicates that a target may replace any target; even immutable targets.
-     * .map, .map_rq, .clone_and_map_rq and .release_clone_rq are all defined.
-     */
-    #define DM_TARGET_WILDCARD              0x00000008
-    #define dm_target_is_wildcard(type) ((type)-&gt;features &amp; DM_TARGET_WILDCARD)
-
-    /*
-     * A target implements own bio data integrity.
-     */
-    #define DM_TARGET_INTEGRITY             0x00000010
-    #define dm_target_has_integrity(type)   ((type)-&gt;features &amp; DM_TARGET_INTEGRITY)
-
-    /*
-     * A target passes integrity data to the lower device.
-     */
-    #define DM_TARGET_PASSES_INTEGRITY      0x00000020
-    #define dm_target_passes_integrity(type) ((type)-&gt;features &amp; DM_TARGET_PASSES_INTEGRITY)
-
-    /*
-     * Indicates that a target supports host-managed zoned block devices.
-     */
-    #define DM_TARGET_ZONED_HM              0x00000040
-    #define dm_target_supports_zoned_hm(type) ((type)-&gt;features &amp; DM_TARGET_ZONED_HM)
-</pre></div>
+                <p><a href="http://kernel.dk/systor13-final18.pdf">Linux Block IO: Introducing Multi-queue SSD Access on Multi-core Systems</a></p>
                 </div><!-- /.entry-content -->
         </article>
 </section>
