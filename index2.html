@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>atomic_xchg & atomic_cmpxchg</title>
+    <title>shhuiw's Technotes</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="shenghui">
@@ -79,7 +79,7 @@
 						<i class="icon-folder-open icon-large"></i>device-mapper
 					</a>
                   </li>
-                  <li class="active">
+                  <li >
                     <a href="/category/wei-fen-lei.html">
 						<i class="icon-folder-open icon-large"></i>未分类
 					</a>
@@ -99,56 +99,50 @@
     <div class="container-fluid">
       <div class="row">
         <div class="span9" id="content">
-<section id="content">
-        <article>
-                <header>
-                        <h1>
-                                <a href=""
-                                        rel="bookmark"
-                                        title="Permalink to atomic_xchg & atomic_cmpxchg">
-                                        atomic_xchg & atomic_cmpxchg
-                                </a>
-                        </h1>
-                </header>
-                <div class="entry-content">
-                <div class="well">
-<footer class="post-info">
+        <div class="article">
+                <h1><a href="/iostat - Device Utilization Report.html">iostat - Device Utilization Report</a></h1>
+                <div class="well small"><footer class="post-info">
 <span class="label">Date</span>
-<abbr class="published" title="2018-10-10T19:00:00+08:00">
-        <i class="icon-calendar"></i>Wed 10 October 2018
+<abbr class="published" title="2018-10-01T00:00:00+08:00">
+        <i class="icon-calendar"></i>Mon 01 October 2018
 </abbr>
 <span class="label">By</span>
 <a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
 <span class="label">Category</span>
-<a href="/category/wei-fen-lei.html"><i class="icon-folder-open"></i>未分类</a>.
+<a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
 
 
 <span class="label">Tags</span>
-	<a href="/tag/atomic_ops.html"><i class="icon-tag"></i>atomic_ops</a>
-</footer><!-- /.post-info -->                </div>
-                <ul>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/Documentation/core-api/atomic_ops.rst">linux/Documentation/core-api/atomic_ops.rst</a></li>
-</ul>
-<p>If someone wants to use xchg(), cmpxchg() and their variants, <strong>linux/atomic.h</strong> should be included rather than <strong>asm/cmpxchg.h</strong>, unless the code is in <strong>arch/</strong>* and can take care of itself.</p>
-<div class="highlight"><pre><span></span>    &quot;compare and swap&quot; atomically:
-        1) Compares &quot;old&quot; with the value currently at &quot;mem&quot;.
-        2) If they are equal, &quot;new&quot; is written to &quot;mem&quot;.
-        3) Regardless, the current value at &quot;mem&quot; is returned.
+	<a href="/tag/iostat.html"><i class="icon-tag"></i>iostat</a>
+</footer><!-- /.post-info --></div>
+                <div class="summary"><p><a href="https://linux.die.net/man/1/iostat">https://linux.die.net/man/1/iostat</a></p>
+<div class="highlight"><pre><span></span>IO statistics
+        /proc/diskstats
+        /sys/block/&lt;disk&gt;/stat
+        /sys/block/&lt;disk&gt;/&lt;partiton&gt;/stat
 </pre></div>
 
 
-<p>include/asm-generic/atomic.h</p>
-<div class="highlight"><pre><span></span>    #define atomic_xchg(ptr, v)         (xchg(&amp;(ptr)-&gt;counter, (v)))
-    #define atomic_cmpxchg(v, old, new) (cmpxchg(&amp;((v)-&gt;counter), (old), (new)))
+<div class="highlight"><pre><span></span>    -t      Print the time for each report displayed. The timestamp format may
+            depend on the value of the S_TIME_FORMAT environment variable 
 
-        相同的是两者都是返回 -&gt;counter 的原值
+    -x      Display extended statistics.
 
-        不同的是 atomic_xchg 直接用 v 覆盖原值，不考虑任何条件；
-        而 atomic_cmpxchg 只有在 old == &amp;((v)-&gt;counter) 的时候才用 new 覆盖原值
-</pre></div>
-                </div><!-- /.entry-content -->
-        </article>
-</section>
+The interval parameter &#39;-d&#39; specifies …</pre></div>
+                        <a class="btn primary xsmall" href="/iostat - Device Utilization Report.html">more ...</a>
+                </div>
+        </div>
+        <hr />
+
+        <div class="pagination">
+        <ul>
+                        <li class="prev"><a href="/index.html">&larr; Previous</a></li>
+                        <li class=""><a href="/index.html">1</a></li>
+                        <li class="active"><a href="/index2.html">2</a></li>
+                        <li class="next disabled"><a href="#">&rarr; Next</a></li>
+        </ul>
+        </div>
+
         </div><!--/span-->
 
                 <div class="span3 well sidebar-nav" id="sidebar">
