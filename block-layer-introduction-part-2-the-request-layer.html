@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Block layer introduction part 2: the request layer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="shenghui">
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="/theme/css/bootstrap.min.css" type="text/css" />
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+      .tag-1 {
+        font-size: 13pt;
+      }
+      .tag-2 {
+        font-size: 10pt;
+      }
+      .tag-2 {
+        font-size: 8pt;
+      }
+      .tag-4 {
+        font-size: 6pt;
+     }
+    </style>
+    <link href="/theme/css/bootstrap-responsive.min.css" rel="stylesheet">
+        <link href="/theme/css/font-awesome.css" rel="stylesheet">
+
+    <link href="/theme/css/pygments.css" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="/theme/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/theme/images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/theme/images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/theme/images/apple-touch-icon-114x114.png">
+
+    <link href="/" type="application/atom+xml" rel="alternate" title="shhuiw's Technotes ATOM Feed" />
+
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/index.html">shhuiw's Technotes </a>
+          <div class="nav-collapse">
+            <ul class="nav">
+                          <li class="divider-vertical"></li>
+                  <li >
+                    <a href="/category/bing-fa.html">
+						<i class="icon-folder-open icon-large"></i>并发
+					</a>
+                  </li>
+                  <li class="active">
+                    <a href="/category/block-io.html">
+						<i class="icon-folder-open icon-large"></i>Block I/O
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/device-mapper.html">
+						<i class="icon-folder-open icon-large"></i>device-mapper
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/wei-fen-lei.html">
+						<i class="icon-folder-open icon-large"></i>未分类
+					</a>
+                  </li>
+
+                          <ul class="nav pull-right">
+                                <li><a href="/archives.html"><i class="icon-th-list"></i>Archives</a></li>
+                          </ul>
+
+            </ul>
+            <!--<p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>-->
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span9" id="content">
+<section id="content">
+        <article>
+                <header>
+                        <h1>
+                                <a href=""
+                                        rel="bookmark"
+                                        title="Permalink to Block layer introduction part 2: the request layer">
+                                        Block layer introduction part 2: the request layer
+                                </a>
+                        </h1>
+                </header>
+                <div class="entry-content">
+                <div class="well">
+<footer class="post-info">
+<span class="label">Date</span>
+<abbr class="published" title="2018-12-11T13:00:00+08:00">
+        <i class="icon-calendar"></i>Tue 11 December 2018
+</abbr>
+<span class="label">By</span>
+<a href="/author/neil-brown.html"><i class="icon-user"></i>Neil Brown</a>
+<span class="label">Category</span>
+<a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
+
+
+<span class="label">Tags</span>
+	<a href="/tag/request-tagging.html"><i class="icon-tag"></i>request tagging</a>
+	<a href="/tag/single-queue.html"><i class="icon-tag"></i>single queue</a>
+	<a href="/tag/multiqueue.html"><i class="icon-tag"></i>multiqueue</a>
+	<a href="/tag/cfq.html"><i class="icon-tag"></i>CFQ</a>
+	<a href="/tag/bfq.html"><i class="icon-tag"></i>BFQ</a>
+	<a href="/tag/kyber.html"><i class="icon-tag"></i>kyber</a>
+</footer><!-- /.post-info -->                </div>
+                <p>By Neil Brown&emsp;&emsp;November 9, 2017, <a href="https://lwn.net">lwn.net</a></p>
+<ul>
+<li><a href="https://lwn.net/Articles/738449/">Block layer introduction part 2: the request layer</a></li>
+<li><a href="https://lwn.net/Articles/720675/">Two new block I/O schedulers for 4.12</a></li>
+</ul>
+<p>The Linux block layer provides an <strong>upstream interface to filesystems and block-special devices</strong> allowing them to access a multitude of storage backends in a uniform manner. It also provides <strong>downstream interfaces to device drivers and driver-support frameworks</strong> that allow those drivers and frameworks to receive requests in a manner most suitable to each. Some drivers do not benefit from preliminary handling and just use the thin "bio layer" that we met <a href="https://lwn.net/Articles/736534/">previously</a>. Other drivers benefit from some <strong>preprocessing</strong> that might detect batches of consecutive requests, may reorder requests based on various criteria, and which presents the requests as one or more well-defined streams. To service these drivers, there exists a section of the block layer that I refer to as the request layer.</p>
+<p>There are currently two parallel parts to the request layer, sometimes described as "single-queue" and "multi-queue". The multi-queue part is relatively new (years, not decades) and may, one day, completely replace the single-queue version. That has not yet happened and both are in active use in current kernels. Having two different queuing approaches to examine provides opportunities to learn from the contrasts, so we will spend a little time looking at each of these two parts and how they present requests to the underlying frameworks or drivers. First, though, we will look at what is common between them, which is best seen by examining two data structures, struct request_queue and struct request.</p>
+<h3>The request_queue and the request</h3>
+<p>The request_queue and request structures are closely related to the gendisk and bio structures used in the bio layer: one represents a particular device, while the other represents an I/O request. <strong>While request structures are only used for devices that make use of the request layer, the request_queue structure is allocated for every gendisk 每个 gendisk 而不是分区一个 queue</strong>. Some of the fields, such as parts of the struct queue_limits substructure, apply equally well to all block devices and arguably should live in the gendisk. Other fields only apply to the queue management provided by the request layer, and really only need to be allocated for devices using this layer. The current arrangement is simply a historical accident that isn't worth fixing and is, in any case, externally visible through the contents of the <code>/sys/block/*/queue/</code> sysfs directories.</p>
+<p>The request structure represents a single I/O request that will ultimately be delivered to the underlying device. It contains <strong>a list of one or more bios</strong> that must represent <strong>contiguous I/O</strong> operations, various fields to track its overall status (such as timestamps and the originating CPU), and several anchors so it can be included in larger data structures. It has a struct list_head queuelist so it can appear in a simple queue, a struct hlist_node hash so it can appear in a hash table (used to see if any outstanding requests are adjacent to a new bio), and a struct rb_node rb_node used to include the request in a <a href="https://lwn.net/Articles/184495/">red-black tree</a>. When a request structure is allocated, <strong>some extra space is allocated at the end to be used by the underlying driver to store any additional per-request information</strong>. This space is sometimes used to store the command header that is sent to the underlying devices, such as a <a href="https://en.wikipedia.org/wiki/SCSI_CDB">SCSI command descriptor block</a>, but <strong>drivers are free to use it however they wish</strong>.</p>
+<p>These requests are created by the appropriate <strong>make_request_fn()</strong> function (<strong>blk_queue_bio() for single-queue or blk_mq_make_request() for multi-queue</strong>) and handed to an I/O scheduler or "elevator", a name derived from the <a href="https://en.wikipedia.org/wiki/Elevator_algorithm">elevator algorithm</a> that was once a cornerstone of disk I/O scheduling and is now, at most, a minor detail. We will take a quick look at the single-queue approach, and then see how that compares to the newer multi-queue mechanism.</p>
+<h3>Scheduling requests for a single queue</h3>
+<p>Traditionally, most storage devices were made up of a set of spinning circular platters with magnetic coating and a single head (or set of heads, one per platter) that moved along the radius of the spinning disk to read or change the magnetic polarization at any location on any platter. Such a device can only process a single request at a time, and has a substantial cost in moving from one location on the platters to another. The single-queue implementation started out aimed at driving this sort of device and, while it has broadened in scope over the years, <strong>its structure still reflects the needs of rotating storage devices</strong>.</p>
+<p>The three key tasks for a single-queue scheduler are:</p>
+<ul>
+<li>
+<p>To <strong>合并 collect multiple bios representing contiguous operations into a smaller number of requests that are large enough to make best use of the hardware but not so large</strong> that they exceed any limitations of the device.</p>
+</li>
+<li>
+<p>To queue these requests in an order that minimizes seek time while not delaying important requests unduly. Providing an optimal solution to this problem is the source of all the complexity. As it is impossible to know, in general, how important each request is or how much seek time will be wasted, we <strong>rely on heuristics to choose a good order, and heuristics are never perfect</strong>.</p>
+</li>
+<li>
+<p>To make these requests available to the underlying driver so it can pluck them off the queue when it is ready and to provide a mechanism for notification when those requests are complete.</p>
+</li>
+</ul>
+<p>The last task is fairly straightforward. A driver <strong>registers a request_fn() using blk_init_queue_node() and this function is called whenever there are new requests on the queue that can usefully be processed</strong>. The driver is responsible for <strong>collecting a request using blk_peek_request()</strong> and processing it. <strong>When that request finishes (or earlier if the device can handle multiple requests in parallel), the driver should collect another request and submit it, without waiting for further calls to the request_fn(). Completion of each request is reported by calling blk_finish_request().</strong></p>
+<p>The first task is partly handled by common code that performs a couple of <strong>quick checks in the queue to see if a request can easily be found to accept a new bio</strong>. On success, the scheduler will be asked to approve the merge; on failure, the scheduler will be given a chance to look for a merge itself. If no merge is possible, a new request is allocated and given to the scheduler. The scheduler may, at a later time, merge this request with another if either request ever grows large enough that they become contiguous.</p>
+<p>The middle task is potentially more complex. Putting these requests in a suitable order depends a lot on how the word "suitable" is interpreted. The three different single-queue schedulers, noop, deadline, and cfq, use significantly different interpretations:</p>
+<ul>
+<li>
+<p>"noop" provides minimal sorting of requests, never allowing a read to be moved ahead of a write or vice-versa, but otherwise allowing one request to overtake another if, in line with the elevator algorithm, the I/O head is likely to reach the new one before the old one. Apart from this simple sorting, "noop" provides first-in-first-out queuing.</p>
+</li>
+<li>
+<p>"deadline" collects batches of either read or write requests that were all submitted at close to the same time. <strong>Within a batch, requests are sorted and each batch is queued to the device either when it reaches the maximum size or when the expiry time is reached.</strong> This algorithm tries to put an upper limit on the delay imposed on any request while retaining the possibility of forming large batches.</p>
+</li>
+<li>
+<p>"cfq" stands for "Complete Fairness Queueing"; this scheduler is substantially more complex than the others. It aims to provide fairness between different processes and, when configured with control groups, between different groups of processes as well. It <strong>maintains multiple queues internally; one for each process to hold the synchronous requests from the process (typically reads), and one for each priority level for the asynchronous requests (typically writes) with that priority. These queues each get a turn at submitting requests based on priority calculations. Each queue gets a time slice in which to submit a limited number of requests. When a synchronous queue has fewer requests than the limit, the device is allowed to go idle even though other queues might contain requests. Synchronous requests are often followed by other requests at a similar location, so keeping the device idle to wait for that next synchronous request can improve throughput.</strong> This description barely scratches the surface of cfq. There is <a href="http://www.kernel.org/doc/Documentation/block/cfq-iosched.txt">in-kernel documentation</a> that provides more details and lists all the parameters that can be tuned to match different circumstances.</p>
+</li>
+</ul>
+<p>As already hinted, some devices can <strong>accept multiple requests at once, accepting new requests before earlier requests complete</strong>. This usually involves <strong>"tagging", adding a tag to each request so that completion notifications can be connected back to the appropriate request</strong>. The single-queue request layer contains support for keeping track of tags to whatever depth the device supports.</p>
+<p><strong>MQ 的动机之一 A device may internally support tagged commands by truly running some requests in parallel, such as by accessing an internal cache, by having multiple different components that each can handle a single request, or by providing its own internal queueing that works with more knowledge of the device internals than are available to the request layer. As the level of parallelism and the sophistication of the internal scheduling increases, the need for Linux to provide optimal scheduling for the request stream decreases. There will always be a need for some scheduling within Linux, to implement concepts such as control groups that the device hardware cannot know about, but when the device can do much of the scheduling itself, it makes sense for Linux to take a more hands-off approach. This is part of the motivation for the multi-queue side of the request layer.</strong></p>
+<h3>Multiple queue and multiple CPUs</h3>
+<p>Another motivation for multi-queue support is (MQ 的动机之二) that, as we get more and more processing cores in our systems, the locking overhead required to place requests from all cores into a single queue increases. The plugging infrastructure can help to some extent, but not as much as we would like. If we allocate a large number of queues: one per NUMA node or even one per CPU, then the locking overhead for putting a request onto the queue is substantially reduced. If the hardware allows multiple requests to be submitted in parallel from different CPUs, this is a clear net win. If the hardware only supports a single submission at a time, the multiple per-CPU queues still need to be merged. If they are merged in larger batches than the plugging functionality creates, this is again a net win. When there is no increase in batch size, careful coding should be able to ensure that, at least, there is no net loss.</p>
+<p>As noted earlier, the cfq scheduler already contains multiple queues internally. These serve quite a different purpose than the queues provided by multi-queue. <strong>CFQ 与 MQ 的不同之处 They associate requests with processes and priority levels whereas the multi-queue queues are tied to the details of the hardware.</strong> The multi-queue request layer maintains two groups of hardware-related queues: <strong>the software staging queues and the hardware dispatch queues</strong>.</p>
+<p><strong>Software staging queues (struct blk_mq_ctx)</strong> are allocated based on the CPU hardware, one per CPU (<strong><a href="https://lwn.net/Articles/738821/">Jens: the software queues (blk_mq_ctx) are always per cpu, there's no per-node option.</a></strong>). Requests are added to these queues, controlled by a spinlock that should mostly be uncontended, whenever the block I/O plug is unplugged (blk_mq_flush_plug_list()). These queues may optionally be managed by a separate multi-queue scheduler, of which there are three: <strong>bfq, kyber, and mq-deadline</strong>.</p>
+<p>The hardware dispatch queues are allocated based on the target hardware, so there may be just one, or there may be as many as <strong>2048 (or however many interrupt source the platform supports)</strong>. Though the request layer does allocate a data structure <strong>(struct blk_mq_hw_ctx) for each hardware queue (or "hardware context")</strong>, and tracks the mapping from CPU to queue, the queue itself is the <strong>responsibility of the underlying driver</strong>. <strong>The request layer will, from time to time, pass requests together with a hardware context to the underlying driver. What happens next is up to the driver, but the expectation is that the driver will get the request to the hardware as quickly as possible, generally passing requests on in the order that they are received.</strong></p>
+<p>Another important difference between the multi-queue layer and the single-queue layer is that, <strong>for multi-queue, the request structures are all preallocated</strong>. Each request structure has <strong>an associated tag number that is unique among requests for that device, and that travels with the request all the way into the hardware — where supported — and back again</strong>. Allocating the tag number early achieves smoother transit for the request through lower layers once the request layer has decided to release it.</p>
+<p>Rather than providing a single request_fn(), the underlying driver must provide a <strong>struct blk_mq_ops</strong> that lists up to <strong>eleven functions</strong>. Of these, the function of most interest here is <strong>queue_rq()</strong>. Other functions support <strong>timeouts, polling for completion, request initialization, and the like</strong>.</p>
+<p>Once the configured scheduler decides that a request is ready and that it no longer wants to keep it on a queue to allow for re-ordering or extension, it will call the queue_rq() function. <strong>This design places the responsibility for handing off requests on the request layer itself, in contrast to single-queue where it was the responsibility of the driver to collect them</strong>. queue_rq() is given a hardware context and will normally place the request on some internal FIFO, or possibly handle it directly. The queue_rq() can refuse to accept a request by returning <strong>BLK_STS_RESOURCE, which causes the request to remain on the staging queue</strong>. <strong>Any return value other than BLK_STS_RESOURCE or BLK_STS_OK is treated as an I/O error</strong>.</p>
+<h3>Multi-queue scheduling</h3>
+<p>A multi-queue driver does not need to have a scheduler configured, in which case an approach similar to the "noop" single-queue scheduler is used. <strong>Consecutive bios are grouped into a single request, while non-consecutive bios each end up in their own request</strong>. These are queued in a simple FIFO order in the software staging queue, though when there are multiple submission queues, the default scheduler <strong>没有配置调度器时对 request 的处理 tries to submit new requests directly and only uses the staging queue after a BLK_STS_RESOURCE response.</strong> The software queues are then passed to the driver by calls to <strong>blk_mq_run_hw_queue() or blk_mq_delay_run_hw_queue()</strong>, which typically happens when the block device is unplugged.</p>
+<p>The pluggable multi-queue schedulers have <strong>22 entry points</strong>, two of which are insert_requests(), which should add a list of requests to the software staging queue, and dispatch_request(), which should choose a request to be passed to the given hardware queue. If insert_requests() is not provided, the requests are simply appended to the list. If dispatch_request() is not provided, requests will be collected from any staging queue that is configured to feed to this hardware queue, and these are passed down in arbitrary order. This <strong>"collect everything" step is the main point of cross-CPU locking and can hurt performance, so it is best if a device with a single hardware queue accepts all the requests it is given</strong>.</p>
+<p>The <strong>mq-deadline</strong> scheduler provides much the same functionality as the single-queue deadline scheduler. It provides an insert_request() function that ignores the multiple staging queues and adds each request to one of two global, time-ordered queues — one for reads and one for writes. If a new request can be merged with an existing request that is done, else it is added to the end of the relevant queue. A dispatch_request() function is provided that returns the first of either of these queues, based on age, on batch size, and on not starving writes for too long.</p>
+<p>The <strong>bfq</strong> scheduler is, to some extent, modeled after cfq, with the acronym standing for <strong>Budget Fair Queueing</strong>. There is some <a href="http://www.kernel.org/doc/Documentation/block/bfq-iosched.txt">in-kernel documentation</a>; it was <a href="https://lwn.net/Articles/601799/">covered</a> in these pages a few years ago and further covered with the <a href="https://lwn.net/Articles/709202/">adaption to multi-queue</a> more recently. bfq, much like mq-deadline, does not use multiple per-CPU staging queues. While it has multiple queues, they are accessed by all CPUs using a single spinlock.</p>
+<p>Unlike mq-deadline and bfq, the <strong>kyber</strong> I/O scheduler, <a href="https://lwn.net/Articles/720675/">briefly discussed</a> here earlier this year, does make use of the per-CPU (or per-NUMA-node) staging queues. It doesn't provide an insert_request() function but makes use of the default behavior. The dispatch_request() function maintains various internal queues on a per-hardware-context basis. If these queues are empty it will collect requests from all staging queues that map to the given hardware context, and will distribute them internally. When they are not empty, it delivers requests from the internal queues as appropriate. The intricacies of this strategy, how it distributes requests, and in what order they are processed, do not appear to be documented in the kernel.</p>
+<h3>End of the line for single-queue?</h3>
+<p>Having two different queuing systems, two sets of schedulers, and two driver interfaces is clearly not ideal. Can we expect to see the end of the single-queue code soon? How much better is multi-queue really?</p>
+<p>Unfortunately these are questions that require lots of testing on hardware and this writer is mostly a software guy. From a software perspective, it is clear that, when used with hardware that supports parallel submission to multiple queues, multi-queue should bring significant benefits. When used with single-queue hardware, the multi-queue system should be able to, at least, achieve parity with single queue. It would not be reasonable to expect that parity to be achieved overnight though, as anything new must be expected to be imperfect.</p>
+<p>An example of this imperfection is <a href="https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1513023.html">a set of patches</a> that was recently accepted to be included in Linux 4.15. The patches make changes to the mq-deadline scheduler to address some performance issues that Red Hat's internal storage testing discovered. It is reasonable to expect that other players in the storage field are performing their own tests, and are likely to find regressions when switching to multi-queue. It is also reasonable to expect these regressions to be fixed over the coming months. 2017 might not be the year of the multi-queue-only Linux, but that year is not likely to be far away.</p>
+<h3>comment</h3>
+<p><a href="https://lwn.net/Articles/738720/">Preallocating requests, Posted Nov 10, 2017 16:02 UTC (Fri) by abatters</a></p>
+<blockquote>
+<p>Another important difference between the multi-queue layer and the single-queue layer is that, for multi-queue, the request structures are all preallocated.</p>
+</blockquote>
+<p>I thought I would share my experiences with this. I was one of the early adopters of <strong>scsi-mq</strong>. I submitted a lot of small fixes around the days of 3.17 and 3.18 when scsi-mq first made its appearance. <strong>The preallocation of the request structures resulted in some unexpected behavioral changes for higher-level code - since the requests are preallocated to a limited fixed number, if you try to allocate more requests than the preallocated number, your attempt to allocate the request will either fail, or if requested, block waiting for a previous request to complete. With the old single-queue layer, you could allocate and submit many more requests without blocking.</strong></p>
+<p>Here is an example commit of where it matters:</p>
+<p><a href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=v4.20-rc5&amp;id=7772855a996ec6e16944b120ab5ce21050279821">7772855a996e ("sg: fix EWOULDBLOCK errors with scsi-mq")</a></p>
+<p><strong>The SCSI generic driver provides an interface that enables you to submit multiple SCSI commands in non-blocking mode and then wait for any of them to complete. But with scsi-mq enabled (after the commit above), the system call to submit a command might block to wait for a different command to complete so that it can allocate a request, so it is no longer always non-blocking. The old single-queue layer didn't have that problem. Not a complete fail, but not ideal either.</strong></p>
+                </div><!-- /.entry-content -->
+        </article>
+</section>
+        </div><!--/span-->
+
+                <div class="span3 well sidebar-nav" id="sidebar">
+<ul class="nav nav-list">
+
+<li class="nav-header"><h4><i class="icon-folder-close icon-large"></i>Categories</h4></li>
+<li>
+<a href="/category/bing-fa.html">
+    <i class="icon-folder-open icon-large"></i>并发
+</a>
+</li>
+<li>
+<a href="/category/block-io.html">
+    <i class="icon-folder-open icon-large"></i>Block I/O
+</a>
+</li>
+<li>
+<a href="/category/device-mapper.html">
+    <i class="icon-folder-open icon-large"></i>device-mapper
+</a>
+</li>
+<li>
+<a href="/category/wei-fen-lei.html">
+    <i class="icon-folder-open icon-large"></i>未分类
+</a>
+</li>
+
+<li class="nav-header"><h4><i class="icon-tags icon-large"></i>Tags</h4></li>
+<li class="tag-1">
+    <a href="/tag/device-mapper.html">
+        <i class="icon-tag icon-large"></i>device-mapper
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/kyber.html">
+        <i class="icon-tag icon-large"></i>kyber
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/single-queue.html">
+        <i class="icon-tag icon-large"></i>single queue
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/bio.html">
+        <i class="icon-tag icon-large"></i>bio
+    </a>
+</li>
+<li class="tag-1">
+    <a href="/tag/multiqueue.html">
+        <i class="icon-tag icon-large"></i>multiqueue
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/util-linux.html">
+        <i class="icon-tag icon-large"></i>util-linux
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/workqueue.html">
+        <i class="icon-tag icon-large"></i>workqueue
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/atomic_ops.html">
+        <i class="icon-tag icon-large"></i>atomic_ops
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/iostat.html">
+        <i class="icon-tag icon-large"></i>iostat
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/cfq.html">
+        <i class="icon-tag icon-large"></i>CFQ
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/request-tagging.html">
+        <i class="icon-tag icon-large"></i>request tagging
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/bfq.html">
+        <i class="icon-tag icon-large"></i>BFQ
+    </a>
+</li>
+
+
+</ul>        </div><!--/.well -->
+
+      </div><!--/row-->
+
+      <hr>
+
+      <footer>
+        <address id="about">
+                Proudly powered by <a href="http://pelican.notmyidea.org/">Pelican <i class="icon-external-link"></i></a>,
+                                which takes great advantage of <a href="http://python.org">Python <i class="icon-external-link"></i></a>.
+        </address><!-- /#about -->
+
+        <p>The theme is from <a href="http://twitter.github.com/bootstrap/">Bootstrap from Twitter <i class="icon-external-link"></i></a>,
+                   and <a href="http://fortawesome.github.com/Font-Awesome/">Font-Awesome <i class="icon-external-link"></i></a>, thanks!</p>
+      </footer>
+
+    </div><!--/.fluid-container-->
+
+
+
+    <!-- Le javascript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/theme/js/jquery-1.7.2.min.js"></script>
+    <script src="/theme/js/bootstrap.min.js"></script>
+  </body>
+</html>
