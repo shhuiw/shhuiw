@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>shhuiw's Technotes - 并发</title>
+    <title>shhuiw's Technotes - fio</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="shenghui">
@@ -64,7 +64,7 @@
           <div class="nav-collapse">
             <ul class="nav">
                           <li class="divider-vertical"></li>
-                  <li class="active">
+                  <li >
                     <a href="/category/bing-fa.html">
 						<i class="icon-folder-open icon-large"></i>并发
 					</a>
@@ -110,27 +110,28 @@
       <div class="row">
         <div class="span9" id="content">
         <div class="article">
-                <h1><a href="/concurrency-managed-workqueue-cmwq.html">Concurrency Managed Workqueue (cmwq)</a></h1>
+                <h1><a href="/fio-howto-1-command-line-options.html">fio HOWTO (1) command line options</a></h1>
                 <div class="well small"><footer class="post-info">
 <span class="label">Date</span>
-<abbr class="published" title="2018-10-11T00:00:00+08:00">
-        <i class="icon-calendar"></i>Thu 11 October 2018
+<abbr class="published" title="2019-01-10T22:00:00+08:00">
+        <i class="icon-calendar"></i>Thu 10 January 2019
 </abbr>
 <span class="label">By</span>
 <a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
 <span class="label">Category</span>
-<a href="/category/bing-fa.html"><i class="icon-folder-open"></i>并发</a>.
+<a href="/category/fio.html"><i class="icon-folder-open"></i>fio</a>.
 
 
 <span class="label">Tags</span>
-	<a href="/tag/workqueue.html"><i class="icon-tag"></i>workqueue</a>
+	<a href="/tag/fio.html"><i class="icon-tag"></i>fio</a>
 </footer><!-- /.post-info --></div>
                 <div class="summary"><ul>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/Documentation/core-api/workqueue.rst">linux/Documentation/core-api/workqueue.rst</a></li>
+<li><a href="https://github.com/axboe/fio/blob/master/HOWTO">fio HOWTO</a></li>
 </ul>
-<p><strong>Whenever a driver or subsystem wants a function to be executed asynchronously it has to set up a work item pointing to that function and queue that work item on a workqueue.</strong></p>
-<p>There are many cases where an <strong>asynchronous process execution context</strong> is needed and …</p>
-                        <a class="btn primary xsmall" href="/concurrency-managed-workqueue-cmwq.html">more ...</a>
+<h3>How fio works</h3>
+<p>The first step in getting fio to simulate a desired I/O workload, is writing a job file describing that specific setup. </p>
+<p>A job file may contain any number of threads and/or files -- the typical contents of the job file is a <strong>global section …</strong></p>
+                        <a class="btn primary xsmall" href="/fio-howto-1-command-line-options.html">more ...</a>
                 </div>
         </div>
         <hr />
