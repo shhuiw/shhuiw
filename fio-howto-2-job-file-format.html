@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>shhuiw's Technotes</title>
+    <title>fio HOWTO (2) Job file format</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="shenghui">
@@ -79,7 +79,7 @@
 						<i class="icon-folder-open icon-large"></i>device-mapper
 					</a>
                   </li>
-                  <li >
+                  <li class="active">
                     <a href="/category/fio.html">
 						<i class="icon-folder-open icon-large"></i>fio
 					</a>
@@ -109,84 +109,121 @@
     <div class="container-fluid">
       <div class="row">
         <div class="span9" id="content">
-<ul>
-<li class="nav-header"><h4><i class="icon-tags icon-large"></i>Tags</h4></li>
-<li class="tag-4">
-	<a href="/tag/iostat.html">
-		<i class="icon-tag icon-large"></i>iostat
-	</a>
-</li>
-<li class="tag-2">
-	<a href="/tag/bio.html">
-		<i class="icon-tag icon-large"></i>bio
-	</a>
-</li>
-<li class="tag-4">
-	<a href="/tag/request-tagging.html">
-		<i class="icon-tag icon-large"></i>request tagging
-	</a>
-</li>
-<li class="tag-4">
-	<a href="/tag/kyber.html">
-		<i class="icon-tag icon-large"></i>kyber
-	</a>
-</li>
-<li class="tag-1">
-	<a href="/tag/multiqueue.html">
-		<i class="icon-tag icon-large"></i>multiqueue
-	</a>
-</li>
-<li class="tag-4">
-	<a href="/tag/single-queue.html">
-		<i class="icon-tag icon-large"></i>single queue
-	</a>
-</li>
-<li class="tag-4">
-	<a href="/tag/f2fs.html">
-		<i class="icon-tag icon-large"></i>f2fs
-	</a>
-</li>
-<li class="tag-4">
-	<a href="/tag/cfq.html">
-		<i class="icon-tag icon-large"></i>CFQ
-	</a>
-</li>
-<li class="tag-4">
-	<a href="/tag/bfq.html">
-		<i class="icon-tag icon-large"></i>BFQ
-	</a>
-</li>
-<li class="tag-4">
-	<a href="/tag/bvec.html">
-		<i class="icon-tag icon-large"></i>bvec
-	</a>
-</li>
-<li class="tag-1">
-	<a href="/tag/device-mapper.html">
-		<i class="icon-tag icon-large"></i>device-mapper
-	</a>
-</li>
-<li class="tag-2">
-	<a href="/tag/fio.html">
-		<i class="icon-tag icon-large"></i>fio
-	</a>
-</li>
-<li class="tag-4">
-	<a href="/tag/atomic_ops.html">
-		<i class="icon-tag icon-large"></i>atomic_ops
-	</a>
-</li>
-<li class="tag-4">
-	<a href="/tag/workqueue.html">
-		<i class="icon-tag icon-large"></i>workqueue
-	</a>
-</li>
-<li class="tag-4">
-	<a href="/tag/util-linux.html">
-		<i class="icon-tag icon-large"></i>util-linux
-	</a>
-</li>
+<section id="content">
+        <article>
+                <header>
+                        <h1>
+                                <a href=""
+                                        rel="bookmark"
+                                        title="Permalink to fio HOWTO (2) Job file format">
+                                        fio HOWTO (2) Job file format
+                                </a>
+                        </h1>
+                </header>
+                <div class="entry-content">
+                <div class="well">
+<footer class="post-info">
+<span class="label">Date</span>
+<abbr class="published" title="2019-01-11T20:00:00+08:00">
+        <i class="icon-calendar"></i>Fri 11 January 2019
+</abbr>
+<span class="label">By</span>
+<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
+<span class="label">Category</span>
+<a href="/category/fio.html"><i class="icon-folder-open"></i>fio</a>.
+
+
+<span class="label">Tags</span>
+	<a href="/tag/fio.html"><i class="icon-tag"></i>fio</a>
+</footer><!-- /.post-info -->                </div>
+                <ul>
+<li><a href="https://github.com/axboe/fio/blob/master/HOWTO">fio HOWTO</a></li>
 </ul>
+<p>fio accepts one or more job files describing what it is supposed to do.</p>
+<p>The job file format is the classic <strong>ini</strong> file, where the names
+enclosed in <strong>[] brackets define the job name</strong>. You are free to use any ASCII name you want, except <strong>global</strong> which has special meaning. </p>
+<p>Following the job name is a sequence of zero or more parameters, <strong>one per line</strong>, that define the behavior of the job. If the first character in a line is a <strong>';' or a '#'</strong>, the entire line is discarded as a comment.</p>
+<p>A <strong>global</strong> section sets <strong>defaults</strong> for the jobs described in that file. A job may <strong>override</strong> a global section parameter, and a job file may even have <strong>several</strong> global sections if so desired. A job is only affected by a global section <strong>residing above</strong> it.</p>
+<p>The <code>--cmdhelp</code> option also <strong>lists all options</strong>. If used with a <code>command</code> argument, <code>--cmdhelp</code> will detail the given <code>command</code>.</p>
+<p>See the <code>examples/</code> directory for inspiration on how to write job files.  Note the copyright and license requirements currently apply to <code>examples/</code> files.</p>
+<p>So let's look at a really simple job file that defines two processes, each
+randomly reading from a 128MiB file:</p>
+<div class="highlight"><pre><span></span>        ; -- start job file --
+        [global]
+        rw=randread
+        size=128m
+
+        [job1]
+
+        [job2]
+
+        ; -- end job file --
+</pre></div>
+
+
+<p>As you can see, the job file sections themselves are empty as all the described parameters are shared. As no <code>filename</code> option is given, fio makes up a <code>filename</code> for each of the jobs as it sees fit. On the command line, this job would look as follows::</p>
+<div class="highlight"><pre><span></span>    $ fio --name=global --rw=randread --size=128m --name=job1 --name=job2
+</pre></div>
+
+
+<p>Let's look at an example that has a number of processes writing randomly to files:</p>
+<div class="highlight"><pre><span></span>        ; -- start job file --
+        [random-writers]
+        ioengine=libaio
+        iodepth=4
+        rw=randwrite
+        bs=32k
+        direct=0
+        size=64m
+        numjobs=4
+        ; -- end job file --
+</pre></div>
+
+
+<p>Here we have <strong>no global</strong> section, as we only have one job defined anyway.  We want to use async I/O here, with a depth of 4 for each file. We also increased the buffer size used to 32KiB and define numjobs to 4 to fork 4 identical jobs. The result is 4 processes each randomly writing to their own 64MiB file. Instead of using the above job file, you could have given the parameters on the command line. For this case, you would specify:</p>
+<div class="highlight"><pre><span></span>    $ fio --name=random-writers --ioengine=libaio --iodepth=4 \
+          --rw=randwrite --bs=32k --direct=0 --size=64m --numjobs=4
+</pre></div>
+
+
+<h4>include</h4>
+<p>When fio is utilized as a basis of any reasonably large test suite, it might be desirable to share a set of standardized settings across multiple job files. Instead of copy/pasting such settings, any section may <strong>pull in an external <code>filename.fio</code> file with <code>include filename</code> directive</strong>, as in the following example:</p>
+<div class="highlight"><pre><span></span>        ; -- start job file glob-include.fio --
+        thread=1
+        group_reporting=1
+        ; -- end job file glob-include.fio --
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>        ; -- start job file test-include.fio --
+        ioengine=libaio
+        iodepth=4
+        ; -- end job file test-include.fio --
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>        ; -- start job file including.fio --
+        [global]
+        filename=/tmp/test
+        filesize=1m
+        include glob-include.fio
+
+        [test]
+        rw=randread
+        bs=4k
+        time_based=1
+        runtime=10
+        include test-include.fio
+        ; -- end job file including.fio --
+</pre></div>
+
+
+<p>Settings <strong>pulled into a section apply to that section only (except global
+section)</strong>. Include directives may be nested in that any included file may contain further include directive(s). <strong>Include files may not contain [] sections.</strong>
+```</p>
+                </div><!-- /.entry-content -->
+        </article>
+</section>
         </div><!--/span-->
 
                 <div class="span3 well sidebar-nav" id="sidebar">
