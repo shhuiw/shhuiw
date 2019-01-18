@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>shhuiw's Technotes - request tagging</title>
+    <title>fio HOWTO (3) Environment variables & Reserved keywords</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="shenghui">
@@ -79,7 +79,7 @@
 						<i class="icon-folder-open icon-large"></i>device-mapper
 					</a>
                   </li>
-                  <li >
+                  <li class="active">
                     <a href="/category/fio.html">
 						<i class="icon-folder-open icon-large"></i>fio
 					</a>
@@ -109,38 +109,78 @@
     <div class="container-fluid">
       <div class="row">
         <div class="span9" id="content">
-        <div class="article">
-                <h1><a href="/block-layer-introduction-part-2-the-request-layer.html">Block layer introduction part 2: the request layer</a></h1>
-                <div class="well small"><footer class="post-info">
+<section id="content">
+        <article>
+                <header>
+                        <h1>
+                                <a href=""
+                                        rel="bookmark"
+                                        title="Permalink to fio HOWTO (3) Environment variables & Reserved keywords">
+                                        fio HOWTO (3) Environment variables & Reserved keywords
+                                </a>
+                        </h1>
+                </header>
+                <div class="entry-content">
+                <div class="well">
+<footer class="post-info">
 <span class="label">Date</span>
-<abbr class="published" title="2018-12-11T13:00:00+08:00">
-        <i class="icon-calendar"></i>Tue 11 December 2018
+<abbr class="published" title="2019-01-18T20:00:00+08:00">
+        <i class="icon-calendar"></i>Fri 18 January 2019
 </abbr>
 <span class="label">By</span>
-<a href="/author/neil-brown.html"><i class="icon-user"></i>Neil Brown</a>
+<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
 <span class="label">Category</span>
-<a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
+<a href="/category/fio.html"><i class="icon-folder-open"></i>fio</a>.
 
 
 <span class="label">Tags</span>
-	<a href="/tag/request-tagging.html"><i class="icon-tag"></i>request tagging</a>
-	<a href="/tag/single-queue.html"><i class="icon-tag"></i>single queue</a>
-	<a href="/tag/multiqueue.html"><i class="icon-tag"></i>multiqueue</a>
-	<a href="/tag/cfq.html"><i class="icon-tag"></i>CFQ</a>
-	<a href="/tag/bfq.html"><i class="icon-tag"></i>BFQ</a>
-	<a href="/tag/kyber.html"><i class="icon-tag"></i>kyber</a>
-</footer><!-- /.post-info --></div>
-                <div class="summary"><p>By Neil Brown&emsp;&emsp;November 9, 2017, <a href="https://lwn.net">lwn.net</a></p>
-<ul>
-<li><a href="https://lwn.net/Articles/738449/">Block layer introduction part 2: the request layer</a></li>
-<li><a href="https://lwn.net/Articles/720675/">Two new block I/O schedulers for 4.12</a></li>
+	<a href="/tag/fio.html"><i class="icon-tag"></i>fio</a>
+</footer><!-- /.post-info -->                </div>
+                <ul>
+<li><a href="https://github.com/axboe/fio/blob/master/HOWTO">fio HOWTO</a></li>
 </ul>
-<p>The Linux block layer provides an <strong>upstream interface to filesystems and block-special devices</strong> allowing them to access a multitude of storage backends in a uniform …</p>
-                        <a class="btn primary xsmall" href="/block-layer-introduction-part-2-the-request-layer.html">more ...</a>
-                </div>
-        </div>
-        <hr />
+<h3>Environment variables</h3>
+<p>Fio also supports environment variable expansion in job files. Any sub-string of the form <code>${VARNAME}</code> as part of an option value (in other words, on the right
+of the '='), will be expanded to the value of the environment variable called <code>VARNAME</code>.  If no such environment variable is defined, or <code>VARNAME</code> is the empty string, the empty string will be substituted.</p>
+<p>As an example, let's look at a sample fio invocation and job file:
+    <code>$ SIZE=64m NUMJOBS=4 fio jobfile.fio</code></p>
+<div class="highlight"><pre><span></span>    ; -- start job file --
+    [random-writers]
+    rw=randwrite
+    size=<span class="cp">${</span><span class="n">SIZE</span><span class="cp">}</span>
+    numjobs=<span class="cp">${</span><span class="n">NUMJOBS</span><span class="cp">}</span>
+    ; -- end job file --
+</pre></div>
 
+
+<p>This will expand to the following equivalent job file at runtime:</p>
+<div class="highlight"><pre><span></span>    ; -- start job file --
+    [random-writers]
+    rw=randwrite
+    size=64m
+    numjobs=4
+    ; -- end job file --
+</pre></div>
+
+
+<p>Fio ships with a few example job files, you can also look there for inspiration.</p>
+<h3>Reserved keywords</h3>
+<p>Additionally, fio has a set of reserved keywords that will be replaced internally with the appropriate value. Those keywords are:</p>
+<div class="highlight"><pre><span></span>    $pagesize
+        The architecture page size of the running system.
+
+    $mb_memory
+        Megabytes of total memory in the system.
+
+    $ncpus
+        Number of online available CPUs.
+</pre></div>
+
+
+<p>These can be used on the command line or in the job file, and will be automatically substituted with the current system values when the job is run. Simple math is also supported on these keywords, so you can perform actions like <code>size=8*$mb_memory</code> and get that properly expanded to 8 times the size of memory in the machine.</p>
+                </div><!-- /.entry-content -->
+        </article>
+</section>
         </div><!--/span-->
 
                 <div class="span3 well sidebar-nav" id="sidebar">
