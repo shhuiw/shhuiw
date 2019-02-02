@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>shhuiw's Technotes - device-mapper</title>
+    <title>shhuiw's Technotes - virtualbox</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="shenghui">
@@ -110,110 +110,32 @@
       <div class="row">
         <div class="span9" id="content">
         <div class="article">
-                <h1><a href="/dm-bufio.html">dm-bufio</a></h1>
+                <h1><a href="/virtualbox-5224-dkms-build-failed-against-x86_32-kernel-500-rc2.html">virtualbox-5.2.24 dkms build failed against x86_32 kernel 5.0.0-rc2+</a></h1>
                 <div class="well small"><footer class="post-info">
 <span class="label">Date</span>
-<abbr class="published" title="2018-11-01T20:00:00+08:00">
-        <i class="icon-calendar"></i>Thu 01 November 2018
+<abbr class="published" title="2019-02-02T15:00:00+08:00">
+        <i class="icon-calendar"></i>Sat 02 February 2019
 </abbr>
 <span class="label">By</span>
 <a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
 <span class="label">Category</span>
-<a href="/category/device-mapper.html"><i class="icon-folder-open"></i>device-mapper</a>.
+<a href="/category/wei-fen-lei.html"><i class="icon-folder-open"></i>未分类</a>.
 
 
 <span class="label">Tags</span>
-	<a href="/tag/device-mapper.html"><i class="icon-tag"></i>device-mapper</a>
+	<a href="/tag/virtualbox.html"><i class="icon-tag"></i>virtualbox</a>
+	<a href="/tag/dkms.html"><i class="icon-tag"></i>dkms</a>
 </footer><!-- /.post-info --></div>
-                <div class="summary"><ul>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/include/linux/dm-bufio.h">include/linux/dm-bufio.h</a></li>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/drivers/md/dm-bufio.c">drivers/md/dm-bufio.c</a></li>
-</ul>
-<p><strong>可以理解为 device-mapper framework 自己实现的简单 buf 库（dm 喜欢自己封装提供自己的 API 接口，这样的好处是可以隐藏 block layer 的一些变动，不好的地方是熟悉这些 API 需要时间，好在实现简洁易懂，实际中用到的时候可以方便查看实现细节），可以看作是 dm 的 malloc 库，dm_bufio_client 看作 buf pool 的句柄，dm_buffer 看作 pool 中单个 buf 句柄。用户有了这些句柄之后，就可以读写数据到 buf；与 malloc 不同的是，dm-bufio …</strong></p>
-                        <a class="btn primary xsmall" href="/dm-bufio.html">more ...</a>
-                </div>
-        </div>
-        <hr />
-        <div class="article">
-                <h1><a href="/struct-target_type.html">struct target_type</a></h1>
-                <div class="well small"><footer class="post-info">
-<span class="label">Date</span>
-<abbr class="published" title="2018-10-15T13:00:00+08:00">
-        <i class="icon-calendar"></i>Mon 15 October 2018
-</abbr>
-<span class="label">By</span>
-<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
-<span class="label">Category</span>
-<a href="/category/device-mapper.html"><i class="icon-folder-open"></i>device-mapper</a>.
+                <div class="summary"><p>最近想在本子上装个 virtualbox 跑个 winxp，旧本子，一直用的 32 位 Debian，内核经常更新，现在版本是 5.0.0-rc2+</p>
+<p><code>apt install virtualbox virtualbox-dkms</code> 安装完后，建立虚拟机的时候报错，说不能加载 <strong>vboxdrv</strong> 模块</p>
+<h3>dkms build</h3>
+<p>想着可能是因为内核新，所以 dkms 工作没做好，干脆跑一下 <code>dkms build</code>。结果一跑，报错了：</p>
+<div class="highlight"><pre><span></span>    # dkms build -m virtualbox -v 5.2.24
 
+    Kernel preparation unnecessary for this kernel.  Skipping...
 
-<span class="label">Tags</span>
-	<a href="/tag/device-mapper.html"><i class="icon-tag"></i>device-mapper</a>
-</footer><!-- /.post-info --></div>
-                <div class="summary"><ul>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/include/linux/device-mapper.h">linux/include/linux/device-mapper.h</a></li>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/drivers/md/dm-target.c">linux/drivers/md/dm-target.c</a></li>
-</ul>
-<p>系统中注册的 target_type 都链入 <code>static LIST_HEAD(_targets)</code> 中</p>
-<p><code>int dm_register_target(struct target_type *tt)</code> 向系统中注册 target_type，如果之前已经注册过了则返回 -EEXIST，否则成功注册并返回 0</p>
-<p><code>void dm_unregister_target(struct target_type *tt)</code> 从系统中注销 target_type，如果之前没有注册过，则报错 <code>Unregistering unrecognised target: &lt;target_type-&gt;name&gt;</code> 并 <code>BUG()</code>，否则移出 <code>static LIST_HEAD(_targets)</code> </p>
-<p><code>int dm_target_iterate …</code></p>
-                        <a class="btn primary xsmall" href="/struct-target_type.html">more ...</a>
-                </div>
-        </div>
-        <hr />
-        <div class="article">
-                <h1><a href="/kcopyd.html">kcopyd</a></h1>
-                <div class="well small"><footer class="post-info">
-<span class="label">Date</span>
-<abbr class="published" title="2018-10-08T00:00:00+08:00">
-        <i class="icon-calendar"></i>Mon 08 October 2018
-</abbr>
-<span class="label">By</span>
-<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
-<span class="label">Category</span>
-<a href="/category/device-mapper.html"><i class="icon-folder-open"></i>device-mapper</a>.
-
-
-<span class="label">Tags</span>
-	<a href="/tag/device-mapper.html"><i class="icon-tag"></i>device-mapper</a>
-</footer><!-- /.post-info --></div>
-                <div class="summary"><ul>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/Documentation/device-mapper/kcopyd.txt">linux/Documentation/device-mapper/kcopyd.txt</a></li>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/drivers/md/dm-kcopyd.c">linux/drivers/md/dm-kcopyd.c</a></li>
-</ul>
-<p>kcopyd 提供的是一个易于使用的接口，<strong>隐藏了异步</strong>：dm-kcopyd.c 重点在于 <strong>"d"</strong>，即对 <strong>kcopyd_job</strong>s 的异步管理，而 copy 相关的具体 <strong>async IO 细节在 dm-io.c</strong> 中实现</p>
-<p>kcopyd provides the ability to copy <strong>a range of sectors</strong> <strong>from one</strong> block-device
-<strong>to one or more other</strong> block-devices, with …</p>
-                        <a class="btn primary xsmall" href="/kcopyd.html">more ...</a>
-                </div>
-        </div>
-        <hr />
-        <div class="article">
-                <h1><a href="/dm-io.html">dm-io</a></h1>
-                <div class="well small"><footer class="post-info">
-<span class="label">Date</span>
-<abbr class="published" title="2018-10-07T18:00:00+08:00">
-        <i class="icon-calendar"></i>Sun 07 October 2018
-</abbr>
-<span class="label">By</span>
-<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
-<span class="label">Category</span>
-<a href="/category/device-mapper.html"><i class="icon-folder-open"></i>device-mapper</a>.
-
-
-<span class="label">Tags</span>
-	<a href="/tag/device-mapper.html"><i class="icon-tag"></i>device-mapper</a>
-</footer><!-- /.post-info --></div>
-                <div class="summary"><ul>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/Documentation/device-mapper/dm-io.txt">linux/Documentation/device-mapper/dm-io.txt</a></li>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/drivers/md/dm-io.c">linux/drivers/md/dm-io.c</a></li>
-</ul>
-<p>dm-io provides <strong>synchronous and asynchronous</strong> I/O services. There are 4
-types of I/O services available, and each type has a sync and an async
-version.</p>
-<p>The <strong>user</strong> must set up an dm_io_region structure to describe the desired location …</p>
-                        <a class="btn primary xsmall" href="/dm-io.html">more ...</a>
+    Building …</pre></div>
+                        <a class="btn primary xsmall" href="/virtualbox-5224-dkms-build-failed-against-x86_32-kernel-500-rc2.html">more ...</a>
                 </div>
         </div>
         <hr />

@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>single queue VS multiqueue</title>
+    <title>virtualbox-5.2.24 dkms build failed against x86_32 kernel 5.0.0-rc2+</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="shenghui">
@@ -69,7 +69,7 @@
 						<i class="icon-folder-open icon-large"></i>并发
 					</a>
                   </li>
-                  <li class="active">
+                  <li >
                     <a href="/category/block-io.html">
 						<i class="icon-folder-open icon-large"></i>Block I/O
 					</a>
@@ -84,7 +84,7 @@
 						<i class="icon-folder-open icon-large"></i>fio
 					</a>
                   </li>
-                  <li >
+                  <li class="active">
                     <a href="/category/wei-fen-lei.html">
 						<i class="icon-folder-open icon-large"></i>未分类
 					</a>
@@ -115,8 +115,8 @@
                         <h1>
                                 <a href=""
                                         rel="bookmark"
-                                        title="Permalink to single queue VS multiqueue">
-                                        single queue VS multiqueue
+                                        title="Permalink to virtualbox-5.2.24 dkms build failed against x86_32 kernel 5.0.0-rc2+">
+                                        virtualbox-5.2.24 dkms build failed against x86_32 kernel 5.0.0-rc2+
                                 </a>
                         </h1>
                 </header>
@@ -124,19 +124,160 @@
                 <div class="well">
 <footer class="post-info">
 <span class="label">Date</span>
-<abbr class="published" title="2018-11-30T23:00:00+08:00">
-        <i class="icon-calendar"></i>Fri 30 November 2018
+<abbr class="published" title="2019-02-02T15:00:00+08:00">
+        <i class="icon-calendar"></i>Sat 02 February 2019
 </abbr>
 <span class="label">By</span>
 <a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
 <span class="label">Category</span>
-<a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
+<a href="/category/wei-fen-lei.html"><i class="icon-folder-open"></i>未分类</a>.
 
 
 <span class="label">Tags</span>
-	<a href="/tag/multiqueue.html"><i class="icon-tag"></i>multiqueue</a>
+	<a href="/tag/virtualbox.html"><i class="icon-tag"></i>virtualbox</a>
+	<a href="/tag/dkms.html"><i class="icon-tag"></i>dkms</a>
 </footer><!-- /.post-info -->                </div>
-                <p><a href="http://kernel.dk/systor13-final18.pdf">Linux Block IO: Introducing Multi-queue SSD Access on Multi-core Systems</a></p>
+                <p>最近想在本子上装个 virtualbox 跑个 winxp，旧本子，一直用的 32 位 Debian，内核经常更新，现在版本是 5.0.0-rc2+</p>
+<p><code>apt install virtualbox virtualbox-dkms</code> 安装完后，建立虚拟机的时候报错，说不能加载 <strong>vboxdrv</strong> 模块</p>
+<h3>dkms build</h3>
+<p>想着可能是因为内核新，所以 dkms 工作没做好，干脆跑一下 <code>dkms build</code>。结果一跑，报错了：</p>
+<div class="highlight"><pre><span></span>    # dkms build -m virtualbox -v 5.2.24
+
+    Kernel preparation unnecessary for this kernel.  Skipping...
+
+    Building module:
+    cleaning build area...
+    make -j2 KERNELRELEASE=5.0.0-rc2+ -C /lib/modules/5.0.0-rc2+/build M=/var/lib/dkms/virtualbox/5.2.24/build........(bad exit status: 2)
+    Error! Bad return status for module build on kernel: 5.0.0-rc2+ (i686)
+    Consult /var/lib/dkms/virtualbox/5.2.24/build/make.log for more information.
+</pre></div>
+
+
+<p>查看一下 log <code>/var/lib/dkms/virtualbox/5.2.24/build/make.log</code></p>
+<div class="highlight"><pre><span></span>    ...
+      CC [M]  /var/lib/dkms/virtualbox/5.2.24/build/vboxdrv/r0drv/linux/memuserkernel-r0drv-linux.o
+    /var/lib/dkms/virtualbox/5.2.24/build/vboxdrv/r0drv/linux/memuserkernel-r0drv-linux.c: In function ‘VBoxHost_RTR0MemUserIsValidAddr’:
+    /var/lib/dkms/virtualbox/5.2.24/build/vboxdrv/r0drv/linux/memuserkernel-r0drv-linux.c:69:55: error: macro &quot;access_ok&quot; passed 3 arguments, but takes just 2
+         bool fRc = access_ok(VERIFY_READ, (void *)R3Ptr, 1);
+                                                       ^
+    /var/lib/dkms/virtualbox/5.2.24/build/vboxdrv/r0drv/linux/memuserkernel-r0drv-linux.c:69:16: error: ‘access_ok’ undeclared (first use in this function)
+         bool fRc = access_ok(VERIFY_READ, (void *)R3Ptr, 1);
+                    ^~~~~~~~~
+    /var/lib/dkms/virtualbox/5.2.24/build/vboxdrv/r0drv/linux/memuserkernel-r0drv-linux.c:69:16: note: each undeclared identifier is reported only once for each function it appears in
+    ...
+</pre></div>
+
+
+<p>第一次遇到这个问题，说 <code>access_ok</code> 宏定义有问题。看了下 <code>/var/lib/dkms/virtualbox/5.2.24/build/vboxdrv/r0drv/linux/the-linux-kernel.h</code>，已经 include 了 uaccess.h 文件，回头看内核源码，<code>access_ok</code> 确实只定义了两个参数。</p>
+<p>纳闷，按理说 virtualbox 这么大个项目不应该出这种问题，内核 API 使用都不对。尝试各种杂乱的修改，最后想起看一下 git log，毕竟内核比较新；结果一查，找到了，<strong><code>commit 96d4f267e40f9509e8a66e2b39e8b95655617693</code></strong> 原来以后会逐渐放弃对 x86_32 的支持，修改主要是：</p>
+<div class="highlight"><pre><span></span>    -#define access_ok(type, addr, size)       \
+    +#define access_ok(addr, size) 
+</pre></div>
+
+
+<p>upstream 对此做了修改，自己对 access_ok 不是很了解，不过既然 git log 里面提到了 <code>type</code> 参数不常用，干脆也把 virtualbox 代码中对 access_ok 的使用去掉这个参数。注意，<strong>修改的是 <code>/usr/src/virtualbox-5.2.24/r0drv/linux/memuserkernel-r0drv-linux.c</code>；/var/lib/dkms/virtualbox/ 下的是符号链接，如果在这里修改后运行 dkms build 会把修改覆盖掉</strong></p>
+<div class="highlight"><pre><span></span>     66 RTR0DECL(bool) RTR0MemUserIsValidAddr(RTR3PTR R3Ptr)
+     67 {
+     68     IPRT_LINUX_SAVE_EFL_AC();
+     69     /*bool fRc = access_ok(VERIFY_READ, (void *)R3Ptr, 1);*/
+     70     bool fRc = access_ok((void *)R3Ptr, 1);     去掉 type 参数
+     71     IPRT_LINUX_RESTORE_EFL_AC();
+     72     return fRc;
+     73 }
+     74 RT_EXPORT_SYMBOL(RTR0MemUserIsValidAddr);
+</pre></div>
+
+
+<p>修改完成后再 build 成功：</p>
+<div class="highlight"><pre><span></span>    # dkms build -m virtualbox -v 5.2.24
+
+    Kernel preparation unnecessary for this kernel.  Skipping...
+
+    Building module:
+    cleaning build area...
+    make -j2 KERNELRELEASE=5.0.0-rc2+ -C /lib/modules/5.0.0-rc2+/build M=/var/lib/dkms/virtualbox/5.2.24/build................
+    cleaning build area...
+
+    DKMS: build completed.
+</pre></div>
+
+
+<p>注意，<code>/var/lib/dkms/virtualbox/5.2.24/</code> 下多了子目录 <strong><code>/var/lib/dkms/virtualbox/5.2.24/5.0.0-rc2+</code> 存放成功编译的 virtualbox模块</strong></p>
+<p>既然 build 完成了，就加载 vboxdrv 模块试试：</p>
+<div class="highlight"><pre><span></span>    # modprobe vboxdrv
+    modprobe: FATAL: Module vboxdrv not found in directory /lib/modules/5.0.0-rc2+
+</pre></div>
+
+
+<p>手动试试：</p>
+<div class="highlight"><pre><span></span>    # cd /var/lib/dkms/virtualbox/5.2.24/5.0.0-rc2+/i686/module
+
+    # ls
+    vboxdrv.ko  vboxnetadp.ko  vboxnetflt.ko  vboxpci.ko
+
+    # insmod vboxdrv.ko 
+    # lsmod | grep vboxdrv
+    vboxdrv               303104  0
+</pre></div>
+
+
+<h3>dkms autoinstall</h3>
+<p>dkms 有个 <strong><code>autoinstall</code></strong> 子命令，执行 autoinstall 后就可以用 modprobe 加载模块了：</p>
+<div class="highlight"><pre><span></span>    # dkms autoinstall
+
+    vboxdrv.ko:
+    Running module version sanity check.
+     - Original module
+       - No original module exists within this kernel
+     - Installation
+       - Installing to /lib/modules/5.0.0-rc2+/updates/dkms/
+
+    vboxnetadp.ko:
+    Running module version sanity check.
+     - Original module
+       - No original module exists within this kernel
+     - Installation
+       - Installing to /lib/modules/5.0.0-rc2+/updates/dkms/
+
+    vboxnetflt.ko:
+    Running module version sanity check.
+     - Original module
+       - No original module exists within this kernel
+     - Installation
+       - Installing to /lib/modules/5.0.0-rc2+/updates/dkms/
+
+    vboxpci.ko:
+    Running module version sanity check.
+     - Original module
+       - No original module exists within this kernel
+     - Installation
+       - Installing to /lib/modules/5.0.0-rc2+/updates/dkms/
+
+    depmod...........
+
+    DKMS: install completed.    
+</pre></div>
+
+
+<p>再确认一下：</p>
+<div class="highlight"><pre><span></span>    # modprobe vboxdrv
+
+    # modinfo vboxdrv
+    filename:       /lib/modules/5.0.0-rc2+/updates/dkms/vboxdrv.ko
+    version:        5.2.24_Debian r128122 (0x00290001)
+    license:        GPL
+    description:    Oracle VM VirtualBox Support Driver
+    author:         Oracle Corporation
+    srcversion:     254458DAEA255FA9AD97991
+    depends:        
+    retpoline:      Y
+    name:           vboxdrv
+    vermagic:       5.0.0-rc2+ SMP mod_unload modversions 686 
+    parm:           force_async_tsc:force the asynchronous TSC mode (int)
+</pre></div>
+
+
+<p>这下 virtualbox 就可以用了</p>
                 </div><!-- /.entry-content -->
         </article>
 </section>
