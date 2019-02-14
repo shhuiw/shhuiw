@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Multipage bio_vecs</title>
+    <title>shhuiw's Technotes - relayfs</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="shenghui">
@@ -69,7 +69,7 @@
 						<i class="icon-folder-open icon-large"></i>并发
 					</a>
                   </li>
-                  <li class="active">
+                  <li >
                     <a href="/category/block-io.html">
 						<i class="icon-folder-open icon-large"></i>Block I/O
 					</a>
@@ -109,50 +109,35 @@
     <div class="container-fluid">
       <div class="row">
         <div class="span9" id="content">
-<section id="content">
-        <article>
-                <header>
-                        <h1>
-                                <a href=""
-                                        rel="bookmark"
-                                        title="Permalink to Multipage bio_vecs">
-                                        Multipage bio_vecs
-                                </a>
-                        </h1>
-                </header>
-                <div class="entry-content">
-                <div class="well">
-<footer class="post-info">
+        <div class="article">
+                <h1><a href="/chu-shi-relay.html">初识 relay</a></h1>
+                <div class="well small"><footer class="post-info">
 <span class="label">Date</span>
-<abbr class="published" title="2018-12-11T22:00:00+08:00">
-        <i class="icon-calendar"></i>Tue 11 December 2018
+<abbr class="published" title="2019-02-14T20:00:00+08:00">
+        <i class="icon-calendar"></i>Thu 14 February 2019
 </abbr>
 <span class="label">By</span>
-<a href="/author/jake-edge.html"><i class="icon-user"></i>Jake Edge</a>
+<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
 <span class="label">Category</span>
-<a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
+<a href="/category/wei-fen-lei.html"><i class="icon-folder-open"></i>未分类</a>.
 
 
 <span class="label">Tags</span>
-	<a href="/tag/bio.html"><i class="icon-tag"></i>bio</a>
-	<a href="/tag/bvec.html"><i class="icon-tag"></i>bvec</a>
-</footer><!-- /.post-info -->                </div>
-                <p>By Jake Edge&emsp;&emsp;May 4, 2016, <a href="https://lwn.net/Articles/lsfmm2016/">LSFMM 2016</a></p>
-<ul>
-<li><a href="https://lwn.net/Articles/685928/">Multipage bio_vecs</a></li>
-<li><a href="https://lwn.net/Articles/683856/">block: prepare for multipage bvecs</a></li>
+	<a href="/tag/relay.html"><i class="icon-tag"></i>relay</a>
+	<a href="/tag/relayfs.html"><i class="icon-tag"></i>relayfs</a>
+</footer><!-- /.post-info --></div>
+                <div class="summary"><ul>
+<li><a href="https://elixir.bootlin.com/linux/latest/source/include/linux/relay.h">include/linux/relay.h</a></li>
+<li><a href="https://elixir.bootlin.com/linux/latest/source/kernel/relay.c">kernel/relay.c</a></li>
+<li><a href="https://elixir.bootlin.com/linux/latest/source/Documentation/filesystems/relay.txt">Documentation/filesystems/relay.txt</a></li>
 </ul>
-<p>In the block layer, larger I/O operations tend to be more efficient, but current kernels limit how large those operations can be. The bio_vec structure, which describes the buffer for an I/O operation, can only store a single page of tuples (of page, offset, and length) to describe the I/O buffer. There have been efforts over the years to allow multiple pages of array entries, so that even larger I/O operations can be held in a single bio_vec. Ming Lei led a session at the 2016 Linux Storage, Filesystem, and Memory-Management Summit to discuss <a href="https://lwn.net/Articles/683856/">patches</a> to support bio_vec structures with multiple pages for the arrays.</p>
-<p>Multipage bio_vec structures would consist of <strong>multiple, physically contiguous pages that could hold a larger array</strong>. It is the correct thing to do, Lei said. It will save memory as there will be fewer bio_vec structures needed and it will increase the transfer size for each struct bio (which contains a pointer to a bio_vec). <strong>Currently, the single-page nature of a bio_vec means that only one megabyte (256 个 pages) of I/O can be contained in a single bio_vec (应该是 bio 而不是 bio_vec，一个 bio_vec 受限于 PAGE_SIZE，bio 限制为 256 个 pages); adding support for multiple pages will remove that limit.</strong></p>
-<p>Jens Axboe agreed that there are benefits to larger bio_vec arrays, but was concerned about requesters getting physically contiguous pages. That would have to be done when the bio is created. Lei said that it is not hard to figure out how many pages will be needed before creating the bio, though.</p>
-<p>All of the "magic" is in the bio_vec and bio iterators, one developer in the audience said. So there would be a need to introduce new helpers to iterate over the multipage bio_vec. The new name for the helper would require that all callers change, which would provide a good opportunity to review all of the users of the helpers, Christoph Hellwig said.</p>
-<p>The patches also clean up direct access to some fields in bio structures: bi_vcnt, which tracks the number of entries in the bio_vec array, and the pointer to the bio_vec itself (bi_io_vec).</p>
-<p>Axboe was concerned about handling all of the different special cases. There need to be "some real wins" in the patch set, since the memory savings are not all that huge. He is "not completely sold on why multipage is needed".</p>
-<p>Hellwig agreed that the <strong>memory savings were not particularly significant, but that there is CPU time wasted in iterating over the segments</strong>. At <strong>various levels of the storage stack, the kernel has to iterate over the bio and bio_vec structures that make up I/O requests, so consolidating that information will save CPU time</strong>. There are also many needed cleanups in the patches, he said, so those should be picked up; "then, hopefully, we can get to the multipage bio_vecs".</p>
-<p>Axboe said that the patches have been posted, but are not all destined for 4.7. He will queue up some of the preparatory patches, but the rest "need some time to digest". </p>
-                </div><!-- /.entry-content -->
-        </article>
-</section>
+<p>详细的 GUIDE 参考 <a href="https://elixir.bootlin.com/linux/latest/source/Documentation/filesystems/relay.txt">Documentation/filesystems/relay.txt</a></p>
+<p><strong>A 'relay channel' is a kernel-&gt;user data relay mechanism implemented as a set of per-cpu kernel buffers ('channel buffers'), each represented as a regular file ('relay file') in user space.  Kernel …</strong></p>
+                        <a class="btn primary xsmall" href="/chu-shi-relay.html">more ...</a>
+                </div>
+        </div>
+        <hr />
+
         </div><!--/span-->
 
                 <div class="span3 well sidebar-nav" id="sidebar">
