@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>blktrace userspace tools - Initial commit</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="shenghui">
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="/theme/css/bootstrap.min.css" type="text/css" />
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+      .tag-1 {
+        font-size: 13pt;
+      }
+      .tag-2 {
+        font-size: 10pt;
+      }
+      .tag-2 {
+        font-size: 8pt;
+      }
+      .tag-4 {
+        font-size: 6pt;
+     }
+    </style>
+    <link href="/theme/css/bootstrap-responsive.min.css" rel="stylesheet">
+        <link href="/theme/css/font-awesome.css" rel="stylesheet">
+
+    <link href="/theme/css/pygments.css" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="/theme/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/theme/images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/theme/images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/theme/images/apple-touch-icon-114x114.png">
+
+    <link href="/" type="application/atom+xml" rel="alternate" title="shhuiw's Technotes ATOM Feed" />
+
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/index.html">shhuiw's Technotes </a>
+          <div class="nav-collapse">
+            <ul class="nav">
+                          <li class="divider-vertical"></li>
+                  <li >
+                    <a href="/category/bing-fa.html">
+						<i class="icon-folder-open icon-large"></i>并发
+					</a>
+                  </li>
+                  <li class="active">
+                    <a href="/category/block-io.html">
+						<i class="icon-folder-open icon-large"></i>Block I/O
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/device-mapper.html">
+						<i class="icon-folder-open icon-large"></i>device-mapper
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/fio.html">
+						<i class="icon-folder-open icon-large"></i>fio
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/wei-fen-lei.html">
+						<i class="icon-folder-open icon-large"></i>未分类
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/wen-jian-xi-tong.html">
+						<i class="icon-folder-open icon-large"></i>文件系统
+					</a>
+                  </li>
+
+                          <ul class="nav pull-right">
+                                <li><a href="/archives.html"><i class="icon-th-list"></i>Archives</a></li>
+                          </ul>
+
+            </ul>
+            <!--<p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>-->
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span9" id="content">
+<section id="content">
+        <article>
+                <header>
+                        <h1>
+                                <a href=""
+                                        rel="bookmark"
+                                        title="Permalink to blktrace userspace tools - Initial commit">
+                                        blktrace userspace tools - Initial commit
+                                </a>
+                        </h1>
+                </header>
+                <div class="entry-content">
+                <div class="well">
+<footer class="post-info">
+<span class="label">Date</span>
+<abbr class="published" title="2019-02-17T18:00:00+08:00">
+        <i class="icon-calendar"></i>Sun 17 February 2019
+</abbr>
+<span class="label">By</span>
+<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
+<span class="label">Category</span>
+<a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
+
+
+<span class="label">Tags</span>
+	<a href="/tag/blktrace.html"><i class="icon-tag"></i>blktrace</a>
+	<a href="/tag/blkparse.html"><i class="icon-tag"></i>blkparse</a>
+</footer><!-- /.post-info -->                </div>
+                <ul>
+<li><strong>d0ca268 Initial commit</strong> of blktrace</li>
+</ul>
+<p>Inital commit of blktrace userspace tools 包含下列几个文件：</p>
+<div class="highlight"><pre><span></span>    ├── blkparse.c
+    ├── blktrace.c
+    ├── blktrace.h
+    ├── Makefile
+    └── README
+</pre></div>
+
+
+<h4>README</h4>
+<div class="highlight"><pre><span></span>    <span class="c">% blktrace &lt;dev&gt;</span>
+    <span class="o">---</span> <span class="n">run</span> <span class="n">task</span> <span class="n">to</span> <span class="n">generate</span> <span class="n">load</span> <span class="n">to</span> <span class="n">be</span> <span class="n">traced</span> <span class="o">---</span>
+    <span class="o">&lt;</span><span class="n">SIGINT</span> <span class="n">to</span> <span class="n">kill</span><span class="o">&gt;</span>
+    <span class="o">---</span> <span class="n">Generates</span><span class="p">:</span>
+        <span class="o">&lt;</span><span class="n">dev</span><span class="o">&gt;</span><span class="n">_dat</span><span class="p">.[</span><span class="mf">0.</span><span class="p">.</span><span class="n">ncpus</span><span class="p">]</span> <span class="p">:</span> <span class="n">Contains</span> <span class="n">binary</span> <span class="n">pdu</span> <span class="n">data</span>
+        <span class="o">&lt;</span><span class="n">dev</span><span class="o">&gt;</span><span class="n">_out</span><span class="p">.[</span><span class="mf">0.</span><span class="p">.</span><span class="n">ncpus</span><span class="p">]</span> <span class="p">:</span> <span class="n">Contains</span> <span class="n">binary</span> <span class="n">trace</span> <span class="n">data</span>
+
+    <span class="c">% blkparse &lt;dev&gt; &lt;ncpus&gt; </span>
+    <span class="o">---</span> <span class="n">Generates</span><span class="p">:</span>
+        <span class="o">&lt;</span><span class="n">dev</span><span class="o">&gt;</span><span class="n">_log</span><span class="p">.[</span><span class="mf">0.</span><span class="p">.</span><span class="n">ncpus</span><span class="p">]</span> <span class="p">:</span> <span class="n">Contains</span> <span class="n">formatted</span> <span class="n">trace</span> <span class="n">data</span>
+        <span class="n">Merged</span> <span class="n">formatted</span> <span class="n">trace</span> <span class="n">data</span> <span class="n">to</span> <span class="n">stdout</span>
+</pre></div>
+
+
+<h4>Trace Categories</h4>
+<div class="highlight"><pre><span></span>    <span class="c1">#define BLK_TC_SHIFT        (16)</span>
+
+    <span class="k">enum</span> {
+            <span class="n">BLK_TC_READ</span>     = <span class="mi">1</span> &lt;&lt; <span class="mi">0</span>,<span class="sr">       /* reads */</span>
+            <span class="n">BLK_TC_WRITE</span>    = <span class="mi">1</span> &lt;&lt; <span class="mi">1</span>,<span class="sr">       /* writes */</span>
+            <span class="n">BLK_TC_BARRIER</span>  = <span class="mi">1</span> &lt;&lt; <span class="mi">2</span>,<span class="sr">       /* barrier */</span>
+            <span class="n">BLK_TC_SYNC</span>     = <span class="mi">1</span> &lt;&lt; <span class="mi">3</span>,<span class="sr">       /* barrier */</span>
+            <span class="n">BLK_TC_QUEUE</span>    = <span class="mi">1</span> &lt;&lt; <span class="mi">4</span>,<span class="sr">       /* queueing/</span><span class="n">merging</span> */
+            <span class="n">BLK_TC_REQUEUE</span>  = <span class="mi">1</span> &lt;&lt; <span class="mi">5</span>,<span class="sr">       /* requeueing */</span>
+            <span class="n">BLK_TC_ISSUE</span>    = <span class="mi">1</span> &lt;&lt; <span class="mi">6</span>,<span class="sr">       /* issue */</span>
+            <span class="n">BLK_TC_COMPLETE</span> = <span class="mi">1</span> &lt;&lt; <span class="mi">7</span>,<span class="sr">       /* completions */</span>
+            <span class="n">BLK_TC_FS</span>       = <span class="mi">1</span> &lt;&lt; <span class="mi">8</span>,<span class="sr">       /* fs requests */</span>
+            <span class="n">BLK_TC_PC</span>       = <span class="mi">1</span> &lt;&lt; <span class="mi">9</span>,<span class="sr">       /* pc requests */</span>
+
+            <span class="n">BLK_TC_END</span>      = <span class="mi">1</span> &lt;&lt; <span class="mi">15</span>,<span class="sr">      /* only 16-bits, reminder */</span>
+    };
+</pre></div>
+
+
+<h4>Trace Actions</h4>
+<div class="highlight"><pre><span></span>    <span class="c1">#define BLK_TC_ACT(act)     ((act) &lt;&lt; BLK_TC_SHIFT)</span>
+
+    <span class="k">enum</span> {
+        <span class="n">__BLK_TA_QUEUE</span> = <span class="mi">1</span>,<span class="sr">     /* queued */</span>
+        <span class="n">__BLK_TA_BACKMERGE</span>,<span class="sr">     /* back merged to existing rq */</span>
+        <span class="n">__BLK_TA_FRONTMERGE</span>,<span class="sr">    /* front merge to existing rq */</span>
+        <span class="n">__BLK_TA_GETRQ</span>,<span class="sr">         /* allocated new request */</span>
+        <span class="n">__BLK_TA_SLEEPRQ</span>,<span class="sr">       /* sleeping on rq allocation */</span>
+        <span class="n">__BLK_TA_REQUEUE</span>,<span class="sr">       /* request requeued */</span>
+        <span class="n">__BLK_TA_ISSUE</span>,<span class="sr">         /* sent to driver */</span>
+        <span class="n">__BLK_TA_COMPLETE</span>,<span class="sr">      /* completed by driver */</span>
+    };
+
+    /*
+     * <span class="n">Trace</span> <span class="n">actions</span> <span class="n">in</span> <span class="n">full</span>. <span class="n">Additionally</span>, <span class="nb">read</span> <span class="o">or</span> <span class="nb">write</span> <span class="k">is</span> <span class="n">masked</span>
+     */
+    <span class="c1">#define BLK_TA_QUEUE        (__BLK_TA_QUEUE | BLK_TC_ACT(BLK_TC_QUEUE))</span>
+    <span class="c1">#define BLK_TA_BACKMERGE    (__BLK_TA_BACKMERGE | BLK_TC_ACT(BLK_TC_QUEUE))</span>
+    <span class="c1">#define BLK_TA_FRONTMERGE   (__BLK_TA_FRONTMERGE | BLK_TC_ACT(BLK_TC_QUEUE))</span>
+    <span class="c1">#define BLK_TA_GETRQ        (__BLK_TA_GETRQ | BLK_TC_ACT(BLK_TC_QUEUE))</span>
+    <span class="c1">#define BLK_TA_SLEEPRQ      (__BLK_TA_SLEEPRQ | BLK_TC_ACT(BLK_TC_QUEUE))</span>
+    <span class="c1">#define BLK_TA_REQUEUE      (__BLK_TA_REQUEUE | BLK_TC_ACT(BLK_TC_QUEUE))</span>
+    <span class="c1">#define BLK_TA_ISSUE        (__BLK_TA_ISSUE | BLK_TC_ACT(BLK_TC_ISSUE))</span>
+    <span class="c1">#define BLK_TA_COMPLETE     (__BLK_TA_COMPLETE| BLK_TC_ACT(BLK_TC_COMPLETE))</span>
+</pre></div>
+
+
+<h4>struct blk_io_trace - 从 relayfs 获取的一条 message 开始部分对应一个 struct blk_io_trace 记录</h4>
+<div class="highlight"><pre><span></span>    #define BLK_IO_TRACE_MAGIC  (0x65617400)
+    #define CHECK_MAGIC(t)      (((t)-&gt;magic &amp; 0xffffff00) == BLK_IO_TRACE_MAGIC)
+    #define SUPPORTED_VERSION   (0x02)
+
+    struct blk_io_trace {
+        __u32 magic;
+        __u32 sequence;
+        __u64 time;
+        __u64 sector;
+        __u32 bytes;
+        __u32 action;
+        __u32 pid;
+        __u16 error;
+        __u16 pdu_len;
+    };
+</pre></div>
+
+
+<h3>IOCTL</h3>
+<div class="highlight"><pre><span></span>    struct blk_user_trace_setup {
+        char name[32];
+        __u16 act_mask;
+        __u32 buf_size;
+        __u32 buf_nr;
+    };
+
+    #define BLKSTARTTRACE   _IOWR(0x12,115,struct blk_user_trace_setup)
+    #define BLKSTOPTRACE    _IO(0x12,116)
+</pre></div>
+
+
+<h2>blktrace - block queue tracing application</h2>
+<h4>Step 1. start_trace</h4>
+<div class="highlight"><pre><span></span>    #define BUF_SIZE    (128 *1024)
+    #define BUF_NR      (4)
+
+    struct blk_user_trace_setup buts;
+    memset(&amp;buts, sizeof(buts), 0);
+    buts.buf_size = BUF_SIZE;
+    buts.buf_nr = BUF_NR;
+    ioctl(devfd, BLKSTARTTRACE, &amp;buts);
+</pre></div>
+
+
+<h4>Step 2. extract 从 relayfs 读取 messages</h4>
+<p>为每个 online CPU 创建一个 thread 执行 extract()</p>
+<div class="highlight"><pre><span></span>    Generates:
+        &lt;dev&gt;_dat.[0..ncpus] : Contains binary pdu data
+        &lt;dev&gt;_out.[0..ncpus] : Contains binary trace data
+</pre></div>
+
+
+<p>从 relayfs 获取的<strong>一条 message 开始部分对应一个 struct blk_io_trace 记录</strong></p>
+<h4>Step 3. stop_trace</h4>
+<p><code>ioctl(devfd, BLKSTOPTRACE)</code> 停止 blktrace</p>
+<h4>Step 4. show_stats</h4>
+<p>打印总结信息</p>
+<div class="highlight"><pre><span></span>    CPU&lt;N&gt;: &lt;nr of event processed for CPU_N&gt; exents
+    Total: &lt;nr of event processed for all CPUs&gt; exents
+</pre></div>
+
+
+<h2>blkparse - 将 blktrace 获取的 messages 根据 blk_io_trace header 信息进行分类统计</h2>
+<div class="highlight"><pre><span></span>    void dump_trace_pc(struct blk_io_trace *t)
+    {
+        switch (t-&gt;action &amp; 0xffff) {
+            case __BLK_TA_QUEUE:
+                log_generic(t, &#39;Q&#39;);
+                break;
+            case __BLK_TA_GETRQ:
+                log_generic(t, &#39;G&#39;);
+                break;
+            case __BLK_TA_SLEEPRQ:
+                log_generic(t, &#39;S&#39;);
+                break;
+            case __BLK_TA_REQUEUE:
+                log_generic(t, &#39;R&#39;);
+                break;
+            case __BLK_TA_ISSUE:
+                log_pc(t, &#39;D&#39;);
+                break;
+            case __BLK_TA_COMPLETE:
+                log_pc(t, &#39;C&#39;);
+                break;
+            default:
+                fprintf(stderr, &quot;Bad pc action %x\n&quot;, t-&gt;action);
+                return;
+        }
+
+        events++;
+    }
+
+    void dump_trace_fs(struct blk_io_trace *t)
+    {
+        int w = t-&gt;action &amp; BLK_TC_ACT(BLK_TC_WRITE);
+
+        switch (t-&gt;action &amp; 0xffff) {
+            case __BLK_TA_QUEUE:
+                account_q(w, t-&gt;bytes);
+                log_queue(t, &#39;Q&#39;);
+                break;
+            case __BLK_TA_BACKMERGE:
+                account_m(w, t-&gt;bytes);
+                log_merge(t, &#39;M&#39;);
+                break;
+            case __BLK_TA_FRONTMERGE:
+                account_m(w, t-&gt;bytes);
+                log_merge(t, &#39;F&#39;);
+                break;
+            case __BLK_TA_GETRQ:
+                log_generic(t, &#39;G&#39;);
+                break;
+            case __BLK_TA_SLEEPRQ:
+                log_generic(t, &#39;S&#39;);
+                break;
+            case __BLK_TA_REQUEUE:
+                log_queue(t, &#39;R&#39;);
+                break;
+            case __BLK_TA_ISSUE:
+                log_issue(t, &#39;D&#39;);
+                break;
+            case __BLK_TA_COMPLETE:
+                account_c(w, t-&gt;bytes);
+                log_complete(t, &#39;C&#39;);
+                break;
+            default:
+                fprintf(stderr, &quot;Bad fs action %x\n&quot;, t-&gt;action);
+                return;
+        }
+
+        events++;
+    }
+</pre></div>
+                </div><!-- /.entry-content -->
+        </article>
+</section>
+        </div><!--/span-->
+
+                <div class="span3 well sidebar-nav" id="sidebar">
+<ul class="nav nav-list">
+
+<li class="nav-header"><h4><i class="icon-folder-close icon-large"></i>Categories</h4></li>
+<li>
+<a href="/category/bing-fa.html">
+    <i class="icon-folder-open icon-large"></i>并发
+</a>
+</li>
+<li>
+<a href="/category/block-io.html">
+    <i class="icon-folder-open icon-large"></i>Block I/O
+</a>
+</li>
+<li>
+<a href="/category/device-mapper.html">
+    <i class="icon-folder-open icon-large"></i>device-mapper
+</a>
+</li>
+<li>
+<a href="/category/fio.html">
+    <i class="icon-folder-open icon-large"></i>fio
+</a>
+</li>
+<li>
+<a href="/category/wei-fen-lei.html">
+    <i class="icon-folder-open icon-large"></i>未分类
+</a>
+</li>
+<li>
+<a href="/category/wen-jian-xi-tong.html">
+    <i class="icon-folder-open icon-large"></i>文件系统
+</a>
+</li>
+
+<li class="nav-header"><h4><i class="icon-tags icon-large"></i>Tags</h4></li>
+<li class="tag-4">
+    <a href="/tag/dkms.html">
+        <i class="icon-tag icon-large"></i>dkms
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/single-queue.html">
+        <i class="icon-tag icon-large"></i>single queue
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/relay.html">
+        <i class="icon-tag icon-large"></i>relay
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/workqueue.html">
+        <i class="icon-tag icon-large"></i>workqueue
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/f2fs.html">
+        <i class="icon-tag icon-large"></i>f2fs
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/bfq.html">
+        <i class="icon-tag icon-large"></i>BFQ
+    </a>
+</li>
+<li class="tag-1">
+    <a href="/tag/fio.html">
+        <i class="icon-tag icon-large"></i>fio
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/util-linux.html">
+        <i class="icon-tag icon-large"></i>util-linux
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/iostat.html">
+        <i class="icon-tag icon-large"></i>iostat
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/cfq.html">
+        <i class="icon-tag icon-large"></i>CFQ
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/request-tagging.html">
+        <i class="icon-tag icon-large"></i>request tagging
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/virtualbox.html">
+        <i class="icon-tag icon-large"></i>virtualbox
+    </a>
+</li>
+<li class="tag-1">
+    <a href="/tag/multiqueue.html">
+        <i class="icon-tag icon-large"></i>multiqueue
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/atomic_ops.html">
+        <i class="icon-tag icon-large"></i>atomic_ops
+    </a>
+</li>
+<li class="tag-1">
+    <a href="/tag/device-mapper.html">
+        <i class="icon-tag icon-large"></i>device-mapper
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/bvec.html">
+        <i class="icon-tag icon-large"></i>bvec
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/relayfs.html">
+        <i class="icon-tag icon-large"></i>relayfs
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/blkparse.html">
+        <i class="icon-tag icon-large"></i>blkparse
+    </a>
+</li>
+<li class="tag-2">
+    <a href="/tag/blktrace.html">
+        <i class="icon-tag icon-large"></i>blktrace
+    </a>
+</li>
+<li class="tag-2">
+    <a href="/tag/bio.html">
+        <i class="icon-tag icon-large"></i>bio
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/kyber.html">
+        <i class="icon-tag icon-large"></i>kyber
+    </a>
+</li>
+
+
+</ul>        </div><!--/.well -->
+
+      </div><!--/row-->
+
+      <hr>
+
+      <footer>
+        <address id="about">
+                Proudly powered by <a href="http://pelican.notmyidea.org/">Pelican <i class="icon-external-link"></i></a>,
+                                which takes great advantage of <a href="http://python.org">Python <i class="icon-external-link"></i></a>.
+        </address><!-- /#about -->
+
+        <p>The theme is from <a href="http://twitter.github.com/bootstrap/">Bootstrap from Twitter <i class="icon-external-link"></i></a>,
+                   and <a href="http://fortawesome.github.com/Font-Awesome/">Font-Awesome <i class="icon-external-link"></i></a>, thanks!</p>
+      </footer>
+
+    </div><!--/.fluid-container-->
+
+
+
+    <!-- Le javascript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/theme/js/jquery-1.7.2.min.js"></script>
+    <script src="/theme/js/bootstrap.min.js"></script>
+  </body>
+</html>
