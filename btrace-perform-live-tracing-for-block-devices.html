@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>shhuiw's Technotes - blkparse</title>
+    <title>btrace - perform live tracing for block devices</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="shenghui">
@@ -69,7 +69,7 @@
 						<i class="icon-folder-open icon-large"></i>并发
 					</a>
                   </li>
-                  <li >
+                  <li class="active">
                     <a href="/category/block-io.html">
 						<i class="icon-folder-open icon-large"></i>Block I/O
 					</a>
@@ -109,9 +109,20 @@
     <div class="container-fluid">
       <div class="row">
         <div class="span9" id="content">
-        <div class="article">
-                <h1><a href="/btrace-perform-live-tracing-for-block-devices.html">btrace - perform live tracing for block devices</a></h1>
-                <div class="well small"><footer class="post-info">
+<section id="content">
+        <article>
+                <header>
+                        <h1>
+                                <a href=""
+                                        rel="bookmark"
+                                        title="Permalink to btrace - perform live tracing for block devices">
+                                        btrace - perform live tracing for block devices
+                                </a>
+                        </h1>
+                </header>
+                <div class="entry-content">
+                <div class="well">
+<footer class="post-info">
 <span class="label">Date</span>
 <abbr class="published" title="2019-02-19T21:00:00+08:00">
         <i class="icon-calendar"></i>Tue 19 February 2019
@@ -125,58 +136,43 @@
 <span class="label">Tags</span>
 	<a href="/tag/blkparse.html"><i class="icon-tag"></i>blkparse</a>
 	<a href="/tag/btrace.html"><i class="icon-tag"></i>btrace</a>
-</footer><!-- /.post-info --></div>
-                <div class="summary"><ul>
+</footer><!-- /.post-info -->                </div>
+                <ul>
 <li>man btrace</li>
 <li><a href="https://git.kernel.org/pub/scm/linux/kernel/git/axboe/blktrace.git">blktrace.git</a></li>
 </ul>
 <p>btrace can show detailed info about what is happening on a block device io queue. This is valuable for diagnosing and fixing performance or application problems relating to block layer io.</p>
-<p>The btrace script provides a quick and easy way to do live tracing of block …</p>
-                        <a class="btn primary xsmall" href="/btrace-perform-live-tracing-for-block-devices.html">more ...</a>
-                </div>
-        </div>
-        <hr />
-        <div class="article">
-                <h1><a href="/blktrace-userspace-tools-initial-commit.html">blktrace userspace tools - Initial commit</a></h1>
-                <div class="well small"><footer class="post-info">
-<span class="label">Date</span>
-<abbr class="published" title="2019-02-17T18:00:00+08:00">
-        <i class="icon-calendar"></i>Sun 17 February 2019
-</abbr>
-<span class="label">By</span>
-<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
-<span class="label">Category</span>
-<a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
+<p>The btrace script provides a quick and easy way to do live tracing of block devices.  It calls <code>blktrace</code> on the specified devices and <strong>pipes</strong> the output through <code>blkparse</code> for  formatting.   </p>
+<div class="highlight"><pre><span></span>            btrace  [-s]
+                    [-t]
+                    [-w N]
+                    [-n N]
+                    [-b N]
+                    [-a <span class="nt">&lt;trace&gt;</span>...]
+                    [-r <span class="nt">&lt;dbg</span> <span class="err">mnt</span><span class="nt">&gt;</span>]
+                    [-h]
+                    [-v]
+                    <span class="nt">&lt;dev&gt;</span>...        Specifies the device to trace.
 
+    实际是执行
 
-<span class="label">Tags</span>
-	<a href="/tag/blktrace.html"><i class="icon-tag"></i>blktrace</a>
-	<a href="/tag/blkparse.html"><i class="icon-tag"></i>blkparse</a>
-</footer><!-- /.post-info --></div>
-                <div class="summary"><ul>
-<li><strong>d0ca268 Initial commit</strong> of blktrace</li>
-</ul>
-<p>Inital commit of blktrace userspace tools 包含下列几个文件：</p>
-<div class="highlight"><pre><span></span>    ├── blkparse.c
-    ├── blktrace.c
-    ├── blktrace.h
-    ├── Makefile
-    └── README
+        blktrace <span class="cp">${</span><span class="n">TRACEOPTS</span><span class="cp">}</span> -o- $@  |  blkparse &quot;-b100000&quot; <span class="cp">${</span><span class="n">PARSEOPTS</span><span class="cp">}</span> -i-
+
+            <span class="cp">${</span><span class="n">TRACEOPTS</span><span class="cp">}</span>
+                    [-w N]          Sets run time to the number of seconds specified
+                    [-n N]          Specifies the number of buffers to use
+                    [-b N]          Specifies buffer size for event extraction (scaled by 1024) 
+                    [-a <span class="nt">&lt;trace&gt;</span>...] Adds mask to current filter
+                    [-r <span class="nt">&lt;dbg</span> <span class="err">mnt</span><span class="nt">&gt;</span>]  Specifies the debugfs mountpoint.           
+            <span class="cp">${</span><span class="n">PARSEOPTS</span><span class="cp">}</span>
+                    [-s]            Displays data sorted by blkparse
+                    [-t]            Displays time deltas per IO
+                    [-h]            Hash processes by name, not by PID
+                    [-v]            More verbose marginal on marginal errors
 </pre></div>
-
-
-<h4>README</h4>
-<div class="highlight"><pre><span></span>    <span class="c">% blktrace &lt;dev&gt;</span>
-    <span class="o">---</span> <span class="n">run</span> <span class="n">task</span> <span class="n">to</span> <span class="n">generate</span> <span class="n">load</span> <span class="n">to</span> <span class="n">be</span> <span class="n">traced</span> <span class="o">---</span>
-    <span class="o">&lt;</span><span class="n">SIGINT</span> <span class="n">to</span> <span class="n">kill</span><span class="o">&gt;</span>
-    <span class="o">---</span> <span class="n">Generates</span><span class="p">:</span>
-        <span class="o">&lt;</span><span class="n">dev</span><span class="o">&gt;</span><span class="n">_dat</span><span class="p">.[</span><span class="mf">0.</span><span class="p">.</span><span class="n">ncpus</span><span class="p">]</span> <span class="p">:</span> <span class="n">Contains</span> <span class="n">binary</span> <span class="n">pdu</span> <span class="n">data</span>
-        <span class="o">&lt;</span><span class="n">dev</span><span class="o">&gt;</span><span class="n">_out</span><span class="p">.[</span><span class="mf">0.</span><span class="p">.</span><span class="n">ncpus</span><span class="p">]</span> <span class="p">:</span> <span class="n">Contains</span> <span class="n">binary</span> <span class="n">trace …</span></pre></div>
-                        <a class="btn primary xsmall" href="/blktrace-userspace-tools-initial-commit.html">more ...</a>
-                </div>
-        </div>
-        <hr />
-
+                </div><!-- /.entry-content -->
+        </article>
+</section>
         </div><!--/span-->
 
                 <div class="span3 well sidebar-nav" id="sidebar">

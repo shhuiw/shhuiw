@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>shhuiw's Technotes - blkparse</title>
+    <title>shhuiw's Technotes - btrace</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="shenghui">
@@ -133,46 +133,6 @@
 <p>btrace can show detailed info about what is happening on a block device io queue. This is valuable for diagnosing and fixing performance or application problems relating to block layer io.</p>
 <p>The btrace script provides a quick and easy way to do live tracing of block …</p>
                         <a class="btn primary xsmall" href="/btrace-perform-live-tracing-for-block-devices.html">more ...</a>
-                </div>
-        </div>
-        <hr />
-        <div class="article">
-                <h1><a href="/blktrace-userspace-tools-initial-commit.html">blktrace userspace tools - Initial commit</a></h1>
-                <div class="well small"><footer class="post-info">
-<span class="label">Date</span>
-<abbr class="published" title="2019-02-17T18:00:00+08:00">
-        <i class="icon-calendar"></i>Sun 17 February 2019
-</abbr>
-<span class="label">By</span>
-<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
-<span class="label">Category</span>
-<a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
-
-
-<span class="label">Tags</span>
-	<a href="/tag/blktrace.html"><i class="icon-tag"></i>blktrace</a>
-	<a href="/tag/blkparse.html"><i class="icon-tag"></i>blkparse</a>
-</footer><!-- /.post-info --></div>
-                <div class="summary"><ul>
-<li><strong>d0ca268 Initial commit</strong> of blktrace</li>
-</ul>
-<p>Inital commit of blktrace userspace tools 包含下列几个文件：</p>
-<div class="highlight"><pre><span></span>    ├── blkparse.c
-    ├── blktrace.c
-    ├── blktrace.h
-    ├── Makefile
-    └── README
-</pre></div>
-
-
-<h4>README</h4>
-<div class="highlight"><pre><span></span>    <span class="c">% blktrace &lt;dev&gt;</span>
-    <span class="o">---</span> <span class="n">run</span> <span class="n">task</span> <span class="n">to</span> <span class="n">generate</span> <span class="n">load</span> <span class="n">to</span> <span class="n">be</span> <span class="n">traced</span> <span class="o">---</span>
-    <span class="o">&lt;</span><span class="n">SIGINT</span> <span class="n">to</span> <span class="n">kill</span><span class="o">&gt;</span>
-    <span class="o">---</span> <span class="n">Generates</span><span class="p">:</span>
-        <span class="o">&lt;</span><span class="n">dev</span><span class="o">&gt;</span><span class="n">_dat</span><span class="p">.[</span><span class="mf">0.</span><span class="p">.</span><span class="n">ncpus</span><span class="p">]</span> <span class="p">:</span> <span class="n">Contains</span> <span class="n">binary</span> <span class="n">pdu</span> <span class="n">data</span>
-        <span class="o">&lt;</span><span class="n">dev</span><span class="o">&gt;</span><span class="n">_out</span><span class="p">.[</span><span class="mf">0.</span><span class="p">.</span><span class="n">ncpus</span><span class="p">]</span> <span class="p">:</span> <span class="n">Contains</span> <span class="n">binary</span> <span class="n">trace …</span></pre></div>
-                        <a class="btn primary xsmall" href="/blktrace-userspace-tools-initial-commit.html">more ...</a>
                 </div>
         </div>
         <hr />
