@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>shhuiw's Technotes - 文件系统</title>
+    <title>shhuiw's Technotes - Block I/O</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="shenghui">
@@ -69,7 +69,7 @@
 						<i class="icon-folder-open icon-large"></i>并发
 					</a>
                   </li>
-                  <li >
+                  <li class="active">
                     <a href="/category/block-io.html">
 						<i class="icon-folder-open icon-large"></i>Block I/O
 					</a>
@@ -89,7 +89,7 @@
 						<i class="icon-folder-open icon-large"></i>未分类
 					</a>
                   </li>
-                  <li class="active">
+                  <li >
                     <a href="/category/wen-jian-xi-tong.html">
 						<i class="icon-folder-open icon-large"></i>文件系统
 					</a>
@@ -110,30 +110,48 @@
       <div class="row">
         <div class="span9" id="content">
         <div class="article">
-                <h1><a href="/f2fs-a-new-file-system-for-flash-storage.html">F2FS: A New File System for Flash Storage</a></h1>
+                <h1><a href="/iostat - Device Utilization Report.html">iostat - Device Utilization Report</a></h1>
                 <div class="well small"><footer class="post-info">
 <span class="label">Date</span>
-<abbr class="published" title="2018-12-31T12:00:00+08:00">
-        <i class="icon-calendar"></i>Mon 31 December 2018
+<abbr class="published" title="2018-10-01T00:00:00+08:00">
+        <i class="icon-calendar"></i>Mon 01 October 2018
 </abbr>
 <span class="label">By</span>
 <a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
 <span class="label">Category</span>
-<a href="/category/wen-jian-xi-tong.html"><i class="icon-folder-open"></i>文件系统</a>.
+<a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
 
 
 <span class="label">Tags</span>
-	<a href="/tag/f2fs.html"><i class="icon-tag"></i>f2fs</a>
+	<a href="/tag/iostat.html"><i class="icon-tag"></i>iostat</a>
 </footer><!-- /.post-info --></div>
-                <div class="summary"><ul>
-<li><a href="https://www.usenix.org/conference/fast15/technical-sessions/presentation/lee">F2FS: A New File System for Flash Storage</a></li>
-<li><a href="https://www.usenix.org/system/files/conference/fast15/fast15-paper-lee.pdf">F2FS: A New File System for Flash Storage.pdf</a></li>
-<li><a href="https://www.usenix.org/sites/default/files/conference/protected-files/fast15_slides_lee.pdf">F2FS: A New File System for Flash Storage, slides</a></li>
-</ul>
-                        <a class="btn primary xsmall" href="/f2fs-a-new-file-system-for-flash-storage.html">more ...</a>
+                <div class="summary"><p><a href="https://linux.die.net/man/1/iostat">https://linux.die.net/man/1/iostat</a></p>
+<div class="highlight"><pre><span></span>IO statistics
+        /proc/diskstats
+        /sys/block/&lt;disk&gt;/stat
+        /sys/block/&lt;disk&gt;/&lt;partiton&gt;/stat
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>    -t      Print the time for each report displayed. The timestamp format may
+            depend on the value of the S_TIME_FORMAT environment variable 
+
+    -x      Display extended statistics.
+
+The interval parameter &#39;-d&#39; specifies …</pre></div>
+                        <a class="btn primary xsmall" href="/iostat - Device Utilization Report.html">more ...</a>
                 </div>
         </div>
         <hr />
+
+        <div class="pagination">
+        <ul>
+                        <li class="prev"><a href="/category/block-io.html">&larr; Previous</a></li>
+                        <li class=""><a href="/category/block-io.html">1</a></li>
+                        <li class="active"><a href="/category/block-io2.html">2</a></li>
+                        <li class="next disabled"><a href="#">&rarr; Next</a></li>
+        </ul>
+        </div>
 
         </div><!--/span-->
 

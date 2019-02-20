@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>shhuiw's Technotes - 文件系统</title>
+    <title>blktrace - generate traces of the I/O traffic on block devices</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="shenghui">
@@ -69,7 +69,7 @@
 						<i class="icon-folder-open icon-large"></i>并发
 					</a>
                   </li>
-                  <li >
+                  <li class="active">
                     <a href="/category/block-io.html">
 						<i class="icon-folder-open icon-large"></i>Block I/O
 					</a>
@@ -89,7 +89,7 @@
 						<i class="icon-folder-open icon-large"></i>未分类
 					</a>
                   </li>
-                  <li class="active">
+                  <li >
                     <a href="/category/wen-jian-xi-tong.html">
 						<i class="icon-folder-open icon-large"></i>文件系统
 					</a>
@@ -109,32 +109,183 @@
     <div class="container-fluid">
       <div class="row">
         <div class="span9" id="content">
-        <div class="article">
-                <h1><a href="/f2fs-a-new-file-system-for-flash-storage.html">F2FS: A New File System for Flash Storage</a></h1>
-                <div class="well small"><footer class="post-info">
+<section id="content">
+        <article>
+                <header>
+                        <h1>
+                                <a href=""
+                                        rel="bookmark"
+                                        title="Permalink to blktrace - generate traces of the I/O traffic on block devices">
+                                        blktrace - generate traces of the I/O traffic on block devices
+                                </a>
+                        </h1>
+                </header>
+                <div class="entry-content">
+                <div class="well">
+<footer class="post-info">
 <span class="label">Date</span>
-<abbr class="published" title="2018-12-31T12:00:00+08:00">
-        <i class="icon-calendar"></i>Mon 31 December 2018
+<abbr class="published" title="2019-02-20T20:00:00+08:00">
+        <i class="icon-calendar"></i>Wed 20 February 2019
 </abbr>
 <span class="label">By</span>
 <a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
 <span class="label">Category</span>
-<a href="/category/wen-jian-xi-tong.html"><i class="icon-folder-open"></i>文件系统</a>.
+<a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
 
 
 <span class="label">Tags</span>
-	<a href="/tag/f2fs.html"><i class="icon-tag"></i>f2fs</a>
-</footer><!-- /.post-info --></div>
-                <div class="summary"><ul>
-<li><a href="https://www.usenix.org/conference/fast15/technical-sessions/presentation/lee">F2FS: A New File System for Flash Storage</a></li>
-<li><a href="https://www.usenix.org/system/files/conference/fast15/fast15-paper-lee.pdf">F2FS: A New File System for Flash Storage.pdf</a></li>
-<li><a href="https://www.usenix.org/sites/default/files/conference/protected-files/fast15_slides_lee.pdf">F2FS: A New File System for Flash Storage, slides</a></li>
+	<a href="/tag/blktrace.html"><i class="icon-tag"></i>blktrace</a>
+</footer><!-- /.post-info -->                </div>
+                <ul>
+<li><a href="https://git.kernel.org/pub/scm/linux/kernel/git/axboe/blktrace.git">blktrace.git</a></li>
+<li>man blktrace</li>
 </ul>
-                        <a class="btn primary xsmall" href="/f2fs-a-new-file-system-for-flash-storage.html">more ...</a>
-                </div>
-        </div>
-        <hr />
+<p>blktrace is a block layer IO tracing mechanism which provides detailed information about request queue operations up to user space. There are three major components: <strong>a kernel component</strong>, <strong>a utility to record  the i/o trace information for the kernel to user space</strong>, and <strong>utilities to analyse and view the trace information</strong>. </p>
+<p>缺省 blktrace run forever</p>
+<p>The blktrace utility extracts event traces from the kernel (via the relaying through the debug file system). Some background details concerning the run-time behaviour of blktrace will  help to understand some of the more arcane command line options:</p>
+<div class="highlight"><pre><span></span>    - blktrace receives data from the kernel in buffers passed up through
+      the debug file system (relay). Each device being traced has a file 
+      created in the mounted directory for  the debugfs, which defaults to
+            /sys/kernel/debug
+      -- this can be overridden with the -r command line argument.
 
+    - blktrace defaults to collecting all events that can be traced. 
+      To limit the events being captured, you can specify one or more 
+      filter masks via the -a option.
+      Alternatively, one may specify the entire mask utilising a hexadecimal 
+      value that is version-specific. (Requires understanding of the internal 
+      representation of the filter mask.)
+
+    - As noted above, the events are passed up via a series of buffers 
+      stored into debugfs files. The size and number of buffers can be 
+      specified via the -b and -n arguments respectively.
+
+    - blktrace stores the extracted data into files stored in the local 
+      directory. The format of the file names is (by default)
+            device.blktrace.cpu
+      , where device is the base device name (e.g, if we are tracing 
+      /dev/sda, the base device name would be sda); and cpu identifies
+      a CPU for the event stream.
+      The device portion of the event file name can be changed via the 
+      -o option.
+
+    - blktrace may also be run concurrently with blkparse to produce 
+      live output -- to do this specify &#39;-o -&#39; for blktrace.
+
+    - The default behaviour for blktrace is to run forever until explicitly 
+      killed by the user (via a control-C,  or sending SIGINT signal to the 
+      process via invocation the kill (1) utility). Also you can specify a 
+      run-time duration for blktrace via the -w option -- then blktrace will
+      run for the specified number of seconds, and then halt.
+</pre></div>
+
+
+<h4>OPTIONS</h4>
+<div class="highlight"><pre><span></span>    -A hex-mask
+    --set-mask=hex-mask
+            Set filter mask to hex-mask (see below for masks)
+
+    -a mask
+    --act-mask=mask
+            Add mask to current filter (see below for masks)
+
+    -b size
+    --buffer-size=size
+            Specifies buffer size for event extraction (scaled  by 1024). 
+            The default buffer size is 512KiB.
+
+    -d dev
+    --dev=dev
+            Adds dev as a device to trace
+
+    -I file
+    --input-devs=file
+            Adds the devices found in file as devices to trace
+
+    -n num-sub
+    --num-sub-buffers=num-sub
+            Specifies number of buffers to use. 
+            blktrace defaults to 4 sub buffers.
+
+    -l
+    --listen
+            Run in network listen mode (blktrace server)
+
+    -h hostname
+    --host=hostname
+            Run in network client mode, connecting to the given host
+
+    -p number
+    --port=number
+            Network port to use (default 8462)
+
+    -s
+    --no-sendfile
+            Make the network client NOT use sendfile() to transfer data
+
+    -o basename
+    --output=basename
+            Specifies base name for input files. Default is 
+                    device.blktrace.cpu.  
+            Specifying &#39;-o -&#39; runs in live mode with blkparse (writing data 
+            to standard out).
+
+    -D dir
+    --output-dir=dir
+            Prepend file to output file name(s)
+            This only works when supplying a single device, or when piping 
+            the output via &quot;-o -&quot; with multiple devices.
+
+    -r rel-path
+    --relay=rel-path
+            Specifies debugfs mount point
+
+    -v
+    -V
+    --version
+            Outputs version
+
+    -w seconds
+    --stopwatch=seconds
+            Sets run time to the number of seconds specified
+</pre></div>
+
+
+<h4>REQUEST TYPES</h4>
+<p>blktrace  distinguishes between two types of block layer requests, <strong>file system</strong> and <strong>SCSI commands.</strong> The former are dubbed fs requests, the latter pc requests. </p>
+<p>File system requests are <strong>normal read/write operations</strong>,  i.e. any type of read or write from a specific disk location at a given size. These requests typically originate from a user process, but they may also be initiated  by the vm flushing dirty data to disk or the file system syncing a super or journal block to disk. </p>
+<p>pc requests are <strong>SCSI commands. blktrace sends the command data block as a payload so that blkparse can decode it.</strong></p>
+<h4>FILTER MASKS</h4>
+<p>The following masks may be passed with the -a command line option, multiple filters may  be combined via <strong>multiple -a</strong> command line options.</p>
+<div class="highlight"><pre><span></span>    barrier     : barrier attribute
+    complete    : completed by driver
+    discard     : discard / trim traces
+    fs          : requests
+    issue       : issued to driver
+    pc          : packet command events
+    queue       : queue operations
+    read        : read traces
+    requeue     : requeue operations
+    sync        : synchronous attribute
+    write       : write traces
+    notify      : trace messages
+    drv_data    : additional driver specific trace
+</pre></div>
+
+
+<h4>EXAMPLES</h4>
+<ul>
+<li>
+<p>To trace the i/o on the device /dev/sda and parse the output to human readable form, use the following command: <code>% blktrace -d /dev/sda -o - | blkparse -i -</code>
+This same behaviour can be achieve with the convenience script btrace. The command <code>% btrace /dev/sda</code> has exactly the same effect as the previous command.</p>
+</li>
+<li>
+<p>To trace the i/o on a device and save the output for later processing with blkparse, use blktrace like this: <code>% blktrace /dev/sda /dev/sdb</code> This will trace i/o on the devices /dev/sda and /dev/sdb and save the recorded information in the <strong>files sda and sdb in the current directory</strong>, for the two different devices, respectively. This trace information can later be parsed by the blkparse utility: <strong><code>% blkparse sda sdb</code></strong> which will output the previously recorded tracing information in human readable form to stdout. </p>
+</li>
+</ul>
+                </div><!-- /.entry-content -->
+        </article>
+</section>
         </div><!--/span-->
 
                 <div class="span3 well sidebar-nav" id="sidebar">
