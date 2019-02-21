@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>blkparse - produce formatted output of event streams of block devices</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="shenghui">
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="/theme/css/bootstrap.min.css" type="text/css" />
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+      .tag-1 {
+        font-size: 13pt;
+      }
+      .tag-2 {
+        font-size: 10pt;
+      }
+      .tag-2 {
+        font-size: 8pt;
+      }
+      .tag-4 {
+        font-size: 6pt;
+     }
+    </style>
+    <link href="/theme/css/bootstrap-responsive.min.css" rel="stylesheet">
+        <link href="/theme/css/font-awesome.css" rel="stylesheet">
+
+    <link href="/theme/css/pygments.css" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="/theme/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/theme/images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/theme/images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/theme/images/apple-touch-icon-114x114.png">
+
+    <link href="/" type="application/atom+xml" rel="alternate" title="shhuiw's Technotes ATOM Feed" />
+
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/index.html">shhuiw's Technotes </a>
+          <div class="nav-collapse">
+            <ul class="nav">
+                          <li class="divider-vertical"></li>
+                  <li >
+                    <a href="/category/bing-fa.html">
+						<i class="icon-folder-open icon-large"></i>并发
+					</a>
+                  </li>
+                  <li class="active">
+                    <a href="/category/block-io.html">
+						<i class="icon-folder-open icon-large"></i>Block I/O
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/device-mapper.html">
+						<i class="icon-folder-open icon-large"></i>device-mapper
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/fio.html">
+						<i class="icon-folder-open icon-large"></i>fio
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/wei-fen-lei.html">
+						<i class="icon-folder-open icon-large"></i>未分类
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/wen-jian-xi-tong.html">
+						<i class="icon-folder-open icon-large"></i>文件系统
+					</a>
+                  </li>
+
+                          <ul class="nav pull-right">
+                                <li><a href="/archives.html"><i class="icon-th-list"></i>Archives</a></li>
+                          </ul>
+
+            </ul>
+            <!--<p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>-->
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span9" id="content">
+<section id="content">
+        <article>
+                <header>
+                        <h1>
+                                <a href=""
+                                        rel="bookmark"
+                                        title="Permalink to blkparse - produce formatted output of event streams of block devices">
+                                        blkparse - produce formatted output of event streams of block devices
+                                </a>
+                        </h1>
+                </header>
+                <div class="entry-content">
+                <div class="well">
+<footer class="post-info">
+<span class="label">Date</span>
+<abbr class="published" title="2019-02-21T20:00:00+08:00">
+        <i class="icon-calendar"></i>Thu 21 February 2019
+</abbr>
+<span class="label">By</span>
+<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
+<span class="label">Category</span>
+<a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
+
+
+<span class="label">Tags</span>
+	<a href="/tag/blktrace.html"><i class="icon-tag"></i>blktrace</a>
+	<a href="/tag/blkparse.html"><i class="icon-tag"></i>blkparse</a>
+</footer><!-- /.post-info -->                </div>
+                <ul>
+<li><a href="https://git.kernel.org/pub/scm/linux/kernel/git/axboe/blktrace.git">blktrace.git</a></li>
+<li>man blkparse</li>
+</ul>
+<p>The blkparse utility will attempt to combine streams of events for various devices on various CPUs, and produce a formatted output of the event information. Specifically, it will take the (machine-readable) output of the blktrace utility and convert it to a nicely formatted and human-readable form.</p>
+<p>As with blktrace, some details concerning blkparse will help in understanding the command line options presented below.</p>
+<div class="highlight"><pre><span></span>    - By default, blkparse expects to run in a post-processing mode; 
+      one where the trace events have been saved by a previous run of 
+      blktrace, and blkparse is combining event streams and dumping  
+      formatted data.
+
+      blkparse may be run in a live manner concurrently with blktrace 
+      by specifying &#39;-i -&#39; to blkparse, and combining it with the live 
+      option for blktrace. An example would be:
+            % blktrace -d /dev/sda -o - | blkparse -i -
+
+    - You can set how many blkparse batches event reads via the &#39;-b&#39;  
+      option, the default is to handle events in batches of 512.
+
+    - If  you  have saved event traces in blktrace with different output 
+      names (via the -o option to blktrace), you must specify the same 
+      input name via the &#39;-i&#39; option.
+
+    - The format of the output data can be controlled via the &#39;-f&#39; or &#39;-F&#39; 
+      options.
+
+      By default, blkparse sends formatted data to standard output. This 
+      may be changed via the &#39;-o&#39; option, or text output can be disabled 
+      via the &#39;-O&#39; option. A merged binary stream can be produced using 
+      the &#39;-d&#39; option.
+</pre></div>
+
+
+<h3>RWBS DESCRIPTION</h3>
+<p>This is a small string containing at least one character <strong>('R' for read, 'W' for write, or 'D' for block discard operation)</strong>, and optionally either a <strong>'B' (for barrier operations) or 'S'  (for  synchronous operations)</strong>.</p>
+<h3>DEFAULT OUTPUT</h3>
+<p>The standard header (or initial fields displayed) include:</p>
+<div class="highlight"><pre><span></span>           &quot;%D %2c %8s %5T.%9t %5p %2a %3d&quot;
+</pre></div>
+
+
+<p>Breaking this down:</p>
+<div class="highlight"><pre><span></span>    <span class="c">%D      Displays the event&#39;s device major/minor as: %3d,%-3d.</span>
+
+    <span class="c">%2c     CPU ID (2-character field).</span>
+
+    <span class="c">%8s     Sequence number</span>
+
+    <span class="c">%5T.%9t</span>
+            <span class="mi">5</span><span class="o">-</span><span class="n">character</span> <span class="n">field</span> <span class="k">for</span> <span class="n">the</span> <span class="n">seconds</span> <span class="n">portion</span> <span class="n">of</span> <span class="n">the</span> <span class="n">time</span> <span class="n">stamp</span> 
+            <span class="n">and</span> <span class="n">a</span> <span class="mi">9</span><span class="o">-</span><span class="n">character</span> <span class="n">field</span> <span class="k">for</span> <span class="n">the</span> <span class="n">nanoseconds</span> <span class="n">in</span> <span class="n">the</span> <span class="n">time</span> <span class="n">stamp</span><span class="p">.</span>
+
+    <span class="c">%5p     5-character field for the process ID.</span>
+
+    <span class="c">%2a     2-character field for one of the actions.</span>
+
+    <span class="c">%3d     3-character field for the RWBS data.</span>
+</pre></div>
+
+
+<p>Seeing this in action:</p>
+<div class="highlight"><pre><span></span>    8,0    3        1     0.000000000   697  G   W 223490 + 8 [kjournald]
+</pre></div>
+
+
+<p><strong>The header is the data in this line up to the 223490 (starting block)</strong>. The default output <strong>for all</strong> event types includes this header.</p>
+<h3>DEFAULT OUTPUT PER ACTION</h3>
+<div class="highlight"><pre><span></span>    C -- complete
+        If a payload is present, this is presented between parenthesis
+        following the header, followed by the error value.
+
+        If no payload is present, the sector and number of blocks are
+        presented (with an intervening plus (+)  character).  
+        If the -t option was specified, then the elapsed time is presented. 
+        In either case, it is followed by the error value for the completion.
+
+    B -- bounced
+    D -- issued
+    I -- inserted
+    Q -- queued
+        If a payload is present, the number of payload bytes is output, 
+        followed by the payload in hexadecimal between parenthesis.
+
+        If no payload is present, the sector and number of blocks are 
+        presented (with an intervening plus (+) character). 
+        If the -t option was specified, then the elapsed time is presented 
+        (in parenthesis).  
+        In either case, it is followed by the command associated with the 
+        event (surrounded by square brackets).
+
+    F -- front merge
+    G -- get request
+    M -- back merge
+    S -- sleep
+        The starting sector and number of blocks is output (with an
+         intervening plus (+) character), followed by the command a
+         ssociated with the event (surrounded by square brackets).
+
+    P -- plug
+        The command associated with the event (surrounded by square
+        brackets) is output.
+
+    U -- unplug
+    T -- unplug due to timer
+        The command associated with the event (surrounded by square
+        brackets) is output, followed by the number of requests outstanding.
+
+    X -- split
+        The original starting sector followed by the new sector (separated 
+        by a slash (/) is output, followed by the command associated with 
+        the event (surrounded by square brackets).
+
+    A -- remap
+        Sector and length is output, along with the original device and 
+        sector offset.
+</pre></div>
+
+
+<h3>TRACE ACTIONS</h3>
+<p>The following trace actions are recognised:</p>
+<div class="highlight"><pre><span></span>    <span class="n">C</span> -- <span class="n">complete</span>
+        <span class="n">A</span> <span class="n">previously</span> <span class="n">issued</span> <span class="n">request</span> <span class="k">has</span> <span class="n">been</span> <span class="n">completed</span>.  
+        <span class="n">The</span> <span class="n">output</span> <span class="k">will</span> <span class="n">detail</span> <span class="n">the</span> <span class="n">sector</span> <span class="o">and</span> <span class="n">size</span> <span class="k">of</span> <span class="n">that</span> <span class="n">request</span>, 
+        <span class="k">as</span> <span class="n">well</span> <span class="k">as</span> <span class="n">the</span> <span class="n">success</span> <span class="o">or</span> <span class="n">failure</span> <span class="k">of</span> <span class="n">it</span>.
+
+    <span class="n">D</span>  --  <span class="n">issued</span>  
+        <span class="n">A</span> <span class="n">request</span> <span class="n">that</span> <span class="n">previously</span> <span class="n">resided</span> <span class="n">on</span> <span class="n">the</span> <span class="n">block</span> <span class="n">layer</span> <span class="n">queue</span> <span class="o">or</span> 
+        <span class="n">in</span> <span class="n">the</span> <span class="n">i</span><span class="o">/</span><span class="n">o</span> <span class="n">scheduler</span> <span class="k">has</span> <span class="n">been</span> <span class="n">sent</span> <span class="nb">to</span> <span class="n">the</span> <span class="n">driver</span>.
+
+    <span class="n">I</span> -- <span class="n">inserted</span> 
+        <span class="n">A</span> <span class="n">request</span> <span class="k">is</span> <span class="n">being</span> <span class="n">sent</span> <span class="nb">to</span> <span class="n">the</span> <span class="n">i</span><span class="o">/</span><span class="n">o</span> <span class="n">scheduler</span> <span class="k">for</span> <span class="n">addition</span> <span class="nb">to</span>  
+        <span class="n">the</span> <span class="n">internal</span> <span class="n">queue</span> <span class="o">and</span> <span class="n">later</span> <span class="n">service</span> <span class="nb">by</span> <span class="n">the</span> <span class="n">driver</span>. <span class="n">The</span> <span class="n">request</span> 
+        <span class="k">is</span> <span class="n">fully</span> <span class="n">formed</span> <span class="n">at</span> <span class="n">this</span> <span class="nb">time</span>.
+
+    <span class="s">Q -- queued </span>
+<span class="s">        This notes intent to queue i/o at the given location.  </span>
+<span class="s">        No real requests exists yet.</span>
+
+<span class="s">    B  --</span>  <span class="n">bounced</span>  
+        <span class="n">The</span> <span class="n">data</span> <span class="n">pages</span> <span class="n">attached</span> <span class="nb">to</span> <span class="n">this</span> <span class="n">bio</span> <span class="n">are</span> <span class="nb">not</span> <span class="n">reachable</span> 
+        <span class="nb">by</span> <span class="n">the</span> <span class="n">hardware</span> <span class="o">and</span> <span class="n">must</span> <span class="n">be</span> <span class="n">bounced</span> <span class="nb">to</span> <span class="n">a</span> <span class="n">lower</span> <span class="n">memory</span> <span class="n">location</span>. 
+        <span class="n">This</span> <span class="n">causes</span> <span class="n">a</span> <span class="n">big</span> <span class="n">slowdown</span> <span class="n">in</span> <span class="n">i</span><span class="o">/</span><span class="n">o</span> <span class="n">performance</span>, <span class="n">since</span> <span class="n">the</span> <span class="n">data</span>
+        <span class="n">must</span> <span class="n">be</span> <span class="n">copied</span>  <span class="nb">to</span><span class="o">/</span><span class="nb">from</span> <span class="n">kernel</span> <span class="n">buffers</span>. <span class="n">Usually</span> <span class="n">this</span> <span class="nb">can</span> <span class="n">be</span> <span class="n">fixed</span> 
+        <span class="n">with</span> <span class="n">using</span> <span class="n">better</span> <span class="n">hardware</span> -- <span class="n">either</span> <span class="n">a</span> <span class="n">better</span> <span class="n">i</span><span class="o">/</span><span class="n">o</span> <span class="n">controller</span>, <span class="o">or</span> 
+        <span class="n">a</span> <span class="n">platform</span> <span class="n">with</span> <span class="n">an</span> <span class="n">IOMMU</span>.
+
+    <span class="n">M</span> -- <span class="n">back</span> <span class="n">merge</span> 
+        <span class="n">A</span> <span class="n">previously</span> <span class="n">inserted</span> <span class="n">request</span> <span class="nb">exists</span> <span class="n">that</span> <span class="n">ends</span> <span class="n">on</span> <span class="n">the</span> <span class="n">boundary</span> <span class="k">of</span> 
+        <span class="k">where</span> <span class="n">this</span> <span class="n">i</span><span class="o">/</span><span class="n">o</span> <span class="n">begins</span>, <span class="o">so</span> <span class="n">the</span> <span class="n">i</span><span class="o">/</span><span class="n">o</span> <span class="n">scheduler</span> <span class="nb">can</span> <span class="n">merge</span> <span class="n">them</span> <span class="n">together</span>.
+
+    <span class="n">F</span>  --  <span class="n">front</span>  <span class="n">merge</span> 
+        <span class="n">Same</span> <span class="k">as</span> <span class="n">the</span> <span class="n">back</span> <span class="n">merge</span>, <span class="n">except</span> <span class="n">this</span> <span class="n">i</span><span class="o">/</span><span class="n">o</span> <span class="n">ends</span> <span class="k">where</span> <span class="n">a</span> <span class="n">previously</span>
+        <span class="n">inserted</span> <span class="n">requests</span> <span class="n">starts</span>.
+
+    <span class="n">M</span> -- <span class="n">front</span> <span class="o">or</span> <span class="n">back</span> <span class="n">merge</span> 
+        <span class="n">One</span> <span class="k">of</span> <span class="n">the</span> <span class="n">above</span>.
+
+    <span class="n">G</span> -- <span class="n">get</span> <span class="n">request</span> 
+        <span class="n">To</span> <span class="n">send</span> <span class="nb">any</span> <span class="n">type</span> <span class="k">of</span> <span class="n">request</span> <span class="nb">to</span> <span class="n">a</span> <span class="n">block</span> <span class="n">device</span>, <span class="n">a</span> <span class="n">struct</span> <span class="n">request</span>  
+        <span class="n">container</span> <span class="n">must</span> <span class="n">be</span> <span class="n">allocated</span> <span class="nb">first</span>.
+
+    <span class="n">S</span>  --  <span class="nb">sleep</span>  
+        <span class="n">No</span> <span class="n">available</span> <span class="n">request</span> <span class="n">structures</span> <span class="n">were</span> <span class="n">available</span>, <span class="o">so</span> <span class="n">the</span> <span class="n">issuer</span> <span class="k">has</span> 
+        <span class="nb">to</span> <span class="nb">wait</span> <span class="k">for</span> <span class="nb">one</span> <span class="nb">to</span> <span class="n">be</span> <span class="n">freed</span>.
+
+    <span class="n">P</span> -- <span class="n">plug</span> 
+        <span class="n">When</span> <span class="n">i</span><span class="o">/</span><span class="n">o</span> <span class="k">is</span> <span class="n">queued</span> <span class="nb">to</span> <span class="n">a</span> <span class="n">previously</span> <span class="n">empty</span> <span class="n">block</span> <span class="n">device</span> <span class="n">queue</span>, 
+        <span class="n">Linux</span> <span class="k">will</span> <span class="n">plug</span> <span class="n">the</span> <span class="n">queue</span> <span class="n">in</span> <span class="n">anticipation</span> <span class="k">of</span> <span class="n">future</span> <span class="n">ios</span> <span class="n">being</span> 
+        <span class="n">added</span> <span class="o">before</span> <span class="n">this</span> <span class="n">data</span> <span class="k">is</span> <span class="n">needed</span>.
+
+    <span class="n">U</span>  --  <span class="n">unplug</span>  
+        <span class="n">Some</span> <span class="n">request</span> <span class="n">data</span> <span class="n">already</span> <span class="n">queued</span> <span class="n">in</span> <span class="n">the</span> <span class="n">device</span>, <span class="n">start</span> <span class="n">sending</span>
+        <span class="n">requests</span> <span class="nb">to</span> <span class="n">the</span> <span class="n">driver</span>. <span class="n">This</span> <span class="n">may</span> <span class="n">happen</span> <span class="n">automatically</span> <span class="k">if</span> <span class="n">a</span> <span class="n">timeout</span>
+        <span class="n">period</span> <span class="k">has</span> <span class="n">passed</span> (<span class="n">see</span> <span class="k">next</span> <span class="n">entry</span>) <span class="o">or</span> <span class="k">if</span> <span class="n">a</span> <span class="n">number</span> <span class="k">of</span> <span class="n">requests</span> <span class="n">have</span>
+        <span class="n">been</span> <span class="n">added</span> <span class="nb">to</span> <span class="n">the</span> <span class="n">queue</span>.
+
+    <span class="n">T</span>  --  <span class="n">unplug</span> <span class="n">due</span> <span class="nb">to</span> <span class="n">timer</span> 
+        <span class="n">If</span> <span class="n">nobody</span> <span class="n">requests</span> <span class="n">the</span> <span class="n">i</span><span class="o">/</span><span class="n">o</span> <span class="n">that</span> <span class="n">was</span> <span class="n">queued</span> <span class="o">after</span> <span class="n">plugging</span> <span class="n">the</span> <span class="n">queue</span>, 
+        <span class="n">Linux</span> <span class="k">will</span> <span class="n">automatically</span> <span class="n">unplug</span> <span class="n">it</span> <span class="o">after</span> <span class="n">a</span> <span class="nb">defined</span> <span class="n">period</span> <span class="k">has</span> <span class="n">passed</span>.
+
+    <span class="o">X</span> -- <span class="nb">split</span> 
+        <span class="n">On</span> <span class="n">raid</span> <span class="o">or</span> <span class="n">device</span> <span class="n">mapper</span> <span class="n">setups</span>, <span class="n">an</span> <span class="n">incoming</span> <span class="n">i</span><span class="o">/</span><span class="n">o</span> <span class="n">may</span> <span class="n">straddle</span> <span class="n">a</span> <span class="n">device</span>  
+        <span class="o">or</span> <span class="n">internal</span> <span class="n">zone</span> <span class="o">and</span> <span class="n">needs</span> <span class="nb">to</span> <span class="n">be</span> <span class="n">chopped</span> <span class="n">up</span> <span class="n">into</span> <span class="n">smaller</span> <span class="n">pieces</span> <span class="k">for</span> 
+        <span class="n">service</span>. <span class="n">This</span> <span class="n">may</span> <span class="n">indicate</span> <span class="n">a</span> <span class="n">performance</span> <span class="n">problem</span> <span class="n">due</span> <span class="nb">to</span> <span class="n">a</span> <span class="n">bad</span> <span class="n">setup</span> 
+        <span class="k">of</span> <span class="n">that</span> <span class="n">raid</span><span class="o">/</span><span class="n">dm</span> <span class="n">device</span>, <span class="k">but</span> <span class="n">may</span> <span class="o">also</span> <span class="n">just</span> <span class="n">be</span> <span class="n">part</span> <span class="k">of</span> <span class="n">normal</span> <span class="n">boundary</span>  
+        <span class="n">conditions</span>. <span class="n">dm</span> <span class="k">is</span> <span class="n">notably</span> <span class="n">bad</span> <span class="n">at</span> <span class="n">this</span> <span class="o">and</span> <span class="k">will</span> <span class="nb">clone</span> <span class="n">lots</span> <span class="k">of</span> <span class="n">i</span><span class="o">/</span><span class="n">o</span>.
+
+    <span class="n">A</span>  --  <span class="n">remap</span>  
+        <span class="n">For</span> <span class="n">stacked</span> <span class="n">devices</span>, <span class="n">incoming</span> <span class="n">i</span><span class="o">/</span><span class="n">o</span> <span class="k">is</span> <span class="n">remapped</span> <span class="nb">to</span> <span class="n">device</span> <span class="n">below</span> <span class="n">it</span> <span class="n">in</span>
+        <span class="n">the</span> <span class="n">i</span><span class="o">/</span><span class="n">o</span> <span class="n">stack</span>. <span class="n">The</span> <span class="n">remap</span> <span class="n">action</span> <span class="n">details</span> <span class="n">what</span> <span class="n">exactly</span> <span class="k">is</span> <span class="n">being</span> <span class="n">remapped</span> 
+        <span class="nb">to</span> <span class="n">what</span>.
+
+    <span class="n">R</span> -- <span class="n">requeue</span> 
+        <span class="n">Put</span> <span class="n">a</span> <span class="n">request</span> <span class="n">back</span> <span class="n">on</span> <span class="n">queue</span>.
+</pre></div>
+
+
+<h3>OPTIONS</h3>
+<div class="highlight"><pre><span></span>    -F typ,fmt
+    --format=typ,fmt
+    -f fmt
+    --format-spec=fmt
+        Sets output format
+        (See OUTPUT DESCRIPTION AND FORMATTING for details.)
+
+        The -f form specifies a format for all events
+
+        The -F form allows one to specify a format for a specific event type.
+        The single-character typ field is one of the action specifiers 
+        described in ACTION IDENTIFIERS.
+
+
+    -A hex-mask
+    --set-mask=hex-mask
+        Set filter mask to hex-mask, see blktrace (8) for masks
+
+    -a mask
+    --act-mask=mask
+        Add mask to current filter, see blktrace (8) for masks
+
+    -D dir
+    --input-directory=dir
+        Prepend dir to input file names
+
+    -b batch
+    --batch={batch}
+        Standard input read batching
+
+    -i file
+    --input=file
+        Specifies base name for input files -- default is 
+                device.blktrace.cpu.
+        As  noted  above,  specifying -i - runs in live mode with 
+        blktrace (reading data from standard in).
+
+    -M
+    --no-msgs
+        When -d is specified, this will stop messages from being output 
+        to the file. (Can seriously reduce the size of the resultant file 
+        when using the CFQ I/O scheduler.)
+
+    -h
+    --hash-by-name
+        Hash processes by name, not by PID
+
+    -o file
+    --output=file
+        Output file
+
+    -O
+    --no-text-output
+        Do not produce text output, used for binary (-d) only
+
+    -d file
+    --dump-binary=file
+        Binary output file
+
+    -q
+    --quiet
+        Quiet mode
+
+    -s
+    --per-program-stats
+        Displays data sorted by program
+
+    -t
+    --track-ios
+        Display time deltas per IO
+
+    -w span
+    --stopwatch=span
+        Display traces for the span specified -- where span can be:
+            end-time
+                -- Display traces from time 0 through end-time (in ns)
+        or
+            start:end-time
+                -- Display traces from time start through end-time (in ns).
+
+    -v
+    --verbose
+        More verbose marginal on marginal errors
+
+    -V
+    --version
+        Display version
+</pre></div>
+
+
+<h3>OUTPUT DESCRIPTION AND FORMATTING</h3>
+<p>The output from blkparse can be tailored for specific use -- in particular, to ease parsing of output, and/or limit output fields to those the user wants to see. </p>
+<p>The data for fields which can be output include:</p>
+<div class="highlight"><pre><span></span>    a   Action, a (small) string (1 or 2 characters)
+    c   CPU id
+    C   Command
+    d   RWBS field, a (small) string (1-3 characters)
+    D   7-character string containing the major and minor numbers of 
+        the event&#39;s device (separated by a comma).
+    e   Error value
+    m   Minor number of event&#39;s device.
+    M   Major number of event&#39;s device.
+    n   Number of blocks
+    N   Number of bytes
+    p   Process ID
+    P   Display packet data -- series of hexadecimal values
+    s   Sequence numbers
+    S   Sector number
+    t   Time stamp (nanoseconds)
+    T   Time stamp (seconds)
+    u   Elapsed value in microseconds (-t command line option)
+    U   Payload unsigned integer
+</pre></div>
+
+
+<p>Note  that  the user can optionally specify <strong>field display width</strong>, and <strong>optionally a left-aligned specifier</strong>. These precede field specifiers, with a <strong>'%' character, followed by the optional left-alignment specifier (-) followed by the width (a decimal number) and then the field</strong>. Thus, to specify the command in a 12-character field that is left aligned:</p>
+<div class="highlight"><pre><span></span>    -f &quot;%-12C&quot;
+</pre></div>
+
+
+<h3>ACTION IDENTIFIERS</h3>
+<p>The following table shows the various actions which may be output:</p>
+<div class="highlight"><pre><span></span>    A   IO was remapped to a different device
+    B   IO bounced
+    C   IO completion
+    D   IO issued to driver
+    F   IO front merged with request on queue
+    G   Get request
+    I   IO inserted onto request queue
+    M   IO back merged with request on queue
+    P   Plug request
+    Q   IO handled by request queue code
+    S   Sleep request
+    T   Unplug due to timeout
+    U   Unplug request
+    X   Split
+</pre></div>
+                </div><!-- /.entry-content -->
+        </article>
+</section>
+        </div><!--/span-->
+
+                <div class="span3 well sidebar-nav" id="sidebar">
+<ul class="nav nav-list">
+
+<li class="nav-header"><h4><i class="icon-folder-close icon-large"></i>Categories</h4></li>
+<li>
+<a href="/category/bing-fa.html">
+    <i class="icon-folder-open icon-large"></i>并发
+</a>
+</li>
+<li>
+<a href="/category/block-io.html">
+    <i class="icon-folder-open icon-large"></i>Block I/O
+</a>
+</li>
+<li>
+<a href="/category/device-mapper.html">
+    <i class="icon-folder-open icon-large"></i>device-mapper
+</a>
+</li>
+<li>
+<a href="/category/fio.html">
+    <i class="icon-folder-open icon-large"></i>fio
+</a>
+</li>
+<li>
+<a href="/category/wei-fen-lei.html">
+    <i class="icon-folder-open icon-large"></i>未分类
+</a>
+</li>
+<li>
+<a href="/category/wen-jian-xi-tong.html">
+    <i class="icon-folder-open icon-large"></i>文件系统
+</a>
+</li>
+
+<li class="nav-header"><h4><i class="icon-tags icon-large"></i>Tags</h4></li>
+<li class="tag-1">
+    <a href="/tag/device-mapper.html">
+        <i class="icon-tag icon-large"></i>device-mapper
+    </a>
+</li>
+<li class="tag-1">
+    <a href="/tag/blktrace.html">
+        <i class="icon-tag icon-large"></i>blktrace
+    </a>
+</li>
+<li class="tag-2">
+    <a href="/tag/blkparse.html">
+        <i class="icon-tag icon-large"></i>blkparse
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/btrace.html">
+        <i class="icon-tag icon-large"></i>btrace
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/workqueue.html">
+        <i class="icon-tag icon-large"></i>workqueue
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/bvec.html">
+        <i class="icon-tag icon-large"></i>bvec
+    </a>
+</li>
+<li class="tag-1">
+    <a href="/tag/multiqueue.html">
+        <i class="icon-tag icon-large"></i>multiqueue
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/kyber.html">
+        <i class="icon-tag icon-large"></i>kyber
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/util-linux.html">
+        <i class="icon-tag icon-large"></i>util-linux
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/atomic_ops.html">
+        <i class="icon-tag icon-large"></i>atomic_ops
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/single-queue.html">
+        <i class="icon-tag icon-large"></i>single queue
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/virtualbox.html">
+        <i class="icon-tag icon-large"></i>virtualbox
+    </a>
+</li>
+<li class="tag-2">
+    <a href="/tag/bio.html">
+        <i class="icon-tag icon-large"></i>bio
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/cfq.html">
+        <i class="icon-tag icon-large"></i>CFQ
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/dkms.html">
+        <i class="icon-tag icon-large"></i>dkms
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/relayfs.html">
+        <i class="icon-tag icon-large"></i>relayfs
+    </a>
+</li>
+<li class="tag-1">
+    <a href="/tag/fio.html">
+        <i class="icon-tag icon-large"></i>fio
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/request-tagging.html">
+        <i class="icon-tag icon-large"></i>request tagging
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/relay.html">
+        <i class="icon-tag icon-large"></i>relay
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/bfq.html">
+        <i class="icon-tag icon-large"></i>BFQ
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/f2fs.html">
+        <i class="icon-tag icon-large"></i>f2fs
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/iostat.html">
+        <i class="icon-tag icon-large"></i>iostat
+    </a>
+</li>
+
+
+</ul>        </div><!--/.well -->
+
+      </div><!--/row-->
+
+      <hr>
+
+      <footer>
+        <address id="about">
+                Proudly powered by <a href="http://pelican.notmyidea.org/">Pelican <i class="icon-external-link"></i></a>,
+                                which takes great advantage of <a href="http://python.org">Python <i class="icon-external-link"></i></a>.
+        </address><!-- /#about -->
+
+        <p>The theme is from <a href="http://twitter.github.com/bootstrap/">Bootstrap from Twitter <i class="icon-external-link"></i></a>,
+                   and <a href="http://fortawesome.github.com/Font-Awesome/">Font-Awesome <i class="icon-external-link"></i></a>, thanks!</p>
+      </footer>
+
+    </div><!--/.fluid-container-->
+
+
+
+    <!-- Le javascript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/theme/js/jquery-1.7.2.min.js"></script>
+    <script src="/theme/js/bootstrap.min.js"></script>
+  </body>
+</html>
