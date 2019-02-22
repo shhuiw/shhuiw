@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>shhuiw's Technotes - dkms</title>
+    <title>shhuiw's Technotes - blkrawverify</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="shenghui">
@@ -110,32 +110,32 @@
       <div class="row">
         <div class="span9" id="content">
         <div class="article">
-                <h1><a href="/virtualbox-5224-dkms-build-failed-against-x86_32-kernel-500-rc2.html">virtualbox-5.2.24 dkms build failed against x86_32 kernel 5.0.0-rc2+</a></h1>
+                <h1><a href="/blkrawverify-verify_blkparse.html">blkrawverify & verify_blkparse</a></h1>
                 <div class="well small"><footer class="post-info">
 <span class="label">Date</span>
-<abbr class="published" title="2019-02-02T15:00:00+08:00">
-        <i class="icon-calendar"></i>Sat 02 February 2019
+<abbr class="published" title="2019-02-22T18:00:00+08:00">
+        <i class="icon-calendar"></i>Fri 22 February 2019
 </abbr>
 <span class="label">By</span>
 <a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
 <span class="label">Category</span>
-<a href="/category/wei-fen-lei.html"><i class="icon-folder-open"></i>未分类</a>.
+<a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
 
 
 <span class="label">Tags</span>
-	<a href="/tag/virtualbox.html"><i class="icon-tag"></i>virtualbox</a>
-	<a href="/tag/dkms.html"><i class="icon-tag"></i>dkms</a>
+	<a href="/tag/blkparse.html"><i class="icon-tag"></i>blkparse</a>
+	<a href="/tag/blkrawverify.html"><i class="icon-tag"></i>blkrawverify</a>
+	<a href="/tag/verify_blkparse.html"><i class="icon-tag"></i>verify_blkparse</a>
 </footer><!-- /.post-info --></div>
-                <div class="summary"><p>最近想在本子上装个 virtualbox 跑个 winxp，旧本子，一直用的 32 位 Debian，内核经常更新，现在版本是 5.0.0-rc2+</p>
-<p><code>apt install virtualbox virtualbox-dkms</code> 安装完后，建立虚拟机的时候报错，说不能加载 <strong>vboxdrv</strong> 模块</p>
-<h3>dkms build</h3>
-<p>想着可能是因为内核新，所以 dkms 工作没做好，干脆跑一下 <code>dkms build</code>。结果一跑，报错了：</p>
-<div class="highlight"><pre><span></span>    # dkms build -m virtualbox -v 5.2.24
-
-    Kernel preparation unnecessary for this kernel.  Skipping...
-
-    Building …</pre></div>
-                        <a class="btn primary xsmall" href="/virtualbox-5224-dkms-build-failed-against-x86_32-kernel-500-rc2.html">more ...</a>
+                <div class="summary"><ul>
+<li><a href="">blktrace.git</a></li>
+<li>man blkrawverify</li>
+<li>man verify_blkparse</li>
+</ul>
+<p>blkrawverify 和 verify_blkparse 都是 verifies an output file produced by blkparse</p>
+<h3>blkrawverify</h3>
+<p>The  blkrawverify utility can be used to verify data retrieved via blktrace. It will check for <strong>valid event formats, forward progressing sequence numbers and time stamps, also does reasonable checks for other …</strong></p>
+                        <a class="btn primary xsmall" href="/blkrawverify-verify_blkparse.html">more ...</a>
                 </div>
         </div>
         <hr />
