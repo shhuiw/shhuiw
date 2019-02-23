@@ -110,6 +110,36 @@
       <div class="row">
         <div class="span9" id="content">
         <div class="article">
+                <h1><a href="/virtualbox-5224-dkms-build-failed-against-x86_32-kernel-500-rc2.html">virtualbox-5.2.24 dkms build failed against x86_32 kernel 5.0.0-rc2+</a></h1>
+                <div class="well small"><footer class="post-info">
+<span class="label">Date</span>
+<abbr class="published" title="2019-02-02T15:00:00+08:00">
+        <i class="icon-calendar"></i>Sat 02 February 2019
+</abbr>
+<span class="label">By</span>
+<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
+<span class="label">Category</span>
+<a href="/category/wei-fen-lei.html"><i class="icon-folder-open"></i>未分类</a>.
+
+
+<span class="label">Tags</span>
+	<a href="/tag/virtualbox.html"><i class="icon-tag"></i>virtualbox</a>
+	<a href="/tag/dkms.html"><i class="icon-tag"></i>dkms</a>
+</footer><!-- /.post-info --></div>
+                <div class="summary"><p>最近想在本子上装个 virtualbox 跑个 winxp，旧本子，一直用的 32 位 Debian，内核经常更新，现在版本是 5.0.0-rc2+</p>
+<p><code>apt install virtualbox virtualbox-dkms</code> 安装完后，建立虚拟机的时候报错，说不能加载 <strong>vboxdrv</strong> 模块</p>
+<h3>dkms build</h3>
+<p>想着可能是因为内核新，所以 dkms 工作没做好，干脆跑一下 <code>dkms build</code>。结果一跑，报错了：</p>
+<div class="highlight"><pre><span></span>    # dkms build -m virtualbox -v 5.2.24
+
+    Kernel preparation unnecessary for this kernel.  Skipping...
+
+    Building …</pre></div>
+                        <a class="btn primary xsmall" href="/virtualbox-5224-dkms-build-failed-against-x86_32-kernel-500-rc2.html">more ...</a>
+                </div>
+        </div>
+        <hr />
+        <div class="article">
                 <h1><a href="/fio-howto-4-ioengine.html">fio HOWTO (4) ioengine</a></h1>
                 <div class="well small"><footer class="post-info">
 <span class="label">Date</span>
@@ -347,33 +377,6 @@ enclosed in <strong>[] brackets define the job name</strong>. You are free to us
                 </div>
         </div>
         <hr />
-        <div class="article">
-                <h1><a href="/the-multiqueue-block-layer.html">The multiqueue block layer</a></h1>
-                <div class="well small"><footer class="post-info">
-<span class="label">Date</span>
-<abbr class="published" title="2018-11-30T22:00:00+08:00">
-        <i class="icon-calendar"></i>Fri 30 November 2018
-</abbr>
-<span class="label">By</span>
-<a href="/author/jonathan-corbet.html"><i class="icon-user"></i>Jonathan Corbet</a>
-<span class="label">Category</span>
-<a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
-
-
-<span class="label">Tags</span>
-	<a href="/tag/multiqueue.html"><i class="icon-tag"></i>multiqueue</a>
-</footer><!-- /.post-info --></div>
-                <div class="summary"><p>Jonathan Corbet&emsp;&emsp;June 5, 2013, <a href="https://lwn.net">lwn.net</a></p>
-<ul>
-<li><a href="https://lwn.net/Articles/552904/">The multiqueue block layer</a></li>
-<li><a href="http://kernel.dk/systor13-final18.pdf">Linux Block IO: Introducing Multi-queue SSD Access on Multi-core Systems</a></li>
-<li><a href="https://lwn.net/Articles/552911/">null_blk.c</a></li>
-</ul>
-<p>The kernel's block layer is charged with managing I/O to the system's block ("disk drive") devices. It was designed in an era when a high-performance drive …</p>
-                        <a class="btn primary xsmall" href="/the-multiqueue-block-layer.html">more ...</a>
-                </div>
-        </div>
-        <hr />
 
         <div class="pagination">
         <ul>
@@ -429,73 +432,8 @@ enclosed in <strong>[] brackets define the job name</strong>. You are free to us
     </a>
 </li>
 <li class="tag-4">
-    <a href="/tag/dkms.html">
-        <i class="icon-tag icon-large"></i>dkms
-    </a>
-</li>
-<li class="tag-4">
-    <a href="/tag/atomic_ops.html">
-        <i class="icon-tag icon-large"></i>atomic_ops
-    </a>
-</li>
-<li class="tag-4">
-    <a href="/tag/verify_blkparse.html">
-        <i class="icon-tag icon-large"></i>verify_blkparse
-    </a>
-</li>
-<li class="tag-4">
-    <a href="/tag/util-linux.html">
-        <i class="icon-tag icon-large"></i>util-linux
-    </a>
-</li>
-<li class="tag-2">
-    <a href="/tag/fio.html">
-        <i class="icon-tag icon-large"></i>fio
-    </a>
-</li>
-<li class="tag-4">
-    <a href="/tag/bfq.html">
-        <i class="icon-tag icon-large"></i>BFQ
-    </a>
-</li>
-<li class="tag-4">
-    <a href="/tag/kyber.html">
-        <i class="icon-tag icon-large"></i>kyber
-    </a>
-</li>
-<li class="tag-4">
-    <a href="/tag/cfq.html">
-        <i class="icon-tag icon-large"></i>CFQ
-    </a>
-</li>
-<li class="tag-1">
-    <a href="/tag/blktrace.html">
-        <i class="icon-tag icon-large"></i>blktrace
-    </a>
-</li>
-<li class="tag-4">
-    <a href="/tag/relay.html">
-        <i class="icon-tag icon-large"></i>relay
-    </a>
-</li>
-<li class="tag-2">
-    <a href="/tag/device-mapper.html">
-        <i class="icon-tag icon-large"></i>device-mapper
-    </a>
-</li>
-<li class="tag-4">
-    <a href="/tag/btrace.html">
-        <i class="icon-tag icon-large"></i>btrace
-    </a>
-</li>
-<li class="tag-4">
-    <a href="/tag/iowatcher.html">
-        <i class="icon-tag icon-large"></i>iowatcher
-    </a>
-</li>
-<li class="tag-4">
-    <a href="/tag/blkiomon.html">
-        <i class="icon-tag icon-large"></i>blkiomon
+    <a href="/tag/f2fs.html">
+        <i class="icon-tag icon-large"></i>f2fs
     </a>
 </li>
 <li class="tag-4">
@@ -509,13 +447,53 @@ enclosed in <strong>[] brackets define the job name</strong>. You are free to us
     </a>
 </li>
 <li class="tag-4">
+    <a href="/tag/relay.html">
+        <i class="icon-tag icon-large"></i>relay
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/btrace.html">
+        <i class="icon-tag icon-large"></i>btrace
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/bvec.html">
+        <i class="icon-tag icon-large"></i>bvec
+    </a>
+</li>
+<li class="tag-4">
     <a href="/tag/blkrawverify.html">
         <i class="icon-tag icon-large"></i>blkrawverify
     </a>
 </li>
 <li class="tag-4">
+    <a href="/tag/dkms.html">
+        <i class="icon-tag icon-large"></i>dkms
+    </a>
+</li>
+<li class="tag-2">
+    <a href="/tag/device-mapper.html">
+        <i class="icon-tag icon-large"></i>device-mapper
+    </a>
+</li>
+<li class="tag-4">
     <a href="/tag/request-tagging.html">
         <i class="icon-tag icon-large"></i>request tagging
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/btrecord.html">
+        <i class="icon-tag icon-large"></i>btrecord
+    </a>
+</li>
+<li class="tag-2">
+    <a href="/tag/fio.html">
+        <i class="icon-tag icon-large"></i>fio
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/cfq.html">
+        <i class="icon-tag icon-large"></i>CFQ
     </a>
 </li>
 <li class="tag-2">
@@ -524,13 +502,28 @@ enclosed in <strong>[] brackets define the job name</strong>. You are free to us
     </a>
 </li>
 <li class="tag-4">
-    <a href="/tag/virtualbox.html">
-        <i class="icon-tag icon-large"></i>virtualbox
+    <a href="/tag/single-queue.html">
+        <i class="icon-tag icon-large"></i>single queue
     </a>
 </li>
 <li class="tag-4">
-    <a href="/tag/single-queue.html">
-        <i class="icon-tag icon-large"></i>single queue
+    <a href="/tag/verify_blkparse.html">
+        <i class="icon-tag icon-large"></i>verify_blkparse
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/blkiomon.html">
+        <i class="icon-tag icon-large"></i>blkiomon
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/atomic_ops.html">
+        <i class="icon-tag icon-large"></i>atomic_ops
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/relayfs.html">
+        <i class="icon-tag icon-large"></i>relayfs
     </a>
 </li>
 <li class="tag-2">
@@ -539,18 +532,38 @@ enclosed in <strong>[] brackets define the job name</strong>. You are free to us
     </a>
 </li>
 <li class="tag-4">
-    <a href="/tag/f2fs.html">
-        <i class="icon-tag icon-large"></i>f2fs
+    <a href="/tag/btreplay.html">
+        <i class="icon-tag icon-large"></i>btreplay
     </a>
 </li>
 <li class="tag-4">
-    <a href="/tag/relayfs.html">
-        <i class="icon-tag icon-large"></i>relayfs
+    <a href="/tag/virtualbox.html">
+        <i class="icon-tag icon-large"></i>virtualbox
     </a>
 </li>
 <li class="tag-4">
-    <a href="/tag/bvec.html">
-        <i class="icon-tag icon-large"></i>bvec
+    <a href="/tag/util-linux.html">
+        <i class="icon-tag icon-large"></i>util-linux
+    </a>
+</li>
+<li class="tag-1">
+    <a href="/tag/blktrace.html">
+        <i class="icon-tag icon-large"></i>blktrace
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/bfq.html">
+        <i class="icon-tag icon-large"></i>BFQ
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/kyber.html">
+        <i class="icon-tag icon-large"></i>kyber
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/iowatcher.html">
+        <i class="icon-tag icon-large"></i>iowatcher
     </a>
 </li>
 

@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>shhuiw's Technotes - shenghui</title>
+    <title>shhuiw's Technotes - btreplay</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="shenghui">
@@ -110,117 +110,11 @@
       <div class="row">
         <div class="span9" id="content">
         <div class="article">
-                <h1><a href="/concurrency-managed-workqueue-cmwq.html">Concurrency Managed Workqueue (cmwq)</a></h1>
+                <h1><a href="/btrecord-recreate-io-loads-recorded-by-blktrace.html">btrecord - recreate IO loads recorded by blktrace</a></h1>
                 <div class="well small"><footer class="post-info">
 <span class="label">Date</span>
-<abbr class="published" title="2018-10-11T00:00:00+08:00">
-        <i class="icon-calendar"></i>Thu 11 October 2018
-</abbr>
-<span class="label">By</span>
-<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
-<span class="label">Category</span>
-<a href="/category/bing-fa.html"><i class="icon-folder-open"></i>并发</a>.
-
-
-<span class="label">Tags</span>
-	<a href="/tag/workqueue.html"><i class="icon-tag"></i>workqueue</a>
-</footer><!-- /.post-info --></div>
-                <div class="summary"><ul>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/Documentation/core-api/workqueue.rst">linux/Documentation/core-api/workqueue.rst</a></li>
-</ul>
-<p><strong>Whenever a driver or subsystem wants a function to be executed asynchronously it has to set up a work item pointing to that function and queue that work item on a workqueue.</strong></p>
-<p>There are many cases where an <strong>asynchronous process execution context</strong> is needed and …</p>
-                        <a class="btn primary xsmall" href="/concurrency-managed-workqueue-cmwq.html">more ...</a>
-                </div>
-        </div>
-        <hr />
-        <div class="article">
-                <h1><a href="/atomic_xchg-atomic_cmpxchg.html">atomic_xchg & atomic_cmpxchg</a></h1>
-                <div class="well small"><footer class="post-info">
-<span class="label">Date</span>
-<abbr class="published" title="2018-10-10T19:00:00+08:00">
-        <i class="icon-calendar"></i>Wed 10 October 2018
-</abbr>
-<span class="label">By</span>
-<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
-<span class="label">Category</span>
-<a href="/category/wei-fen-lei.html"><i class="icon-folder-open"></i>未分类</a>.
-
-
-<span class="label">Tags</span>
-	<a href="/tag/atomic_ops.html"><i class="icon-tag"></i>atomic_ops</a>
-</footer><!-- /.post-info --></div>
-                <div class="summary"><ul>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/Documentation/core-api/atomic_ops.rst">linux/Documentation/core-api/atomic_ops.rst</a></li>
-</ul>
-<p>If someone wants to use xchg(), cmpxchg() and their variants, <strong>linux/atomic.h</strong> should be included rather than <strong>asm/cmpxchg.h</strong>, unless the code is in <strong>arch/</strong>* and can take care of itself.</p>
-<div class="highlight"><pre><span></span>    &quot;compare and swap&quot; atomically:
-        1) Compares &quot;old&quot; with the value currently at …</pre></div>
-                        <a class="btn primary xsmall" href="/atomic_xchg-atomic_cmpxchg.html">more ...</a>
-                </div>
-        </div>
-        <hr />
-        <div class="article">
-                <h1><a href="/kcopyd.html">kcopyd</a></h1>
-                <div class="well small"><footer class="post-info">
-<span class="label">Date</span>
-<abbr class="published" title="2018-10-08T00:00:00+08:00">
-        <i class="icon-calendar"></i>Mon 08 October 2018
-</abbr>
-<span class="label">By</span>
-<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
-<span class="label">Category</span>
-<a href="/category/device-mapper.html"><i class="icon-folder-open"></i>device-mapper</a>.
-
-
-<span class="label">Tags</span>
-	<a href="/tag/device-mapper.html"><i class="icon-tag"></i>device-mapper</a>
-</footer><!-- /.post-info --></div>
-                <div class="summary"><ul>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/Documentation/device-mapper/kcopyd.txt">linux/Documentation/device-mapper/kcopyd.txt</a></li>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/drivers/md/dm-kcopyd.c">linux/drivers/md/dm-kcopyd.c</a></li>
-</ul>
-<p>kcopyd 提供的是一个易于使用的接口，<strong>隐藏了异步</strong>：dm-kcopyd.c 重点在于 <strong>"d"</strong>，即对 <strong>kcopyd_job</strong>s 的异步管理，而 copy 相关的具体 <strong>async IO 细节在 dm-io.c</strong> 中实现</p>
-<p>kcopyd provides the ability to copy <strong>a range of sectors</strong> <strong>from one</strong> block-device
-<strong>to one or more other</strong> block-devices, with …</p>
-                        <a class="btn primary xsmall" href="/kcopyd.html">more ...</a>
-                </div>
-        </div>
-        <hr />
-        <div class="article">
-                <h1><a href="/dm-io.html">dm-io</a></h1>
-                <div class="well small"><footer class="post-info">
-<span class="label">Date</span>
-<abbr class="published" title="2018-10-07T18:00:00+08:00">
-        <i class="icon-calendar"></i>Sun 07 October 2018
-</abbr>
-<span class="label">By</span>
-<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
-<span class="label">Category</span>
-<a href="/category/device-mapper.html"><i class="icon-folder-open"></i>device-mapper</a>.
-
-
-<span class="label">Tags</span>
-	<a href="/tag/device-mapper.html"><i class="icon-tag"></i>device-mapper</a>
-</footer><!-- /.post-info --></div>
-                <div class="summary"><ul>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/Documentation/device-mapper/dm-io.txt">linux/Documentation/device-mapper/dm-io.txt</a></li>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/drivers/md/dm-io.c">linux/drivers/md/dm-io.c</a></li>
-</ul>
-<p>dm-io provides <strong>synchronous and asynchronous</strong> I/O services. There are 4
-types of I/O services available, and each type has a sync and an async
-version.</p>
-<p>The <strong>user</strong> must set up an dm_io_region structure to describe the desired location …</p>
-                        <a class="btn primary xsmall" href="/dm-io.html">more ...</a>
-                </div>
-        </div>
-        <hr />
-        <div class="article">
-                <h1><a href="/iostat - Device Utilization Report.html">iostat - Device Utilization Report</a></h1>
-                <div class="well small"><footer class="post-info">
-<span class="label">Date</span>
-<abbr class="published" title="2018-10-01T00:00:00+08:00">
-        <i class="icon-calendar"></i>Mon 01 October 2018
+<abbr class="published" title="2019-02-23T21:00:00+08:00">
+        <i class="icon-calendar"></i>Sat 23 February 2019
 </abbr>
 <span class="label">By</span>
 <a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
@@ -229,36 +123,21 @@ version.</p>
 
 
 <span class="label">Tags</span>
-	<a href="/tag/iostat.html"><i class="icon-tag"></i>iostat</a>
+	<a href="/tag/blktrace.html"><i class="icon-tag"></i>blktrace</a>
+	<a href="/tag/btrecord.html"><i class="icon-tag"></i>btrecord</a>
+	<a href="/tag/btreplay.html"><i class="icon-tag"></i>btreplay</a>
 </footer><!-- /.post-info --></div>
-                <div class="summary"><p><a href="https://linux.die.net/man/1/iostat">https://linux.die.net/man/1/iostat</a></p>
-<div class="highlight"><pre><span></span>IO statistics
-        /proc/diskstats
-        /sys/block/&lt;disk&gt;/stat
-        /sys/block/&lt;disk&gt;/&lt;partiton&gt;/stat
-</pre></div>
-
-
-<div class="highlight"><pre><span></span>    -t      Print the time for each report displayed. The timestamp format may
-            depend on the value of the S_TIME_FORMAT environment variable 
-
-    -x      Display extended statistics.
-
-The interval parameter &#39;-d&#39; specifies …</pre></div>
-                        <a class="btn primary xsmall" href="/iostat - Device Utilization Report.html">more ...</a>
+                <div class="summary"><ul>
+<li><a href="https://git.kernel.org/pub/scm/linux/kernel/git/axboe/blktrace.git">blktrace.git</a></li>
+<li>man btt</li>
+<li><strong>/usr/share/doc/blktrace/btreplay.pdf</strong></li>
+</ul>
+<p>The btrecord and btreplay tools provide the ability to record and replay IOs captured by the blktrace utility. Attempts are made to maintain ordering, CPU mappings and time-separation of IOs.</p>
+<p>The blktrace utility provides the ability to collect detailed traces …</p>
+                        <a class="btn primary xsmall" href="/btrecord-recreate-io-loads-recorded-by-blktrace.html">more ...</a>
                 </div>
         </div>
         <hr />
-
-        <div class="pagination">
-        <ul>
-                        <li class="prev"><a href="/author/shenghui2.html">&larr; Previous</a></li>
-                        <li class=""><a href="/author/shenghui.html">1</a></li>
-                        <li class=""><a href="/author/shenghui2.html">2</a></li>
-                        <li class="active"><a href="/author/shenghui3.html">3</a></li>
-                        <li class="next disabled"><a href="#">&rarr; Next</a></li>
-        </ul>
-        </div>
 
         </div><!--/span-->
 
