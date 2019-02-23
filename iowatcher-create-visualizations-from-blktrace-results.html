@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>shhuiw's Technotes - workqueue</title>
+    <title>iowatcher - Create visualizations from blktrace results</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="shenghui">
@@ -69,7 +69,7 @@
 						<i class="icon-folder-open icon-large"></i>并发
 					</a>
                   </li>
-                  <li >
+                  <li class="active">
                     <a href="/category/block-io.html">
 						<i class="icon-folder-open icon-large"></i>Block I/O
 					</a>
@@ -109,32 +109,227 @@
     <div class="container-fluid">
       <div class="row">
         <div class="span9" id="content">
-        <div class="article">
-                <h1><a href="/concurrency-managed-workqueue-cmwq.html">Concurrency Managed Workqueue (cmwq)</a></h1>
-                <div class="well small"><footer class="post-info">
+<section id="content">
+        <article>
+                <header>
+                        <h1>
+                                <a href=""
+                                        rel="bookmark"
+                                        title="Permalink to iowatcher - Create visualizations from blktrace results">
+                                        iowatcher - Create visualizations from blktrace results
+                                </a>
+                        </h1>
+                </header>
+                <div class="entry-content">
+                <div class="well">
+<footer class="post-info">
 <span class="label">Date</span>
-<abbr class="published" title="2018-10-11T00:00:00+08:00">
-        <i class="icon-calendar"></i>Thu 11 October 2018
+<abbr class="published" title="2019-02-23T10:00:00+08:00">
+        <i class="icon-calendar"></i>Sat 23 February 2019
 </abbr>
 <span class="label">By</span>
 <a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
 <span class="label">Category</span>
-<a href="/category/bing-fa.html"><i class="icon-folder-open"></i>并发</a>.
+<a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
 
 
 <span class="label">Tags</span>
-	<a href="/tag/workqueue.html"><i class="icon-tag"></i>workqueue</a>
-</footer><!-- /.post-info --></div>
-                <div class="summary"><ul>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/Documentation/core-api/workqueue.rst">linux/Documentation/core-api/workqueue.rst</a></li>
+	<a href="/tag/blktrace.html"><i class="icon-tag"></i>blktrace</a>
+	<a href="/tag/blkparse.html"><i class="icon-tag"></i>blkparse</a>
+	<a href="/tag/iowatcher.html"><i class="icon-tag"></i>iowatcher</a>
+</footer><!-- /.post-info -->                </div>
+                <ul>
+<li><a href="https://git.kernel.org/pub/scm/linux/kernel/git/axboe/blktrace.git">blktrace.git</a></li>
+<li>man iowatcher</li>
 </ul>
-<p><strong>Whenever a driver or subsystem wants a function to be executed asynchronously it has to set up a work item pointing to that function and queue that work item on a workqueue.</strong></p>
-<p>There are many cases where an <strong>asynchronous process execution context</strong> is needed and …</p>
-                        <a class="btn primary xsmall" href="/concurrency-managed-workqueue-cmwq.html">more ...</a>
-                </div>
-        </div>
-        <hr />
+<div class="highlight"><pre><span></span>    iowatcher [options] [--] [program arguments ...]
+</pre></div>
 
+
+<div class="highlight"><pre><span></span>    blktrace/
+        iowatcher/
+            ├── blkparse.c
+            ├── blkparse.h
+            ├── COPYING
+            ├── fio.c
+            ├── fio.h
+            ├── list.h
+            ├── main.c
+            ├── Makefile
+            ├── mpstat.c
+            ├── mpstat.h
+            ├── plot.c
+            ├── plot.h
+            ├── tracers.c
+            └── tracers.h
+</pre></div>
+
+
+<p>iowatcher graphs the results of a blktrace run.  It can graph the result of an existing blktrace, start a new blktrace, or start a new blktrace and a benchmark run. It can then create an image or movie of the IO from a given trace. </p>
+<p>iowatcher can produce either SVG files or movies in mp4 format (with ffmpeg) or ogg format (with png2theora).</p>
+<h3>OPTIONS</h3>
+<div class="highlight"><pre><span></span>    --help  Print a brief usage summary.
+
+    -d, --device device
+            Controls which device you are tracing.  
+            You can only trace one device at a time for now.   
+            It is sent directly to blktrace, and only needed when you 
+            are making a new trace.
+
+    -D, --blktrace-destination destination
+            Destination for blktrace.
+
+    -p, --prog
+            Run a program while blktrace is run. 
+            The program and its arguments must be specified after all
+            other options.  
+            Note that this option previously required the program to be
+            given as a single argument but it now tells iowatcher to expect 
+            extra arguments which it should be run during the trace.
+
+    -- 
+            End option parsing. 
+            If --prog is specified, everything after -- is the program to be
+            run. This can be useful if the program name could otherwise
+            be mistaken for an option.
+
+    -K, --keep-movie-svgs
+            Keep the SVG files generated for movie mode.
+
+    -t, --trace path
+            Specify the name of the file or directory in which blktrace
+            output is located. 
+            iowatcher uses a dump from blkparse, so this option tries to 
+            guess the name of the corresponding per-CPU blktrace data  
+            files if the dump file doesn&#39;t already exist. 
+            To add multiple traces to a given graph, you can specify 
+                --trace 
+            more than once. 
+            If path is a directory, iowatcher will use the name of the 
+            directory as the base name of the dump file and all trace files 
+            found inside the directory will be processed.
+
+    -l, --label label
+            Sets a label in the graph for a trace file.  
+            The labels are added in the same order as the trace files.
+
+    -m, --movie [style]
+            Create a movie.  
+            The file format depends on the extension used in the -o file
+            option. If you specify an .ogv or .ogg extension, the result will 
+            be Ogg Theora video, if png2theora is available. If you use 
+            an .mp4 extension, the result will be an mp4 video if ffmpeg is 
+            available. You can use any other extension, but the end result 
+            will be an mp4. The accepted style values are spindle for a 
+            circular disc-like effect (default) or rect for a rectangular graph
+            style.
+
+    -T, --title title
+            Set a title to be placed at the top of the graph.
+
+    -o, --output file
+            Output filename for the SVG image or video. 
+            The video format used will depend on the file name
+            extension. See --movie for details.
+
+    -r, --rolling seconds
+            Control the duration for the rolling average.  
+            iowatcher tries to smooth out bumpy graphs by averaging the 
+            current second with seconds from the past. Larger numbers 
+            here give you flatter graphs.
+
+    -h, --height height
+            Set the height of each graph
+
+    -w, --width width
+            Set the width of each graph
+
+    -c, --columns columns
+            Number of columns in graph output
+
+    -x, --xzoom min:max
+            Limit processed time range to min:max.
+
+    -y, --yzoom min:max
+            Limit processed sectors to min:max.
+
+    -a, --io-plot-action action
+            Plot action (one of Q, D, or C) in the IO graph.
+
+    -P, --per-process-io
+            Distinguish between processes in the IO graph.
+
+    -O, --only-graph graph
+            Add  a single graph to the output (see section GRAPHS for 
+            options).  
+            By default all graphs are included. Use -O to generate 
+            only the required graphs. -O may be used more than once.
+
+    -N, --no-graph type
+            Remove a single graph from the output (see section GRAPHS 
+            for options). This option may be used more than once.
+</pre></div>
+
+
+<h3>GRAPHS</h3>
+<p>Values accepted by the -O and -N options are:</p>
+<div class="highlight"><pre><span></span>        io
+        tput
+        latency
+        queue_depth
+        iops
+        cpu-sys
+        cpu-io
+        cpu-irq
+        cpu-user
+        cpu-soft
+</pre></div>
+
+
+<h3>EXAMPLES</h3>
+<ul>
+<li>Generate graph from the <strong>existing trace.dump</strong>:</li>
+</ul>
+<div class="highlight"><pre><span></span>        # iowatcher -t trace
+</pre></div>
+
+
+<ul>
+<li><strong>Skip</strong> the IO graph:</li>
+</ul>
+<div class="highlight"><pre><span></span>        # iowatcher -t trace.dump -o trace.svg -N io
+</pre></div>
+
+
+<ul>
+<li><strong>Only</strong> graph tput and latency:</li>
+</ul>
+<div class="highlight"><pre><span></span>        # iowatcher -t trace.dump -o trace.svg -O tput -O latency
+</pre></div>
+
+
+<ul>
+<li>Generate a graph <strong>from two runs</strong>, and label them:</li>
+</ul>
+<div class="highlight"><pre><span></span>        # iowatcher -t ext4.dump -t xfs.dump -l Ext4 -l XFS -o trace.svg
+</pre></div>
+
+
+<ul>
+<li><strong>Run a fio benchmark and store the trace in trace.dump, add a title to the top, use /dev/sda for blktrace</strong>:</li>
+</ul>
+<div class="highlight"><pre><span></span>        # iowatcher -d /dev/sda -t trace.dump -T &#39;Fio Benchmark&#39; -p fio some_job_file
+</pre></div>
+
+
+<ul>
+<li>Make a movie from an existing trace:</li>
+</ul>
+<div class="highlight"><pre><span></span>        # iowatcher -t trace --movie -o trace.mp4
+</pre></div>
+                </div><!-- /.entry-content -->
+        </article>
+</section>
         </div><!--/span-->
 
                 <div class="span3 well sidebar-nav" id="sidebar">

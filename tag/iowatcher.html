@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>shhuiw's Technotes - workqueue</title>
+    <title>shhuiw's Technotes - iowatcher</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="shenghui">
@@ -110,27 +110,52 @@
       <div class="row">
         <div class="span9" id="content">
         <div class="article">
-                <h1><a href="/concurrency-managed-workqueue-cmwq.html">Concurrency Managed Workqueue (cmwq)</a></h1>
+                <h1><a href="/iowatcher-create-visualizations-from-blktrace-results.html">iowatcher - Create visualizations from blktrace results</a></h1>
                 <div class="well small"><footer class="post-info">
 <span class="label">Date</span>
-<abbr class="published" title="2018-10-11T00:00:00+08:00">
-        <i class="icon-calendar"></i>Thu 11 October 2018
+<abbr class="published" title="2019-02-23T10:00:00+08:00">
+        <i class="icon-calendar"></i>Sat 23 February 2019
 </abbr>
 <span class="label">By</span>
 <a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
 <span class="label">Category</span>
-<a href="/category/bing-fa.html"><i class="icon-folder-open"></i>并发</a>.
+<a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
 
 
 <span class="label">Tags</span>
-	<a href="/tag/workqueue.html"><i class="icon-tag"></i>workqueue</a>
+	<a href="/tag/blktrace.html"><i class="icon-tag"></i>blktrace</a>
+	<a href="/tag/blkparse.html"><i class="icon-tag"></i>blkparse</a>
+	<a href="/tag/iowatcher.html"><i class="icon-tag"></i>iowatcher</a>
 </footer><!-- /.post-info --></div>
                 <div class="summary"><ul>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/Documentation/core-api/workqueue.rst">linux/Documentation/core-api/workqueue.rst</a></li>
+<li><a href="https://git.kernel.org/pub/scm/linux/kernel/git/axboe/blktrace.git">blktrace.git</a></li>
+<li>man iowatcher</li>
 </ul>
-<p><strong>Whenever a driver or subsystem wants a function to be executed asynchronously it has to set up a work item pointing to that function and queue that work item on a workqueue.</strong></p>
-<p>There are many cases where an <strong>asynchronous process execution context</strong> is needed and …</p>
-                        <a class="btn primary xsmall" href="/concurrency-managed-workqueue-cmwq.html">more ...</a>
+<div class="highlight"><pre><span></span>    iowatcher [options] [--] [program arguments ...]
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>    blktrace/
+        iowatcher/
+            ├── blkparse.c
+            ├── blkparse.h
+            ├── COPYING
+            ├── fio.c
+            ├── fio.h
+            ├── list.h
+            ├── main.c
+            ├── Makefile
+            ├── mpstat.c
+            ├── mpstat.h
+            ├── plot.c
+            ├── plot.h
+            ├── tracers.c
+            └── tracers.h
+</pre></div>
+
+
+<p>iowatcher graphs the results of a blktrace run.  It can graph the result of …</p>
+                        <a class="btn primary xsmall" href="/iowatcher-create-visualizations-from-blktrace-results.html">more ...</a>
                 </div>
         </div>
         <hr />
