@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>shhuiw's Technotes - kyber</title>
+    <title>shhuiw's Technotes - blktrace</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="shenghui">
@@ -110,36 +110,40 @@
       <div class="row">
         <div class="span9" id="content">
         <div class="article">
-                <h1><a href="/block-layer-introduction-part-2-the-request-layer.html">Block layer introduction part 2: the request layer</a></h1>
+                <h1><a href="/blktrace-early-version-of-kernel-part.html">blktrace - early version of kernel part</a></h1>
                 <div class="well small"><footer class="post-info">
 <span class="label">Date</span>
-<abbr class="published" title="2018-12-11T13:00:00+08:00">
-        <i class="icon-calendar"></i>Tue 11 December 2018
+<abbr class="published" title="2019-02-16T18:00:00+08:00">
+        <i class="icon-calendar"></i>Sat 16 February 2019
 </abbr>
 <span class="label">By</span>
-<a href="/author/neil-brown.html"><i class="icon-user"></i>Neil Brown</a>
+<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
 <span class="label">Category</span>
 <a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
 
 
 <span class="label">Tags</span>
-	<a href="/tag/request-tagging.html"><i class="icon-tag"></i>request tagging</a>
-	<a href="/tag/single-queue.html"><i class="icon-tag"></i>single queue</a>
-	<a href="/tag/multiqueue.html"><i class="icon-tag"></i>multiqueue</a>
-	<a href="/tag/cfq.html"><i class="icon-tag"></i>CFQ</a>
-	<a href="/tag/bfq.html"><i class="icon-tag"></i>BFQ</a>
-	<a href="/tag/kyber.html"><i class="icon-tag"></i>kyber</a>
+	<a href="/tag/blktrace.html"><i class="icon-tag"></i>blktrace</a>
 </footer><!-- /.post-info --></div>
-                <div class="summary"><p>By Neil Brown&emsp;&emsp;November 9, 2017, <a href="https://lwn.net">lwn.net</a></p>
-<ul>
-<li><a href="https://lwn.net/Articles/738449/">Block layer introduction part 2: the request layer</a></li>
-<li><a href="https://lwn.net/Articles/720675/">Two new block I/O schedulers for 4.12</a></li>
+                <div class="summary"><ul>
+<li><strong>2056a782f8e7 [PATCH] Block queue IO tracing support (blktrace) as of 2006-03-23</strong></li>
+<li><a href="https://elixir.bootlin.com/linux/v2.6.17-rc1/source/include/linux/blktrace_api.h">v2.6.17-rc1 include/linux/blktrace_api.h</a></li>
+<li><a href="https://elixir.bootlin.com/linux/v2.6.17-rc1/source/block/Kconfig">v2.6.17-rc1 block/blktrace.c</a></li>
 </ul>
-<p>The Linux block layer provides an <strong>upstream interface to filesystems and block-special devices</strong> allowing them to access a multitude of storage backends in a uniform …</p>
-                        <a class="btn primary xsmall" href="/block-layer-introduction-part-2-the-request-layer.html">more ...</a>
+<p>blktrace.c 实现了 message 的填充（包括 message header 的构造 - struct blk_io_trace）并通过 relayfs 传递 message 到 userspace；blktrace_api 封装对 __blk_add_trace 的调用，Block IO layer 通过调用这些 APIs …</p>
+                        <a class="btn primary xsmall" href="/blktrace-early-version-of-kernel-part.html">more ...</a>
                 </div>
         </div>
         <hr />
+
+        <div class="pagination">
+        <ul>
+                        <li class="prev"><a href="/tag/blktrace.html">&larr; Previous</a></li>
+                        <li class=""><a href="/tag/blktrace.html">1</a></li>
+                        <li class="active"><a href="/tag/blktrace2.html">2</a></li>
+                        <li class="next disabled"><a href="#">&rarr; Next</a></li>
+        </ul>
+        </div>
 
         </div><!--/span-->
 
