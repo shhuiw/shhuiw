@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>btrecord - recreate IO loads recorded by blktrace</title>
+    <title>bno_plot - generate interactive 3D plot of IO blocks and sizes</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="shenghui">
@@ -115,8 +115,8 @@
                         <h1>
                                 <a href=""
                                         rel="bookmark"
-                                        title="Permalink to btrecord - recreate IO loads recorded by blktrace">
-                                        btrecord - recreate IO loads recorded by blktrace
+                                        title="Permalink to bno_plot - generate interactive 3D plot of IO blocks and sizes">
+                                        bno_plot - generate interactive 3D plot of IO blocks and sizes
                                 </a>
                         </h1>
                 </header>
@@ -124,8 +124,8 @@
                 <div class="well">
 <footer class="post-info">
 <span class="label">Date</span>
-<abbr class="published" title="2019-02-23T21:00:00+08:00">
-        <i class="icon-calendar"></i>Sat 23 February 2019
+<abbr class="published" title="2019-02-24T17:00:00+08:00">
+        <i class="icon-calendar"></i>Sun 24 February 2019
 </abbr>
 <span class="label">By</span>
 <a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
@@ -135,126 +135,26 @@
 
 <span class="label">Tags</span>
 	<a href="/tag/blktrace.html"><i class="icon-tag"></i>blktrace</a>
-	<a href="/tag/btrecord.html"><i class="icon-tag"></i>btrecord</a>
-	<a href="/tag/btreplay.html"><i class="icon-tag"></i>btreplay</a>
+	<a href="/tag/btt.html"><i class="icon-tag"></i>btt</a>
+	<a href="/tag/bno_plot.html"><i class="icon-tag"></i>bno_plot</a>
 </footer><!-- /.post-info -->                </div>
                 <ul>
 <li><a href="https://git.kernel.org/pub/scm/linux/kernel/git/axboe/blktrace.git">blktrace.git</a></li>
-<li>man btrecord</li>
-<li><strong>/usr/share/doc/blktrace/btreplay.pdf</strong></li>
+<li>man bno_plot</li>
+<li><strong>/usr/share/doc/blktrace/btt.pdf</strong></li>
 </ul>
-<p>The btrecord and btreplay tools provide the ability to record and replay IOs captured by the blktrace utility. Attempts are made to maintain ordering, CPU mappings and time-separation of IOs.</p>
-<p>The blktrace utility provides the ability to collect detailed traces from the kernel for each IO processed by the block IO layer. The traces provide a <strong>complete timeline for each IO processed, including detailed information concerning when an IO was first received by the block IO layer — indicating the device, CPU number, time stamp, IO direction, sector number and IO size (number of sectors)</strong>. Using this information, one is able to replay the IO again on the same machine or another set up entirely.</p>
-<div class="highlight"><pre><span></span>    btrecord [ options ] &lt;dev...&gt;
+<p>To use this utility, the <strong>gnuplot</strong> package needs to be installed.</p>
+<p>bno_plot is a visualization tool for the block layer IO tracing tool called blktrace(8).  As noted in its documentation, blktrace is a block layer IO tracing mechanism which provides detailed information about request queue operations up to user space.</p>
+<p>bno_plot utilizes gnuplot to generate a 3D plot of the block number output from btt.  If no <code>&lt;files&gt;</code> are specified, it will utilize all files generated after btt was run with <strong>-B blknos</strong> (meaning:  all files of the form <strong>blknos*[rw].dat</strong>). The display will display <strong>each IO generated, with the time (seconds) along the X-axis, the block number (start) along the Y-axis and the number of blocks transferred in the IO represented along the Z-axis</strong>.</p>
+<div class="highlight"><pre><span></span>    bno_plot    [ -h | --help ]
+                [ -v | --verbose ]
+                [ -K | --keys-below ]
+                [ &lt;file...&gt; ]
 </pre></div>
 
 
-<p>The basic operating work-flow to replay IOs would be something like:</p>
-<div class="highlight"><pre><span></span>    - Run blktrace to collect traces. 
-      Here you specify the device or devices that you wish to trace 
-      and later replay IOs upon. 
-      Note: the only traces you are interested in are QUEUE requests —
-            thus, to save system resources (including storage for traces), 
-            one could specify the 
-                    -a queue 
-            command line option to blktrace.
-
-    - While blktrace is running, you run the workload that you are 
-      interested in.
-
-    - When the work load has completed, you stop the blktrace utility 
-      (thus saving all traces over the complete workload).
-
-    - You extract the pertinent IO information from the traces saved by 
-      blktrace using the btrecord utility. This will parse each trace file 
-      created by blktrace, and crafty IO descriptions to be used in the 
-      next phase of the workload processing.
-
-    - Once btrecord has successfully created a series of data files to be
-      processed, you can run the btreplay utility which attempts to generate 
-      the same IOs seen during the sample workload phase.
-</pre></div>
-
-
-<h4>OPTIONS</h4>
-<div class="highlight"><pre><span></span>    -d &lt;dir&gt;
-    --input-directory=&lt;dir&gt;
-            Set input directory. This option requires a single parameter 
-            providing the directory name for where input files are to be 
-            found. The default directory is the current directory (.).
-
-    -D &lt;dir&gt;
-    --output-directory=&lt;dir&gt;
-            Set output directory. This option requires a single parameter
-            providing the directory name for where output files are to be 
-            found. The default directory is the current directory (.).
-
-    -F
-    --find-traces
-            Find trace files automatically 
-            This option instructs btreplay to go find all the trace files
-            in the directory specified (either via the -d option, or in the 
-            default directory (.).
-
-    -h
-    --help
-            Show help and exit.
-
-    -V
-    --version
-            Show version number and exit.
-
-    -m &lt;nanoseconds&gt;
-    --max-bunch-time=&lt;nanoseconds&gt;
-            The -m option requires a single parameter which specifies an
-            amount of time (in nanoseconds) to include in any one bunch 
-            of IOs that are to be processed. 
-            The smaller the value,  the smaller the number of IOs processed
-            at one time — perhaps yielding in more realistic replay.
-            However, after a certain point the amount of overhead per bunch 
-            may result in additional real replay time, thus yielding less 
-            accurate replay times.
-            The default value is 10,000,000 nanoseconds (10 milliseconds).
-
-    -M &lt;num&gt;
-    --max-pkts=&lt;num&gt;
-            Set maximum number of packets per bunch. The -M option 
-            requires a single parameter which specifies the maximum number 
-            of IOs to store in a single bunch. As with the -m option, smaller
-            values may or may not yield more accurate replay times.
-            The default value is 8, with a maximum value of up to 512 
-            being supported.
-
-    -o &lt;basename&gt;
-    --output-base=&lt;basename&gt;
-            Set base name for output files. Each output file has 3 fields:
-                1. Device identifier (taken directly from the device name 
-                   of the blktrace output file).
-                2. btrecord base name — by default ``replay&#39;&#39;.
-                3. The CPU number (again, taken directly from the
-                   blktrace output file name).
-             This option requires a single parameter that will override the
-             default name (replay), and replace it with the specified value.
-
-
-    -v
-    --verbose
-            Enable verbose output. This option will output some simple 
-            statistics at the end of a successful run.  Example output is:
-                sdab:0: 580661 pkts (tot), 126030 pkts (replay), 89809 bunches, 1.4 pkts/bunch
-                sdab:1: 2559775 pkts (tot), 430172 pkts (replay), 293029 bunches, 1.5 pkts/bunch
-                sdab:2: 653559 pkts (tot), 136522 pkts (replay), 102288 bunches, 1.3 pkts/bunch
-                sdab:3: 474773 pkts (tot), 117849 pkts (replay), 69572 bunches, 1.7 pkts/bunch
-
-             The meaning of the columns is:
-                1. The first field contains the device name and CPU identifier. 
-                   Thus: sdab:0: means the device sdab and traces on CPU 0.
-                2. The second field contains the total number of packets 
-                   processed for each device file.
-                3. The next field shows the number of packets eligible for replay.
-                4. The fourth field contains the total number of IO bunches.
-                5. The last field shows the average number of IOs per bunch recorded.
-</pre></div>
+<p>The -K option forces bno_plot to put the keys below the graph.  If it is not specified, all keys for input files are put in the upper right corner of the graph. If the number of devices exceed <strong>10</strong>,  then bno_plot will <strong>automatically</strong> push the keys under the graph.</p>
+<p>To exit the plotter, enter <strong>'quit' or ^D at the 'gnuplot&gt; '</strong> prompt.</p>
                 </div><!-- /.entry-content -->
         </article>
 </section>
