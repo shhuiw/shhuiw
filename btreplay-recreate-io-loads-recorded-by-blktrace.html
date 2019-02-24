@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>shhuiw's Technotes - device-mapper</title>
+    <title>btreplay - recreate IO loads recorded by blktrace</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="shenghui">
@@ -69,12 +69,12 @@
 						<i class="icon-folder-open icon-large"></i>并发
 					</a>
                   </li>
-                  <li >
+                  <li class="active">
                     <a href="/category/block-io.html">
 						<i class="icon-folder-open icon-large"></i>Block I/O
 					</a>
                   </li>
-                  <li class="active">
+                  <li >
                     <a href="/category/device-mapper.html">
 						<i class="icon-folder-open icon-large"></i>device-mapper
 					</a>
@@ -109,115 +109,169 @@
     <div class="container-fluid">
       <div class="row">
         <div class="span9" id="content">
-        <div class="article">
-                <h1><a href="/dm-bufio.html">dm-bufio</a></h1>
-                <div class="well small"><footer class="post-info">
+<section id="content">
+        <article>
+                <header>
+                        <h1>
+                                <a href=""
+                                        rel="bookmark"
+                                        title="Permalink to btreplay - recreate IO loads recorded by blktrace">
+                                        btreplay - recreate IO loads recorded by blktrace
+                                </a>
+                        </h1>
+                </header>
+                <div class="entry-content">
+                <div class="well">
+<footer class="post-info">
 <span class="label">Date</span>
-<abbr class="published" title="2018-11-01T20:00:00+08:00">
-        <i class="icon-calendar"></i>Thu 01 November 2018
+<abbr class="published" title="2019-02-24T11:00:00+08:00">
+        <i class="icon-calendar"></i>Sun 24 February 2019
 </abbr>
 <span class="label">By</span>
 <a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
 <span class="label">Category</span>
-<a href="/category/device-mapper.html"><i class="icon-folder-open"></i>device-mapper</a>.
+<a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
 
 
 <span class="label">Tags</span>
-	<a href="/tag/device-mapper.html"><i class="icon-tag"></i>device-mapper</a>
-</footer><!-- /.post-info --></div>
-                <div class="summary"><ul>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/include/linux/dm-bufio.h">include/linux/dm-bufio.h</a></li>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/drivers/md/dm-bufio.c">drivers/md/dm-bufio.c</a></li>
+	<a href="/tag/blktrace.html"><i class="icon-tag"></i>blktrace</a>
+	<a href="/tag/btrecord.html"><i class="icon-tag"></i>btrecord</a>
+	<a href="/tag/btreplay.html"><i class="icon-tag"></i>btreplay</a>
+</footer><!-- /.post-info -->                </div>
+                <ul>
+<li><a href="https://git.kernel.org/pub/scm/linux/kernel/git/axboe/blktrace.git">blktrace.git</a></li>
+<li>man btreplay</li>
+<li><strong>/usr/share/doc/blktrace/btreplay.pdf</strong></li>
 </ul>
-<p><strong>可以理解为 device-mapper framework 自己实现的简单 buf 库（dm 喜欢自己封装提供自己的 API 接口，这样的好处是可以隐藏 block layer 的一些变动，不好的地方是熟悉这些 API 需要时间，好在实现简洁易懂，实际中用到的时候可以方便查看实现细节），可以看作是 dm 的 malloc 库，dm_bufio_client 看作 buf pool 的句柄，dm_buffer 看作 pool 中单个 buf 句柄。用户有了这些句柄之后，就可以读写数据到 buf；与 malloc 不同的是，dm-bufio …</strong></p>
-                        <a class="btn primary xsmall" href="/dm-bufio.html">more ...</a>
-                </div>
-        </div>
-        <hr />
-        <div class="article">
-                <h1><a href="/struct-target_type.html">struct target_type</a></h1>
-                <div class="well small"><footer class="post-info">
-<span class="label">Date</span>
-<abbr class="published" title="2018-10-15T13:00:00+08:00">
-        <i class="icon-calendar"></i>Mon 15 October 2018
-</abbr>
-<span class="label">By</span>
-<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
-<span class="label">Category</span>
-<a href="/category/device-mapper.html"><i class="icon-folder-open"></i>device-mapper</a>.
+<p>The btrecord and btreplay tools provide the ability to record and replay IOs captured by the blktrace utility. Attempts are made to maintain ordering, CPU mappings and time-separation of IOs.</p>
+<p>The blktrace utility provides the ability to collect detailed traces from the kernel for each IO processed by the block IO layer. The traces provide a complete timeline for each IO processed, including detailed information concerning when an IO was first received by the block IO layer — indicating the device, CPU number,  time stamp, IO direction, sector number and IO size (number of sectors). Using this information, one is able to replay the IO again on the same machine or another set up entirely.</p>
+<div class="highlight"><pre><span></span>    btreplay [ options ] &lt;dev...&gt;
+</pre></div>
 
 
-<span class="label">Tags</span>
-	<a href="/tag/device-mapper.html"><i class="icon-tag"></i>device-mapper</a>
-</footer><!-- /.post-info --></div>
-                <div class="summary"><ul>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/include/linux/device-mapper.h">linux/include/linux/device-mapper.h</a></li>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/drivers/md/dm-target.c">linux/drivers/md/dm-target.c</a></li>
-</ul>
-<p>系统中注册的 target_type 都链入 <code>static LIST_HEAD(_targets)</code> 中</p>
-<p><code>int dm_register_target(struct target_type *tt)</code> 向系统中注册 target_type，如果之前已经注册过了则返回 -EEXIST，否则成功注册并返回 0</p>
-<p><code>void dm_unregister_target(struct target_type *tt)</code> 从系统中注销 target_type，如果之前没有注册过，则报错 <code>Unregistering unrecognised target: &lt;target_type-&gt;name&gt;</code> 并 <code>BUG()</code>，否则移出 <code>static LIST_HEAD(_targets)</code> </p>
-<p><code>int dm_target_iterate …</code></p>
-                        <a class="btn primary xsmall" href="/struct-target_type.html">more ...</a>
-                </div>
-        </div>
-        <hr />
-        <div class="article">
-                <h1><a href="/kcopyd.html">kcopyd</a></h1>
-                <div class="well small"><footer class="post-info">
-<span class="label">Date</span>
-<abbr class="published" title="2018-10-08T00:00:00+08:00">
-        <i class="icon-calendar"></i>Mon 08 October 2018
-</abbr>
-<span class="label">By</span>
-<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
-<span class="label">Category</span>
-<a href="/category/device-mapper.html"><i class="icon-folder-open"></i>device-mapper</a>.
+<p>The basic operating work-flow to replay IOs would be something like:</p>
+<div class="highlight"><pre><span></span>    - Run blktrace to collect traces. 
+      Here you specify the device or devices that you wish to trace 
+      and later replay IOs upon. 
+      Note: the only traces you are interested in are QUEUE requests —
+            thus, to save system resources (including storage for traces), 
+            one could specify the 
+                    -a queue 
+            command line option to blktrace.
+
+    - While blktrace is running, you run the workload that you are 
+      interested in.
+
+    - When the work load has completed, you stop the blktrace utility 
+      (thus saving all traces over the complete workload).
+
+    - You extract the pertinent IO information from the traces saved by
+      blktrace using the btrecord utility. This will parse each trace file 
+      created by blktrace, and crafty IO descriptions to be used in the next
+      phase of the workload processing.
+
+    - Once btrecord has successfully created a series of data files to be 
+      processed, you can run the btreplay utility which attempts to generate 
+      the same IOs seen during the sample workload phase.
+</pre></div>
 
 
-<span class="label">Tags</span>
-	<a href="/tag/device-mapper.html"><i class="icon-tag"></i>device-mapper</a>
-</footer><!-- /.post-info --></div>
-                <div class="summary"><ul>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/Documentation/device-mapper/kcopyd.txt">linux/Documentation/device-mapper/kcopyd.txt</a></li>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/drivers/md/dm-kcopyd.c">linux/drivers/md/dm-kcopyd.c</a></li>
-</ul>
-<p>kcopyd 提供的是一个易于使用的接口，<strong>隐藏了异步</strong>：dm-kcopyd.c 重点在于 <strong>"d"</strong>，即对 <strong>kcopyd_job</strong>s 的异步管理，而 copy 相关的具体 <strong>async IO 细节在 dm-io.c</strong> 中实现</p>
-<p>kcopyd provides the ability to copy <strong>a range of sectors</strong> <strong>from one</strong> block-device
-<strong>to one or more other</strong> block-devices, with …</p>
-                        <a class="btn primary xsmall" href="/kcopyd.html">more ...</a>
-                </div>
-        </div>
-        <hr />
-        <div class="article">
-                <h1><a href="/dm-io.html">dm-io</a></h1>
-                <div class="well small"><footer class="post-info">
-<span class="label">Date</span>
-<abbr class="published" title="2018-10-07T18:00:00+08:00">
-        <i class="icon-calendar"></i>Sun 07 October 2018
-</abbr>
-<span class="label">By</span>
-<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
-<span class="label">Category</span>
-<a href="/category/device-mapper.html"><i class="icon-folder-open"></i>device-mapper</a>.
+<h3>OPTIONS</h3>
+<div class="highlight"><pre><span></span>    -c &lt;num&gt;
+    --cpus=&lt;num&gt;
+            Set number of CPUs to use.
 
+    -d &lt;dir&gt;
+    --input-directory=&lt;dir&gt;
+            Set input directory. This option requires a single parameter 
+            providing the directory name for where input files are to be 
+            found. The default directory is the current directory (.).
 
-<span class="label">Tags</span>
-	<a href="/tag/device-mapper.html"><i class="icon-tag"></i>device-mapper</a>
-</footer><!-- /.post-info --></div>
-                <div class="summary"><ul>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/Documentation/device-mapper/dm-io.txt">linux/Documentation/device-mapper/dm-io.txt</a></li>
-<li><a href="https://elixir.bootlin.com/linux/latest/source/drivers/md/dm-io.c">linux/drivers/md/dm-io.c</a></li>
-</ul>
-<p>dm-io provides <strong>synchronous and asynchronous</strong> I/O services. There are 4
-types of I/O services available, and each type has a sync and an async
-version.</p>
-<p>The <strong>user</strong> must set up an dm_io_region structure to describe the desired location …</p>
-                        <a class="btn primary xsmall" href="/dm-io.html">more ...</a>
-                </div>
-        </div>
-        <hr />
+    -F
+    --find-records
+            Find record files automatically This option instructs btreplay to 
+            go find all the record files in the directory specified (either via t
+            he -d option, or in the default directory (.).
 
+    -h
+    --help
+            Show help and exit.
+
+    -i &lt;basename&gt;
+    --input-base=&lt;basename&gt;
+            Set base name for input files.  Each input file has 3 fields:
+                1. Device identifier (taken directly from the device name of 
+                   the blktrace output file).
+                2. btrecord base name — by default ``replay&#39;&#39;.
+                3. The CPU number (again, taken directly from the blktrace 
+                   output file name).
+            This option requires a single parameter that will override the 
+            default name (replay), and  replace it with the specified value.
+
+    -I &lt;num&gt;
+    --iterations=&lt;num&gt;
+            Set number of iterations to run. This option requires a single 
+            parameter which specifies the number of times to run through 
+            the input files. The default value is 1
+
+    -M &lt;filename&gt;
+    --map-devs=&lt;filename&gt;
+            Specify device mappings. This option requires a single 
+            parameter which specifies the name of a file contain device 
+            mappings. The file must be very simply managed, with just two 
+            pieces of data per line:
+                - The device name on the recorded system (with the &#39;/dev/&#39;
+                  removed). 
+                  Example: /dev/sda would just be sda.
+                - The device name on the replay system to use (again, 
+                  without the &#39;/dev/&#39; path prepended).
+            An example file for when one would map devices /dev/sda 
+            and /dev/sdb on the recorded system to dev/sdg and sdh 
+            on the replay system would be:
+                    sda sdg
+                    sdb sdh
+            The only entries in the file that are allowed are these two
+            element lines — we do not (yet?) support the notion of blank 
+            lines, or comment lines, or the like.
+            The utility allows for multiple -M options to be supplied on the 
+            command line.
+
+    -N
+    --no-stalls
+            Disable pre-bunch stalls. When specified on the command line, 
+            all pre-bunch stall indicators will be ignored. IOs will be replayed 
+            without inter-bunch delays.
+
+    -x &lt;factor&gt;
+    --acc-factor=&lt;factor&gt;
+            Specify acceleration factor. Default value is 1 (no acceleration).
+
+    -v
+    --verbose
+            Enable verbose output. When specified on the command line, this 
+            option instructs btreplay to store information concerning each stall 
+            and IO operation performed by btreplay. The name of each file so
+            created will be the input file name used with an extension of .rep 
+            appended onto it. Thus, an input file of the name sdab.replay.3 would 
+            generate a verbose output file with the name sdab.replay.3.rep in the 
+            directory specified for input files.
+            In addition, btreplay will also output to stderr the names of the input
+            files being processed.
+
+    -V
+    --version
+            Show version number and exit.
+
+    -W
+    --write-enable
+            Enable writing during replay. As a precautionary measure, by 
+            default btreplay will not process write requests. In order to 
+            enable btreplay to actually write to devices one must  explicitly 
+            specify the -W option.
+</pre></div>
+                </div><!-- /.entry-content -->
+        </article>
+</section>
         </div><!--/span-->
 
                 <div class="span3 well sidebar-nav" id="sidebar">
