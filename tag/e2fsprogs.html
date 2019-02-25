@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>shhuiw's Technotes - iowatcher</title>
+    <title>shhuiw's Technotes - e2fsprogs</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="shenghui">
@@ -110,14 +110,14 @@
       <div class="row">
         <div class="span9" id="content">
         <div class="article">
-                <h1><a href="/iowatcher-create-visualizations-from-blktrace-results.html">iowatcher - Create visualizations from blktrace results</a></h1>
+                <h1><a href="/zhuan-zai-shi-yong-blktrace-tong-ji-ci-pan-kuai-io-fang-wen-pin-lu.html">[转载] 使用 blktrace 统计磁盘块 IO 访问频率</a></h1>
                 <div class="well small"><footer class="post-info">
 <span class="label">Date</span>
-<abbr class="published" title="2019-02-23T10:00:00+08:00">
-        <i class="icon-calendar"></i>Sat 23 February 2019
+<abbr class="published" title="2019-02-25T20:30:00+08:00">
+        <i class="icon-calendar"></i>Mon 25 February 2019
 </abbr>
 <span class="label">By</span>
-<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
+<a href="/author/bean_lee.html"><i class="icon-user"></i>Bean_lee</a>
 <span class="label">Category</span>
 <a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
 
@@ -125,37 +125,23 @@
 <span class="label">Tags</span>
 	<a href="/tag/blktrace.html"><i class="icon-tag"></i>blktrace</a>
 	<a href="/tag/blkparse.html"><i class="icon-tag"></i>blkparse</a>
-	<a href="/tag/iowatcher.html"><i class="icon-tag"></i>iowatcher</a>
+	<a href="/tag/e2fsprogs.html"><i class="icon-tag"></i>e2fsprogs</a>
 </footer><!-- /.post-info --></div>
                 <div class="summary"><ul>
-<li><a href="https://git.kernel.org/pub/scm/linux/kernel/git/axboe/blktrace.git">blktrace.git</a></li>
-<li>man iowatcher</li>
+<li><a href="http://blog.chinaunix.net/uid-24774106-id-4096470.html">使用 blktrace 统计磁盘块 IO 访问频率</a></li>
+<li><a href="https://www.mankier.com/8/debugfs">debugfs — ext2/ext3/ext4 file system debugger</a></li>
 </ul>
-<div class="highlight"><pre><span></span>    iowatcher [options] [--] [program arguments ...]
+<p>如果我们想知道，在一段时间内，那一个磁盘块被读写的频率最高，怎么办？我问这个问题是看到 taobao kernel wiki 上面有这么一段话，看了我十分心痒：</p>
+<div class="highlight"><pre><span></span>    通过对 blktrace 的输出结果进行分析，我们可以对特定时间段内发生的
+    读、写操作的磁盘块进行 I/O 频次统计。结合通过将磁盘块 I/O 频度统计和
+    page cache 命中率统计相结合，就可以比较有效的判断服务器节点的 cache
+    使用效率。通过这套工具，CDN 系统修正了一个固态硬盘上 cache 管理的缺陷，
+    显著提高了I/O性能（详细信息）
 </pre></div>
 
 
-<div class="highlight"><pre><span></span>    blktrace/
-        iowatcher/
-            ├── blkparse.c
-            ├── blkparse.h
-            ├── COPYING
-            ├── fio.c
-            ├── fio.h
-            ├── list.h
-            ├── main.c
-            ├── Makefile
-            ├── mpstat.c
-            ├── mpstat.h
-            ├── plot.c
-            ├── plot.h
-            ├── tracers.c
-            └── tracers.h
-</pre></div>
-
-
-<p>iowatcher graphs the results of a blktrace run.  It can graph the result of …</p>
-                        <a class="btn primary xsmall" href="/iowatcher-create-visualizations-from-blktrace-results.html">more ...</a>
+<p>淘宝大神给了一个 …</p>
+                        <a class="btn primary xsmall" href="/zhuan-zai-shi-yong-blktrace-tong-ji-ci-pan-kuai-io-fang-wen-pin-lu.html">more ...</a>
                 </div>
         </div>
         <hr />

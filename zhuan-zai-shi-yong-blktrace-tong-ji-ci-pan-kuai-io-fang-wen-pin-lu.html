@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>blkrawverify & verify_blkparse</title>
+    <title>[转载] 使用 blktrace 统计磁盘块 IO 访问频率</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="shenghui">
@@ -115,8 +115,8 @@
                         <h1>
                                 <a href=""
                                         rel="bookmark"
-                                        title="Permalink to blkrawverify & verify_blkparse">
-                                        blkrawverify & verify_blkparse
+                                        title="Permalink to [转载] 使用 blktrace 统计磁盘块 IO 访问频率">
+                                        [转载] 使用 blktrace 统计磁盘块 IO 访问频率
                                 </a>
                         </h1>
                 </header>
@@ -124,11 +124,11 @@
                 <div class="well">
 <footer class="post-info">
 <span class="label">Date</span>
-<abbr class="published" title="2019-02-22T18:00:00+08:00">
-        <i class="icon-calendar"></i>Fri 22 February 2019
+<abbr class="published" title="2019-02-25T20:30:00+08:00">
+        <i class="icon-calendar"></i>Mon 25 February 2019
 </abbr>
 <span class="label">By</span>
-<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
+<a href="/author/bean_lee.html"><i class="icon-user"></i>Bean_lee</a>
 <span class="label">Category</span>
 <a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
 
@@ -136,30 +136,187 @@
 <span class="label">Tags</span>
 	<a href="/tag/blktrace.html"><i class="icon-tag"></i>blktrace</a>
 	<a href="/tag/blkparse.html"><i class="icon-tag"></i>blkparse</a>
-	<a href="/tag/blkrawverify.html"><i class="icon-tag"></i>blkrawverify</a>
-	<a href="/tag/verify_blkparse.html"><i class="icon-tag"></i>verify_blkparse</a>
+	<a href="/tag/e2fsprogs.html"><i class="icon-tag"></i>e2fsprogs</a>
 </footer><!-- /.post-info -->                </div>
                 <ul>
-<li><a href="">blktrace.git</a></li>
-<li>man blkrawverify</li>
-<li>man verify_blkparse</li>
+<li><a href="http://blog.chinaunix.net/uid-24774106-id-4096470.html">使用 blktrace 统计磁盘块 IO 访问频率</a></li>
+<li><a href="https://www.mankier.com/8/debugfs">debugfs — ext2/ext3/ext4 file system debugger</a></li>
 </ul>
-<p>blkrawverify 和 verify_blkparse 都是 verifies an output file produced by blkparse</p>
-<h3>blkrawverify</h3>
-<p>The  blkrawverify utility can be used to verify data retrieved via blktrace. It will check for <strong>valid event formats, forward progressing sequence numbers and time stamps, also does reasonable checks for other potential issues within individual events</strong>.</p>
-<div class="highlight"><pre><span></span>    blkrawverify &lt;dev&gt; [&lt;dev&gt;...]
+<p>如果我们想知道，在一段时间内，那一个磁盘块被读写的频率最高，怎么办？我问这个问题是看到 taobao kernel wiki 上面有这么一段话，看了我十分心痒：</p>
+<div class="highlight"><pre><span></span>    通过对 blktrace 的输出结果进行分析，我们可以对特定时间段内发生的
+    读、写操作的磁盘块进行 I/O 频次统计。结合通过将磁盘块 I/O 频度统计和
+    page cache 命中率统计相结合，就可以比较有效的判断服务器节点的 cache
+    使用效率。通过这套工具，CDN 系统修正了一个固态硬盘上 cache 管理的缺陷，
+    显著提高了I/O性能（详细信息）
 </pre></div>
 
 
-<p>Errors found will be tracked in <strong><code>&lt;dev&gt;.verify.out</code></strong>.</p>
-<h3>verify_blkparse</h3>
-<p>Verifies an output file from blkparse. All it does is check if the events in the file are <strong>correctly time ordered</strong>. If an entry is found that isn't ordered, it's dumped to stdout.</p>
-<div class="highlight"><pre><span></span>    verify_blkparse &lt;filename&gt;
+<p>淘宝大神给了一个 shell 脚本解决这个问题，但是我守着代码，不知道怎么用。就研究了下 blktrace 和大神的代码。</p>
+<p>常常听淘宝的霸爷，提起 blktrace。 iostat，iotop 这些的工具也是统计磁盘 IO 的，也非常有用，但是和 blktrace 比，信息过于 summarized，而 blktrace 跟踪了发生在块设备层的很多事件，简直就是整个块设备层事件的回放。</p>
+<p>blktrace 能够 trace 那些事件呢？
+<img alt="Bean_lee - blktrace events.png" src="images/BlockIO/Bean_lee - blktrace events.png"></p>
+<p>上面这个胶片来自 HP 的介绍 blktrace 的胶片，介绍的非常好，是参考文献中一篇。</p>
+<p>这些事件都会被 blktrace 捕捉到。由于这些事件要和 kernel 代码中 block device 的 work flow 一一对应，目前我的功力尚不足，所以我就不一一介绍这些事件了。</p>
+<p>blktrace 输出的东西，不是文本，是一些特殊的格式，要想可读，需要 blkparse 解析 blktrace 的输出。</p>
+<p>我们看下blktrace和blkparse合作方式  </p>
+<div class="highlight"><pre><span></span>    blktrace -d /dev/sda -o - |blkparse -i - -o blkparse.out
 </pre></div>
 
 
-<h3>区别</h3>
-<p>blkrawverify 检查的更细致，对消息的格式；verify_blkparse 检查要粗略得多，重点在 events 的 time order。而且前者的参数是 <strong>devname 如 sda</strong>，后者要指定<strong>具体的文件名</strong></p>
+<p>这是一个比较典型的使用：<code>blktrace -d</code> 表示 monitor 哪个设备，<code>-o -</code>表示讲输出吐出到标准输出。<code>blkparse -i -</code>  表示从标准输入获取信息，<code>-o</code> 表示讲解析的内容记录在 blkparse.out</p>
+<p>我们看下输出长的什么样子：
+<img alt="BlockIO/Bean_lee - blkparse output.png" src="images/BlockIO/Bean_lee - blkparse output.png"></p>
+<p>这个胶片非常好的介绍了各个字段的含义。主次设备号，CPU ID，sequence num，time stamp PID ，起始扇区号，进程名字比较好理解，比较难理解的是$6,$7。$6 中的 GPQMDC，一堆字母，代表什么含义？$7的WR 又代表什么含义呢？</p>
+<p>一个一个来，对于$6，表示的是 event，官方手册给了事件对应表：
+<img alt="Bean_lee - blktrace events mask.png" src="images/BlockIO/Bean_lee - blktrace events mask.png"></p>
+<p>那么$7是干嘛的呢？基本上是 R 和 W，也会出现 B 和 S。<strong>R 表示是 read 操作，W 表示 write 操作，B 是 barrier operation，S 是 synchronous operation</strong>。</p>
+<p>看到这个 blkparse 的输出，我们发现这些更像是 raw data，需要我们挖掘背后的信息。btt 这个工具就是一个分析输出得到更高层信息的 tool，他不是我们本文的重点，我们不提他。</p>
+<p>回到开篇的问题，如何知道 which 磁盘扇区被读写的次数最多？有了 blkparse 的输出，我们完全可以做到这个统计：淘宝的 Coly 大神的 shell 脚本已经帮我们作了这个事情。 </p>
+<div class="highlight"><pre><span></span>    root@manu-hacks:~/code/shell/blkstrace_calculator# cat cal.sh
+    #!/bin/bash
+
+    TMP_DIR=&quot;.blktrace_cal&quot;
+
+    # extend the blktrace log to &quot;blockid R/W&quot;
+    extend()
+    {
+        awk -v max=$2 -v mod=$3 &#39;{
+            if ( NR%max==mod &amp;&amp; $6 == &quot;D&quot; &amp;&amp; (index($7, &quot;R&quot;) || index($7, &quot;W&quot;)) ) {
+                for(i=0; i&lt;$10; i++) {
+                    print $8+i&quot; &quot;substr($7, 1, 1);
+                }
+            }
+        }&#39; $1 | sort -k1 -nr &gt; $TMP_DIR/.tmp.$1.$3
+        touch $TMP_DIR/$3.ok
+    }
+
+    usage()
+    {
+        echo &quot;Usage: $1 input_log [parallel_num]&quot;
+        exit
+    }
+
+    rm -rf $TMP_DIR
+    mkdir $TMP_DIR
+
+    if [ &quot;$1&quot; == &quot;&quot; ]; then
+        usage $0
+    fi
+
+    # does input_log exists?
+    if [ ! -f $1 ]; then
+        echo &quot;($1) not exists&quot;
+        exit
+    fi
+
+    parallel=$2
+
+    if [ &quot;$2&quot; == &quot;&quot; ]; then
+        parallel=4
+    fi
+
+    echo &quot;[input: $1]&quot;
+
+    max=`expr $parallel - 1`
+    files=&quot;&quot;
+    filename=`basename $1`
+
+    echo &quot;[run $parallel process]&quot;
+
+    for i in `seq 0 $max`
+    do
+        extend $filename $parallel $i &amp;
+        files=$files&quot; $TMP_DIR/.tmp.$filename.$i&quot;
+    done
+    echo &quot;processing....&quot;
+
+    nr=0
+    # awk will finish if all *.ok created.
+    while [ $nr -ne &quot;$parallel&quot; ]
+    do
+        nr=`find $TMP_DIR -maxdepth 1 -name &quot;*.ok&quot;|wc -l`
+        echo -n &quot;.&quot;
+        sleep 1
+    done
+
+    echo &quot;&quot;
+    echo &quot;merge sort&quot;
+    sort -m -k1 -nr $files | uniq -c | sort -k1 -nr &gt; tmp
+    total=`awk &#39;{sum+=$1} END{print sum}&#39; tmp`
+    awk -v sum=$total &#39;{
+        print $0&quot;\t&quot;$1*1000/sum;
+    }&#39; tmp &gt; result
+
+    echo &quot;sort finish.&quot;
+
+    rm -rf $TMP_DIR
+</pre></div>
+
+
+<p>这段代码是 Coly 大神的代码，我无意抄袭前辈，只是晚辈拿来欣赏学习，光荣属于淘宝的 Coly 前辈。</p>
+<p>先说 parallel，这个是为了充分利用 CPU 资源，让多个 CPU 一起来执行 extend。<strong>NR%max==mod 将一个文件按照行分开，由多个进程分别处理之</strong>。不多讲。</p>
+<p>extend的含义也比较简单：</p>
+<div class="highlight"><pre><span></span>      8,0 0 909 19.618798623 6475 Q W 20397704 + 8 [evince-thumbnai]
+      8,0 0 910 19.618803866 6475 G W 20397704 + 8 [evince-thumbnai]
+</pre></div>
+
+
+<p>20397704是起始扇区，+ 8表示的连续8个扇区都在本次事件之内，也就是说20397704/20397705/20397706.. 都是本次事件涉及的扇区。</p>
+<p>OK，我们看下 cal.sh 的使用及输出：</p>
+<div class="highlight"><pre><span></span>    ../blkstrace_calculator/cal.sh blkparse.out 4
+</pre></div>
+
+
+<p>当前目录下生成了 tmp 和 result 文件：</p>
+<div class="highlight"><pre><span></span>    root@manu-hacks:~/code/shell/blktrace# head result
+         39 454375583 W    0.228744
+         39 454375582 W    0.228744
+         39 454375581 W    0.228744
+         39 454375580 W    0.228744
+         39 454375579 W    0.228744
+         39 454375578 W    0.228744
+         39 454375577 W    0.228744
+         39 454375576 W    0.228744
+         27 264753359 W    0.158361
+         27 264753358 W    0.158361
+</pre></div>
+
+
+<p>我们可以看到，<strong>扇区号为 454375583 被访问的次数为 39 次，占总访问的千分之 0.228744</strong>。</p>
+<p>那这个扇区属于拿个文件呢？debugfs 就可以来帮忙了。我们以访问 27 次的 264753359 扇区为例。扇区是 512 字节，我的文件系统 ext4 的块大小是 4K，所以<strong>根据扇区可以定位的块号，debugfs 根据块号，可以定位到 inode，再根据 inode，就可定位到 filename</strong>。</p>
+<div class="highlight"><pre><span></span>    root@manu-hacks:~/code/shell/blktrace# echo 264753359/8 |bc
+    33094169
+
+    root@manu-hacks:~/code/shell/blktrace# debugfs -R &quot;icheck 33094169&quot; /dev/sda1
+    debugfs 1.42 (29-Nov-2011)
+    Block    Inode number
+    33094169    14290766
+
+    root@manu-hacks:~/code/shell/blktrace# debugfs -R &quot;ncheck 14290766&quot; /dev/sda1
+    debugfs 1.42 (29-Nov-2011)
+    Inode    Pathname
+    14290766    /home/manu/.pki/nssdb/key4.db
+</pre></div>
+
+
+<p>我们发现，这个文件被读写的次数最多。谁干的？ lsof 来帮忙？  </p>
+<div class="highlight"><pre><span></span>    root@manu-hacks:~/code/shell/blktrace# lsof /home/manu/.pki/nssdb/key4.db
+    lsof: WARNING: can&#39;t stat() fuse.gvfs-fuse-daemon file system /home/manu/.gvfs
+    Output information may be incomplete.
+    COMMAND PID USER FD TYPE DEVICE SIZE/OFF NODE NAME
+    chromium- 5717 manu 57u REG 8,1 11264 14290766 /home/manu/.pki/nssdb/key4.db
+    chromium- 5902 manu 7u REG 8,1 11264 14290766 /home/manu/.pki/nssdb/key4.db
+    chromium- 5906 manu 7u REG 8,1 11264 14290766 /home/manu/.pki/nssdb/key4.db
+</pre></div>
+
+
+<p>我们用 Coly 大神的脚本和 blktrace/blkparse 就解决了磁盘块 IO 访问频率的统计。<strong>如果有个别的 block 被频繁的读取，表示 cache 的替换效率不高</strong>。</p>
+<h5>参考文献</h5>
+<ul>
+<li><em>链接已失效</em> <a href="http://blog.tao.ma/?p=61">通过 blktrace, debugfs 分析磁盘 IO</a></li>
+<li><em>链接已失效</em> <a href="http://kernel.taobao.org/index.php/Documents/kernel_team_successful_stories#CDN_TCOSS_I.2FO.E4.BC.98.E5.8C.96_2">Documents/kernel team successful stories</a></li>
+<li>Block I/O Layer Tracing: blktrace, Alan D. Brunelle</li>
+</ul>
                 </div><!-- /.entry-content -->
         </article>
 </section>
