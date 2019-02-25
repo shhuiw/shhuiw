@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>shhuiw's Technotes - fio</title>
+    <title>shhuiw's Technotes - seekwatcher</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="shenghui">
@@ -79,7 +79,7 @@
 						<i class="icon-folder-open icon-large"></i>device-mapper
 					</a>
                   </li>
-                  <li class="active">
+                  <li >
                     <a href="/category/fio.html">
 						<i class="icon-folder-open icon-large"></i>fio
 					</a>
@@ -110,109 +110,32 @@
       <div class="row">
         <div class="span9" id="content">
         <div class="article">
-                <h1><a href="/fio-howto-4-ioengine.html">fio HOWTO (4) ioengine</a></h1>
+                <h1><a href="/zhuan-zai-debugging-disk-issues-with-blktrace-blkparse-btrace-and-btt-in-linux-environment.html">[转载] Debugging disk issues with blktrace, blkparse, btrace and btt in Linux environment</a></h1>
                 <div class="well small"><footer class="post-info">
 <span class="label">Date</span>
-<abbr class="published" title="2019-01-27T18:00:00+08:00">
-        <i class="icon-calendar"></i>Sun 27 January 2019
+<abbr class="published" title="2019-02-25T18:00:00+08:00">
+        <i class="icon-calendar"></i>Mon 25 February 2019
 </abbr>
 <span class="label">By</span>
-<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
+<a href="/author/jaykishan-mutkawoa.html"><i class="icon-user"></i>Jaykishan Mutkawoa</a>
 <span class="label">Category</span>
-<a href="/category/fio.html"><i class="icon-folder-open"></i>fio</a>.
+<a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
 
 
 <span class="label">Tags</span>
-	<a href="/tag/fio.html"><i class="icon-tag"></i>fio</a>
+	<a href="/tag/blktrace.html"><i class="icon-tag"></i>blktrace</a>
+	<a href="/tag/blkparse.html"><i class="icon-tag"></i>blkparse</a>
+	<a href="/tag/btt.html"><i class="icon-tag"></i>btt</a>
+	<a href="/tag/btrace.html"><i class="icon-tag"></i>btrace</a>
+	<a href="/tag/seekwatcher.html"><i class="icon-tag"></i>seekwatcher</a>
+	<a href="/tag/iostat.html"><i class="icon-tag"></i>iostat</a>
+	<a href="/tag/iotop.html"><i class="icon-tag"></i>iotop</a>
 </footer><!-- /.post-info --></div>
                 <div class="summary"><ul>
-<li><a href="https://github.com/axboe/fio/blob/master/HOWTO">fio HOWTO</a></li>
+<li>原文 <a href="https://tunnelix.com/debugging-disk-issues-with-blktrace-blkparse-btrace-and-btt-in-linux-environment/">Debugging disk issues with blktrace, blkparse, btrace and btt in Linux environment</a></li>
 </ul>
-<h3>I/O engine <code>ioengine=str</code></h3>
-<p>Defines how the job issues I/O to the file. The following types are defined:
-(<strong>"libaio/sg/net/netsplice/rdma/rados/rbd/gfapi/gfapi_async" defines engine specific options</strong>)</p>
-<div class="highlight"><pre><span></span>    null
-        Doesn&#39;t transfer any data, just pretends to. This is mainly used to
-        exercise …</pre></div>
-                        <a class="btn primary xsmall" href="/fio-howto-4-ioengine.html">more ...</a>
-                </div>
-        </div>
-        <hr />
-        <div class="article">
-                <h1><a href="/fio-howto-3-environment-variables-reserved-keywords.html">fio HOWTO (3) Environment variables & Reserved keywords</a></h1>
-                <div class="well small"><footer class="post-info">
-<span class="label">Date</span>
-<abbr class="published" title="2019-01-18T20:00:00+08:00">
-        <i class="icon-calendar"></i>Fri 18 January 2019
-</abbr>
-<span class="label">By</span>
-<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
-<span class="label">Category</span>
-<a href="/category/fio.html"><i class="icon-folder-open"></i>fio</a>.
-
-
-<span class="label">Tags</span>
-	<a href="/tag/fio.html"><i class="icon-tag"></i>fio</a>
-</footer><!-- /.post-info --></div>
-                <div class="summary"><ul>
-<li><a href="https://github.com/axboe/fio/blob/master/HOWTO">fio HOWTO</a></li>
-</ul>
-<h3>Environment variables</h3>
-<p>Fio also supports environment variable expansion in job files. Any sub-string of the form <code>${VARNAME}</code> as part of an option value (in other words, on the right
-of the '='), will be expanded to the value of the environment variable called <code>VARNAME</code>.  If no such environment variable …</p>
-                        <a class="btn primary xsmall" href="/fio-howto-3-environment-variables-reserved-keywords.html">more ...</a>
-                </div>
-        </div>
-        <hr />
-        <div class="article">
-                <h1><a href="/fio-howto-2-job-file-format.html">fio HOWTO (2) Job file format</a></h1>
-                <div class="well small"><footer class="post-info">
-<span class="label">Date</span>
-<abbr class="published" title="2019-01-11T20:00:00+08:00">
-        <i class="icon-calendar"></i>Fri 11 January 2019
-</abbr>
-<span class="label">By</span>
-<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
-<span class="label">Category</span>
-<a href="/category/fio.html"><i class="icon-folder-open"></i>fio</a>.
-
-
-<span class="label">Tags</span>
-	<a href="/tag/fio.html"><i class="icon-tag"></i>fio</a>
-</footer><!-- /.post-info --></div>
-                <div class="summary"><ul>
-<li><a href="https://github.com/axboe/fio/blob/master/HOWTO">fio HOWTO</a></li>
-</ul>
-<p>fio accepts one or more job files describing what it is supposed to do.</p>
-<p>The job file format is the classic <strong>ini</strong> file, where the names
-enclosed in <strong>[] brackets define the job name</strong>. You are free to use any ASCII name you want, except <strong>global</strong> which has special …</p>
-                        <a class="btn primary xsmall" href="/fio-howto-2-job-file-format.html">more ...</a>
-                </div>
-        </div>
-        <hr />
-        <div class="article">
-                <h1><a href="/fio-howto-1-command-line-options.html">fio HOWTO (1) command line options</a></h1>
-                <div class="well small"><footer class="post-info">
-<span class="label">Date</span>
-<abbr class="published" title="2019-01-10T22:00:00+08:00">
-        <i class="icon-calendar"></i>Thu 10 January 2019
-</abbr>
-<span class="label">By</span>
-<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
-<span class="label">Category</span>
-<a href="/category/fio.html"><i class="icon-folder-open"></i>fio</a>.
-
-
-<span class="label">Tags</span>
-	<a href="/tag/fio.html"><i class="icon-tag"></i>fio</a>
-</footer><!-- /.post-info --></div>
-                <div class="summary"><ul>
-<li><a href="https://github.com/axboe/fio/blob/master/HOWTO">fio HOWTO</a></li>
-</ul>
-<h3>How fio works</h3>
-<p>The first step in getting fio to simulate a desired I/O workload, is writing a job file describing that specific setup. </p>
-<p>A job file may contain any number of threads and/or files -- the typical contents of the job file is a <strong>global section …</strong></p>
-                        <a class="btn primary xsmall" href="/fio-howto-1-command-line-options.html">more ...</a>
+<p>blktrace is a block layer IO tracing mechanism which provides detailed information about request queue operations up to user space. There are three major components: <strong>a kernel component</strong>, <strong>a utility to record the i/o trace information …</strong></p>
+                        <a class="btn primary xsmall" href="/zhuan-zai-debugging-disk-issues-with-blktrace-blkparse-btrace-and-btt-in-linux-environment.html">more ...</a>
                 </div>
         </div>
         <hr />

@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>[转载] Debugging disk issues with blktrace, blkparse, btrace and btt in Linux environment</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="shenghui">
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="/theme/css/bootstrap.min.css" type="text/css" />
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+      .tag-1 {
+        font-size: 13pt;
+      }
+      .tag-2 {
+        font-size: 10pt;
+      }
+      .tag-2 {
+        font-size: 8pt;
+      }
+      .tag-4 {
+        font-size: 6pt;
+     }
+    </style>
+    <link href="/theme/css/bootstrap-responsive.min.css" rel="stylesheet">
+        <link href="/theme/css/font-awesome.css" rel="stylesheet">
+
+    <link href="/theme/css/pygments.css" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="/theme/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/theme/images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/theme/images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/theme/images/apple-touch-icon-114x114.png">
+
+    <link href="/" type="application/atom+xml" rel="alternate" title="shhuiw's Technotes ATOM Feed" />
+
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/index.html">shhuiw's Technotes </a>
+          <div class="nav-collapse">
+            <ul class="nav">
+                          <li class="divider-vertical"></li>
+                  <li >
+                    <a href="/category/bing-fa.html">
+						<i class="icon-folder-open icon-large"></i>并发
+					</a>
+                  </li>
+                  <li class="active">
+                    <a href="/category/block-io.html">
+						<i class="icon-folder-open icon-large"></i>Block I/O
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/device-mapper.html">
+						<i class="icon-folder-open icon-large"></i>device-mapper
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/fio.html">
+						<i class="icon-folder-open icon-large"></i>fio
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/wei-fen-lei.html">
+						<i class="icon-folder-open icon-large"></i>未分类
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/wen-jian-xi-tong.html">
+						<i class="icon-folder-open icon-large"></i>文件系统
+					</a>
+                  </li>
+
+                          <ul class="nav pull-right">
+                                <li><a href="/archives.html"><i class="icon-th-list"></i>Archives</a></li>
+                          </ul>
+
+            </ul>
+            <!--<p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>-->
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span9" id="content">
+<section id="content">
+        <article>
+                <header>
+                        <h1>
+                                <a href=""
+                                        rel="bookmark"
+                                        title="Permalink to [转载] Debugging disk issues with blktrace, blkparse, btrace and btt in Linux environment">
+                                        [转载] Debugging disk issues with blktrace, blkparse, btrace and btt in Linux environment
+                                </a>
+                        </h1>
+                </header>
+                <div class="entry-content">
+                <div class="well">
+<footer class="post-info">
+<span class="label">Date</span>
+<abbr class="published" title="2019-02-25T18:00:00+08:00">
+        <i class="icon-calendar"></i>Mon 25 February 2019
+</abbr>
+<span class="label">By</span>
+<a href="/author/jaykishan-mutkawoa.html"><i class="icon-user"></i>Jaykishan Mutkawoa</a>
+<span class="label">Category</span>
+<a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
+
+
+<span class="label">Tags</span>
+	<a href="/tag/blktrace.html"><i class="icon-tag"></i>blktrace</a>
+	<a href="/tag/blkparse.html"><i class="icon-tag"></i>blkparse</a>
+	<a href="/tag/btt.html"><i class="icon-tag"></i>btt</a>
+	<a href="/tag/btrace.html"><i class="icon-tag"></i>btrace</a>
+	<a href="/tag/seekwatcher.html"><i class="icon-tag"></i>seekwatcher</a>
+	<a href="/tag/iostat.html"><i class="icon-tag"></i>iostat</a>
+	<a href="/tag/iotop.html"><i class="icon-tag"></i>iotop</a>
+</footer><!-- /.post-info -->                </div>
+                <ul>
+<li>原文 <a href="https://tunnelix.com/debugging-disk-issues-with-blktrace-blkparse-btrace-and-btt-in-linux-environment/">Debugging disk issues with blktrace, blkparse, btrace and btt in Linux environment</a></li>
+</ul>
+<p>blktrace is a block layer IO tracing mechanism which provides detailed information about request queue operations up to user space. There are three major components: <strong>a kernel component</strong>, <strong>a utility to record the i/o trace information for the kernel to user space</strong>, and <strong>utilities to analyse and view the trace information</strong>. </p>
+<p><img alt="TheTunnelix - Performance Turnning.png" src="images/BlockIO/TheTunnelix - Performance Turnning.png"></p>
+<h3>Limitations and Solutions with blktrace</h3>
+<p>There are several limitations and solutions when using blktrace. We will focus mainly on its goal and how the blktrace tool can help us in our day to day task. Assuming that you want to debug any IO related issue, the first command will be probably an iostat. These utilities can be installed through a yum install sysstat blktrace. For example: <code>iostat -tkx -p 1 2</code></p>
+<p><img alt="TheTunnelix - iostat output.png" src="images/BlockIO/TheTunnelix - iostat output.png"></p>
+<p>The limitation here <strong>with iostat is that it does not gave us which process is utilising which IO [iostat 给出整体数据，但是没有给出进程级别的详细数据]</strong>.  To resolve this issue, we can use another utility such as iotop. Here is an example of the iotop output.</p>
+<p><img alt="TheTunnelix - iotop output.png" src="images/BlockIO/TheTunnelix - iotop output.png"></p>
+<p>Here iotop shows us exactly which process is consuming 'which' and 'how' much IO. But another problem with that solution is that it <strong>does not give detailed information [iotop 给出进程级别的 IO rw 统计数据，但是没有关于 IO 的更详细的信息，比如关于 I/O request 的详细信息]</strong>*. </p>
+<h3>blktrace, iotop, blkparse, btt and btrace</h3>
+<p>So, blktrace comes handy as it gives layer-wise information. How it does that? It sees what is going on exactly inside block I/O layer. When used correctly, it's possible to generate events for all I/O request and monitor it from where it is evolving. Though it extracts data from the kernel, it is not an analysis tool and the interpretation of the data need to be carried out by you. However, you can feed the data to btt or blkparse to get the analysis done.</p>
+<p>Before looking at blktrace, let's check out the I/O architecture. Basically, at the userspace the user will write and read data. This is what the User Process at the user space. The user do not write directly to the disk. They first write to the VFS Page Cache and from which there are various I/O Scheduler and the Device Driver will interact with the disk to write the data.</p>
+<p><img alt="TheTunnelix - io path.png" src="images/BlockIO/TheTunnelix - io path.png"></p>
+<p>The blktrace will normally capture <strong>events</strong> during the process. Here is a cheat sheet to understand blktrace event capture.</p>
+<p><img alt="TheTunnelix - events captured by blktrace.png" src="images/BlockIO/TheTunnelix - events captured by blktrace.png"></p>
+<p>blkparse will parse and format events acquired from blktrace. If you do not want to run blkparse, btrace is a shortcut to generate data out of blktrace and blkparse. Finally we have btt which will <strong>analyze data from blktrace and generate time deltas for each layer</strong>.</p>
+<p>Another tool to grasp before moving on with blktrace is debugfs which is a simple-to-use RAM-based file system specially designed for debugging purposes. It exists as a simple way for kernel developers to make information available to user space. Unlike /proc, which is only meant for information about a process, or sysfs, which has strict one-value-per-file rules, debugfs has no rules at all. Developers can put any information they want there. - <a href="https://lwn.net/Articles/334546/">lwn</a>.</p>
+<p>So the first thing to do is to mount the debugfs file system using the following command: <code>mount -t debugfs debugfs /sys/kernel/debug</code></p>
+<p>The aim is to allow a kernel developer to make information available in user space. The output of the command below describe how to mount and verify same. You can use the command mount to test if same has been successful. Now that you have the debug file system, you can capture the events.</p>
+<h3>Diving into the commands</h3>
+<p>1) So you can use blktrace to trace out the I/O on the machine.</p>
+<div class="highlight"><pre><span></span>    blktrace -d /dev/sda -o -|blkparse -i -
+</pre></div>
+
+
+<p>2) At the same time, on another console launch the following command to generate some I/O for testing purpose.</p>
+<div class="highlight"><pre><span></span>    dd if=/dev/zero of=/mnt/test1 bs=1M count=1
+</pre></div>
+
+
+<p>From the blktrace console you will get an output which will end up as follows :</p>
+<div class="highlight"><pre><span></span>    CPU0 (8,0):
+         Reads Queued:           2,       60KiB Writes Queued:       5,132,   20,524KiB
+         Read Dispatches:        2,       60KiB Write Dispatches:       61,   20,524KiB
+         Reads Requeued:         0              Writes Requeued:         0
+         Reads Completed:        2,       60KiB Writes Completed:       63,   20,524KiB
+         Read Merges:            0,        0KiB Write Merges:        5,070,   20,280KiB
+         Read depth:             1         Write depth:             7
+         IO unplugs:            14         Timer unplugs:           9
+        Throughput (R/W): 8KiB/s / 2,754KiB/s
+        Events (8,0): 21,234 entries
+        Skips: 166 forward (1,940,721 -  98.9%)
+</pre></div>
+
+
+<p>3) Same result can also be achieved using the btrace command. Apply the same principle as in part 2 once the command has been launched.</p>
+<div class="highlight"><pre><span></span>    btrace /dev/sda
+</pre></div>
+
+
+<p>4) In step 1, 2 and 4 the blktrace commands were launched in such a way that it will run forever - without exiting. In this particular example,  I will output the file name for analysis. Assume that you want to run the blktrace for 30 seconds, the command will be as follows:</p>
+<div class="highlight"><pre><span></span>    blktrace -w 30 -d /dev/sda -o io-debugging
+</pre></div>
+
+
+<p>5) On another console, launch the following command:</p>
+<div class="highlight"><pre><span></span>    dd if=/dev/sda of=/dev/null bs=1M count=10 iflag=direct
+</pre></div>
+
+
+<p>6) Wait for 30 seconds to allow step 4 to be completed. I got the following results just after:</p>
+<div class="highlight"><pre><span></span>    [root@localhost mnt]# blktrace -w 30 -d /dev/sda -o io-debugging
+    === sda ===
+      CPU  0:                  510 events,       24 KiB data
+      Total:                   510 events (dropped 0),       24 KiB data
+</pre></div>
+
+
+<p>7) You will notice at the directory /mnt  the file will be created. To read it use the command blkparse.</p>
+<div class="highlight"><pre><span></span>    blkparse io-debugging.blktrace.0 | less
+</pre></div>
+
+
+<p>8) Now let's see a simple extract from the blkparse command:</p>
+<div class="highlight"><pre><span></span>    8,0    0        1     0.000000000  5686  Q   R 0 + 1024 [dd]
+    8,0    0        0     0.000028926     0  m   N cfq5686S / alloced
+    8,0    0        2     0.000029869  5686  G   R 0 + 1024 [dd]
+    8,0    0        3     0.000034500  5686  P   N [dd]
+    8,0    0        4     0.000036509  5686  I   R 0 + 1024 [dd]
+    8,0    0        0     0.000038209     0  m   N cfq5686S / insert_request
+    8,0    0        0     0.000039472     0  m   N cfq5686S / add_to_rr
+</pre></div>
+
+
+<p>The first column shows the <strong>device major,minor tuple</strong>, the second column gives information about the <strong>CPU</strong> and it goes on with the <strong>sequence, the timestamps, PID of the process issuing the IO process</strong>. The 6th column shows the <strong>event type, e.g. 'Q' means IO handled by request queue code</strong>. Please refer to above diagram for more info. The 7th column is <strong>R for Read, W for Write, D for block, B for Barrier operation</strong> and finally the last one is <strong>the block number and a following + number is the number of blocks requested</strong>. The final field between the [ ] brackets is the <strong>process name</strong> of the process issuing the request. In our case, I am running the command dd.</p>
+<p>9) The output can be also analyzed using btt command. You will get almost the same information.</p>
+<div class="highlight"><pre><span></span>    btt -i io-debugging.blktrace.0
+</pre></div>
+
+
+<p>Some interesting information here is <strong>D2C means the amount of time the IO has been spending into the device whilst Q2C means the total time take as there might be different IO concurrent</strong>.</p>
+<h3>A graphical user interface to makes life easier</h3>
+<p>The Seekwatcher program generates graphs from blktrace runs to help visualize IO patterns and performance. It can plot multiple blktrace runs together, making it easy to compare the differences between different benchmark runs. You should install the seekwatcher package if you need to visualize detailed information about IO patterns.</p>
+<p>The command to be used to generate a picture to for analysis is as follows where seek.png is the output of the png name given.</p>
+<div class="highlight"><pre><span></span>    seekwatcher -t io-debugging.blktrace.0 -o seek.png
+</pre></div>
+
+
+<p><img alt="TheTunnelix - seekwatcher output.png" src="images/BlockIO/TheTunnelix - seekwatcher output.png"></p>
+<p>What is also interesting is that you can create a movie-like with seekwatch to view the graph.</p>
+<div class="highlight"><pre><span></span>    seekwatcher -t io-debugging.blktrace.0 -o seekmoving.mpg --movie
+</pre></div>
+
+
+<p>To be able to generate the movie, you will have to install mencoder with all its dependencies.</p>
+<h4>Tips:</h4>
+<ul>
+<li>For the debugfs, you can also edit the /etc/fstab file to make the mount point permanently. </li>
+<li>By default, blktrace will capture all events. This can be limited with the argument <code>-a</code>.</li>
+<li>In case you want to capture persistently for a long time or for a certain amount of time, then use the argument <code>-w</code>.</li>
+<li>blktrace will also stored the extracted data in local directory with a format <code>device.blktrace.cpu</code>, for example <strong>sda1.blktrace.cpu</strong>.</li>
+<li>At step 1 and 2, you will need to fire a CTRL +C to stop the blktrace.</li>
+<li>As seen in step 2, you have created test test1 file, do delete it same may consume disk space on your machine.</li>
+<li>On step 5, the size of the file created in the /mnt will not exceeds more that 1M since same has been specified in the command.</li>
+<li>At step 9, you will noticed several other information which can be helpful such as D2C and  Q2C.</li>
+</ul>
+<div class="highlight"><pre><span></span>        Q2D latency - time from request submission to Device.
+        D2C latency - Device latency for processing request.
+        Q2C latency - total latency , Q2D + D2C = Q2C.
+</pre></div>
+                </div><!-- /.entry-content -->
+        </article>
+</section>
+        </div><!--/span-->
+
+                <div class="span3 well sidebar-nav" id="sidebar">
+<ul class="nav nav-list">
+
+<li class="nav-header"><h4><i class="icon-folder-close icon-large"></i>Categories</h4></li>
+<li>
+<a href="/category/bing-fa.html">
+    <i class="icon-folder-open icon-large"></i>并发
+</a>
+</li>
+<li>
+<a href="/category/block-io.html">
+    <i class="icon-folder-open icon-large"></i>Block I/O
+</a>
+</li>
+<li>
+<a href="/category/device-mapper.html">
+    <i class="icon-folder-open icon-large"></i>device-mapper
+</a>
+</li>
+<li>
+<a href="/category/fio.html">
+    <i class="icon-folder-open icon-large"></i>fio
+</a>
+</li>
+<li>
+<a href="/category/wei-fen-lei.html">
+    <i class="icon-folder-open icon-large"></i>未分类
+</a>
+</li>
+<li>
+<a href="/category/wen-jian-xi-tong.html">
+    <i class="icon-folder-open icon-large"></i>文件系统
+</a>
+</li>
+
+<li class="nav-header"><h4><i class="icon-tags icon-large"></i>Tags</h4></li>
+<li class="tag-4">
+    <a href="/tag/bvec.html">
+        <i class="icon-tag icon-large"></i>bvec
+    </a>
+</li>
+<li class="tag-2">
+    <a href="/tag/multiqueue.html">
+        <i class="icon-tag icon-large"></i>multiqueue
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/iowatcher.html">
+        <i class="icon-tag icon-large"></i>iowatcher
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/virtualbox.html">
+        <i class="icon-tag icon-large"></i>virtualbox
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/request-tagging.html">
+        <i class="icon-tag icon-large"></i>request tagging
+    </a>
+</li>
+<li class="tag-1">
+    <a href="/tag/blktrace.html">
+        <i class="icon-tag icon-large"></i>blktrace
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/btrecord.html">
+        <i class="icon-tag icon-large"></i>btrecord
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/atomic_ops.html">
+        <i class="icon-tag icon-large"></i>atomic_ops
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/blkrawverify.html">
+        <i class="icon-tag icon-large"></i>blkrawverify
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/workqueue.html">
+        <i class="icon-tag icon-large"></i>workqueue
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/iostat.html">
+        <i class="icon-tag icon-large"></i>iostat
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/bio.html">
+        <i class="icon-tag icon-large"></i>bio
+    </a>
+</li>
+<li class="tag-2">
+    <a href="/tag/btt.html">
+        <i class="icon-tag icon-large"></i>btt
+    </a>
+</li>
+<li class="tag-2">
+    <a href="/tag/fio.html">
+        <i class="icon-tag icon-large"></i>fio
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/kyber.html">
+        <i class="icon-tag icon-large"></i>kyber
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/single-queue.html">
+        <i class="icon-tag icon-large"></i>single queue
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/btreplay.html">
+        <i class="icon-tag icon-large"></i>btreplay
+    </a>
+</li>
+<li class="tag-2">
+    <a href="/tag/device-mapper.html">
+        <i class="icon-tag icon-large"></i>device-mapper
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/btrace.html">
+        <i class="icon-tag icon-large"></i>btrace
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/seekwatcher.html">
+        <i class="icon-tag icon-large"></i>seekwatcher
+    </a>
+</li>
+<li class="tag-2">
+    <a href="/tag/blkparse.html">
+        <i class="icon-tag icon-large"></i>blkparse
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/bfq.html">
+        <i class="icon-tag icon-large"></i>BFQ
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/bno_plot.html">
+        <i class="icon-tag icon-large"></i>bno_plot
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/relayfs.html">
+        <i class="icon-tag icon-large"></i>relayfs
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/blkiomon.html">
+        <i class="icon-tag icon-large"></i>blkiomon
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/f2fs.html">
+        <i class="icon-tag icon-large"></i>f2fs
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/verify_blkparse.html">
+        <i class="icon-tag icon-large"></i>verify_blkparse
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/iotop.html">
+        <i class="icon-tag icon-large"></i>iotop
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/dkms.html">
+        <i class="icon-tag icon-large"></i>dkms
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/util-linux.html">
+        <i class="icon-tag icon-large"></i>util-linux
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/relay.html">
+        <i class="icon-tag icon-large"></i>relay
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/cfq.html">
+        <i class="icon-tag icon-large"></i>CFQ
+    </a>
+</li>
+
+
+</ul>        </div><!--/.well -->
+
+      </div><!--/row-->
+
+      <hr>
+
+      <footer>
+        <address id="about">
+                Proudly powered by <a href="http://pelican.notmyidea.org/">Pelican <i class="icon-external-link"></i></a>,
+                                which takes great advantage of <a href="http://python.org">Python <i class="icon-external-link"></i></a>.
+        </address><!-- /#about -->
+
+        <p>The theme is from <a href="http://twitter.github.com/bootstrap/">Bootstrap from Twitter <i class="icon-external-link"></i></a>,
+                   and <a href="http://fortawesome.github.com/Font-Awesome/">Font-Awesome <i class="icon-external-link"></i></a>, thanks!</p>
+      </footer>
+
+    </div><!--/.fluid-container-->
+
+
+
+    <!-- Le javascript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/theme/js/jquery-1.7.2.min.js"></script>
+    <script src="/theme/js/bootstrap.min.js"></script>
+  </body>
+</html>
