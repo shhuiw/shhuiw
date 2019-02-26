@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>shhuiw's Technotes - Bean Li</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="shenghui">
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="/theme/css/bootstrap.min.css" type="text/css" />
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+      .tag-1 {
+        font-size: 13pt;
+      }
+      .tag-2 {
+        font-size: 10pt;
+      }
+      .tag-2 {
+        font-size: 8pt;
+      }
+      .tag-4 {
+        font-size: 6pt;
+     }
+    </style>
+    <link href="/theme/css/bootstrap-responsive.min.css" rel="stylesheet">
+        <link href="/theme/css/font-awesome.css" rel="stylesheet">
+
+    <link href="/theme/css/pygments.css" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="/theme/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/theme/images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/theme/images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/theme/images/apple-touch-icon-114x114.png">
+
+    <link href="/" type="application/atom+xml" rel="alternate" title="shhuiw's Technotes ATOM Feed" />
+
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/index.html">shhuiw's Technotes </a>
+          <div class="nav-collapse">
+            <ul class="nav">
+                          <li class="divider-vertical"></li>
+                  <li >
+                    <a href="/category/bing-fa.html">
+						<i class="icon-folder-open icon-large"></i>并发
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/block-io.html">
+						<i class="icon-folder-open icon-large"></i>Block IO
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/device-mapper.html">
+						<i class="icon-folder-open icon-large"></i>device-mapper
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/fio.html">
+						<i class="icon-folder-open icon-large"></i>fio
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/wei-fen-lei.html">
+						<i class="icon-folder-open icon-large"></i>未分类
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/wen-jian-xi-tong.html">
+						<i class="icon-folder-open icon-large"></i>文件系统
+					</a>
+                  </li>
+
+                          <ul class="nav pull-right">
+                                <li><a href="/archives.html"><i class="icon-th-list"></i>Archives</a></li>
+                          </ul>
+
+            </ul>
+            <!--<p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>-->
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span9" id="content">
+        <div class="article">
+                <h1><a href="/zhuan-zai-blktrace-fen-xi-io.html">[转载] blktrace 分析 IO</a></h1>
+                <div class="well small"><footer class="post-info">
+<span class="label">Date</span>
+<abbr class="published" title="2019-02-26T21:00:00+08:00">
+        <i class="icon-calendar"></i>Tue 26 February 2019
+</abbr>
+<span class="label">By</span>
+<a href="/author/bean-li.html"><i class="icon-user"></i>Bean Li</a>
+<span class="label">Category</span>
+<a href="/category/block-io.html"><i class="icon-folder-open"></i>Block IO</a>.
+
+
+<span class="label">Tags</span>
+	<a href="/tag/blktrace.html"><i class="icon-tag"></i>blktrace</a>
+	<a href="/tag/blkparse.html"><i class="icon-tag"></i>blkparse</a>
+	<a href="/tag/btt.html"><i class="icon-tag"></i>btt</a>
+</footer><!-- /.post-info --></div>
+                <div class="summary"><ul>
+<li>出处：<a href="https://bean-li.github.io/blktrace-to-report/">blktrace 分析 IO</a></li>
+</ul>
+<h3>前言</h3>
+<p>上篇博客介绍了 iostat 的一些输出，这篇介绍 blktrace 这个神器。上一节介绍 iostat 的时候，我们心心念念希望得到<strong>块设备处理 io 的 service time，而不是 service time + wait time，因为对于评估一个磁盘或者云磁盘而言，service time 才是衡量磁盘性能的核心指标和直接指标</strong>。很不幸 iostat 无法提供这个指标，但是 blktrace 可以。</p>
+<p>blktrace 是一柄神器，很多工具都是基于该神器的：<strong>ioprof、seekwatcher、iowatcher</strong>，这个工具基本可以满足我们的对块设备请求的所有了解。</p>
+<h3>blktrace 的原理</h3>
+<p>一个 I/O 请求，从应用层到底层块设备，路径如下图所示 …</p>
+                        <a class="btn primary xsmall" href="/zhuan-zai-blktrace-fen-xi-io.html">more ...</a>
+                </div>
+        </div>
+        <hr />
+
+        </div><!--/span-->
+
+                <div class="span3 well sidebar-nav" id="sidebar">
+<ul class="nav nav-list">
+
+<li class="nav-header"><h4><i class="icon-folder-close icon-large"></i>Categories</h4></li>
+<li>
+<a href="/category/bing-fa.html">
+    <i class="icon-folder-open icon-large"></i>并发
+</a>
+</li>
+<li>
+<a href="/category/block-io.html">
+    <i class="icon-folder-open icon-large"></i>Block IO
+</a>
+</li>
+<li>
+<a href="/category/device-mapper.html">
+    <i class="icon-folder-open icon-large"></i>device-mapper
+</a>
+</li>
+<li>
+<a href="/category/fio.html">
+    <i class="icon-folder-open icon-large"></i>fio
+</a>
+</li>
+<li>
+<a href="/category/wei-fen-lei.html">
+    <i class="icon-folder-open icon-large"></i>未分类
+</a>
+</li>
+<li>
+<a href="/category/wen-jian-xi-tong.html">
+    <i class="icon-folder-open icon-large"></i>文件系统
+</a>
+</li>
+
+<li class="nav-header"><h4><i class="icon-tags icon-large"></i>Tags</h4></li>
+<li class="tag-4">
+    <a href="/tag/request-tagging.html">
+        <i class="icon-tag icon-large"></i>request tagging
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/iotop.html">
+        <i class="icon-tag icon-large"></i>iotop
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/blkrawverify.html">
+        <i class="icon-tag icon-large"></i>blkrawverify
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/bno_plot.html">
+        <i class="icon-tag icon-large"></i>bno_plot
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/bfq.html">
+        <i class="icon-tag icon-large"></i>BFQ
+    </a>
+</li>
+<li class="tag-2">
+    <a href="/tag/fio.html">
+        <i class="icon-tag icon-large"></i>fio
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/bvec.html">
+        <i class="icon-tag icon-large"></i>bvec
+    </a>
+</li>
+<li class="tag-2">
+    <a href="/tag/multiqueue.html">
+        <i class="icon-tag icon-large"></i>multiqueue
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/kyber.html">
+        <i class="icon-tag icon-large"></i>kyber
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/relay.html">
+        <i class="icon-tag icon-large"></i>relay
+    </a>
+</li>
+<li class="tag-2">
+    <a href="/tag/device-mapper.html">
+        <i class="icon-tag icon-large"></i>device-mapper
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/e2fsprogs.html">
+        <i class="icon-tag icon-large"></i>e2fsprogs
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/btrace.html">
+        <i class="icon-tag icon-large"></i>btrace
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/iostat.html">
+        <i class="icon-tag icon-large"></i>iostat
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/f2fs.html">
+        <i class="icon-tag icon-large"></i>f2fs
+    </a>
+</li>
+<li class="tag-1">
+    <a href="/tag/blktrace.html">
+        <i class="icon-tag icon-large"></i>blktrace
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/atomic_ops.html">
+        <i class="icon-tag icon-large"></i>atomic_ops
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/workqueue.html">
+        <i class="icon-tag icon-large"></i>workqueue
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/blkiomon.html">
+        <i class="icon-tag icon-large"></i>blkiomon
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/seekwatcher.html">
+        <i class="icon-tag icon-large"></i>seekwatcher
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/util-linux.html">
+        <i class="icon-tag icon-large"></i>util-linux
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/relayfs.html">
+        <i class="icon-tag icon-large"></i>relayfs
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/cfq.html">
+        <i class="icon-tag icon-large"></i>CFQ
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/single-queue.html">
+        <i class="icon-tag icon-large"></i>single queue
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/dkms.html">
+        <i class="icon-tag icon-large"></i>dkms
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/iowatcher.html">
+        <i class="icon-tag icon-large"></i>iowatcher
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/bio.html">
+        <i class="icon-tag icon-large"></i>bio
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/verify_blkparse.html">
+        <i class="icon-tag icon-large"></i>verify_blkparse
+    </a>
+</li>
+<li class="tag-1">
+    <a href="/tag/blkparse.html">
+        <i class="icon-tag icon-large"></i>blkparse
+    </a>
+</li>
+<li class="tag-2">
+    <a href="/tag/btt.html">
+        <i class="icon-tag icon-large"></i>btt
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/btrecord.html">
+        <i class="icon-tag icon-large"></i>btrecord
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/btreplay.html">
+        <i class="icon-tag icon-large"></i>btreplay
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/virtualbox.html">
+        <i class="icon-tag icon-large"></i>virtualbox
+    </a>
+</li>
+
+
+</ul>        </div><!--/.well -->
+
+      </div><!--/row-->
+
+      <hr>
+
+      <footer>
+        <address id="about">
+                Proudly powered by <a href="http://pelican.notmyidea.org/">Pelican <i class="icon-external-link"></i></a>,
+                                which takes great advantage of <a href="http://python.org">Python <i class="icon-external-link"></i></a>.
+        </address><!-- /#about -->
+
+        <p>The theme is from <a href="http://twitter.github.com/bootstrap/">Bootstrap from Twitter <i class="icon-external-link"></i></a>,
+                   and <a href="http://fortawesome.github.com/Font-Awesome/">Font-Awesome <i class="icon-external-link"></i></a>, thanks!</p>
+      </footer>
+
+    </div><!--/.fluid-container-->
+
+
+
+    <!-- Le javascript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/theme/js/jquery-1.7.2.min.js"></script>
+    <script src="/theme/js/bootstrap.min.js"></script>
+  </body>
+</html>
