@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>shhuiw's Technotes - util-linux</title>
+    <title>shhuiw's Technotes - blk-mq</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="shenghui">
@@ -110,34 +110,33 @@
       <div class="row">
         <div class="span9" id="content">
         <div class="article">
-                <h1><a href="/lsblk-list-information-about-block-devices.html">lsblk - list information about block devices</a></h1>
+                <h1><a href="/blk-mq-new-multi-queue-block-io-queueing-mechanism.html">blk-mq: new multi-queue block IO queueing mechanism</a></h1>
                 <div class="well small"><footer class="post-info">
 <span class="label">Date</span>
-<abbr class="published" title="2018-10-11T17:00:00+08:00">
-        <i class="icon-calendar"></i>Thu 11 October 2018
+<abbr class="published" title="2019-03-01T22:00:00+08:00">
+        <i class="icon-calendar"></i>Fri 01 March 2019
 </abbr>
 <span class="label">By</span>
-<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
+<a href="/author/jens-axboe.html"><i class="icon-user"></i>Jens Axboe <axboe@kernel.dk></a>
 <span class="label">Category</span>
 <a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
 
 
 <span class="label">Tags</span>
-	<a href="/tag/util-linux.html"><i class="icon-tag"></i>util-linux</a>
+	<a href="/tag/blk-mq.html"><i class="icon-tag"></i>blk-mq</a>
+	<a href="/tag/multiqueue.html"><i class="icon-tag"></i>multiqueue</a>
 </footer><!-- /.post-info --></div>
                 <div class="summary"><ul>
-<li>
-<p><a href="http://man7.org/linux/man-pages/man8/lsblk.8.html">http://man7.org/linux/man-pages/man8/lsblk.8.html</a></p>
-</li>
-<li>
-<p><a href="https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git">https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git</a></p>
-</li>
-<li>
-<p><a href="https://github.com/karelzak/util-linux">https://github.com/karelzak/util-linux</a></p>
-</li>
+<li><a href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=320ae51feed5c2f13664aa05a76bec198967e04d">blk-mq: new multi-queue block IO queueing mechanism</a></li>
 </ul>
-<p>The lsblk command is part of the <strong>util-linux</strong> package. lsblk lists information about all available or the specified block devices. The lsblk command reads the <code>sysfs …</code></p>
-                        <a class="btn primary xsmall" href="/lsblk-list-information-about-block-devices.html">more ...</a>
+<p>Linux currently has <strong>two models</strong> for block devices: </p>
+<ul>
+<li>
+<p><strong>The classic request_fn based approach, where drivers use struct request units for IO. The block layer provides various helper functionalities to let drivers share code, things like tag management, timeout handling, queueing, etc.</strong></p>
+</li>
+<li>
+<p><strong>The "stacked …</strong></p></li></ul>
+                        <a class="btn primary xsmall" href="/blk-mq-new-multi-queue-block-io-queueing-mechanism.html">more ...</a>
                 </div>
         </div>
         <hr />
