@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>sbitmap & sbitmap_queue & sbq_wait</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="shenghui">
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="/theme/css/bootstrap.min.css" type="text/css" />
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+      .tag-1 {
+        font-size: 13pt;
+      }
+      .tag-2 {
+        font-size: 10pt;
+      }
+      .tag-2 {
+        font-size: 8pt;
+      }
+      .tag-4 {
+        font-size: 6pt;
+     }
+    </style>
+    <link href="/theme/css/bootstrap-responsive.min.css" rel="stylesheet">
+        <link href="/theme/css/font-awesome.css" rel="stylesheet">
+
+    <link href="/theme/css/pygments.css" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="/theme/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/theme/images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/theme/images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/theme/images/apple-touch-icon-114x114.png">
+
+    <link href="/" type="application/atom+xml" rel="alternate" title="shhuiw's Technotes ATOM Feed" />
+
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/index.html">shhuiw's Technotes </a>
+          <div class="nav-collapse">
+            <ul class="nav">
+                          <li class="divider-vertical"></li>
+                  <li >
+                    <a href="/category/bing-fa.html">
+						<i class="icon-folder-open icon-large"></i>并发
+					</a>
+                  </li>
+                  <li class="active">
+                    <a href="/category/block-io.html">
+						<i class="icon-folder-open icon-large"></i>Block I/O
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/device-mapper.html">
+						<i class="icon-folder-open icon-large"></i>device-mapper
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/fio.html">
+						<i class="icon-folder-open icon-large"></i>fio
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/wei-fen-lei.html">
+						<i class="icon-folder-open icon-large"></i>未分类
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/wen-jian-xi-tong.html">
+						<i class="icon-folder-open icon-large"></i>文件系统
+					</a>
+                  </li>
+
+                          <ul class="nav pull-right">
+                                <li><a href="/archives.html"><i class="icon-th-list"></i>Archives</a></li>
+                          </ul>
+
+            </ul>
+            <!--<p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>-->
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span9" id="content">
+<section id="content">
+        <article>
+                <header>
+                        <h1>
+                                <a href=""
+                                        rel="bookmark"
+                                        title="Permalink to sbitmap & sbitmap_queue & sbq_wait">
+                                        sbitmap & sbitmap_queue & sbq_wait
+                                </a>
+                        </h1>
+                </header>
+                <div class="entry-content">
+                <div class="well">
+<footer class="post-info">
+<span class="label">Date</span>
+<abbr class="published" title="2019-03-18T19:00:00+08:00">
+        <i class="icon-calendar"></i>Mon 18 March 2019
+</abbr>
+<span class="label">By</span>
+<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
+<span class="label">Category</span>
+<a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
+
+
+<span class="label">Tags</span>
+	<a href="/tag/blk-mq.html"><i class="icon-tag"></i>blk-mq</a>
+	<a href="/tag/sbitmap.html"><i class="icon-tag"></i>sbitmap</a>
+	<a href="/tag/sbitmap_queue.html"><i class="icon-tag"></i>sbitmap_queue</a>
+</footer><!-- /.post-info -->                </div>
+                <ul>
+<li><a href="https://elixir.bootlin.com/linux/latest/source/include/linux/sbitmap.h">sbitmap.h</a></li>
+<li><a href="https://elixir.bootlin.com/linux/latest/source/lib/sbitmap.c">sbitmap.c</a></li>
+</ul>
+<h2>struct sbitmap - scalable bitmap</h2>
+<p><strong>A &amp;struct sbitmap is spread over multiple cachelines to avoid ping-pong. This trades off higher memory usage for better scalability 最浪费空间的情况是 1 bit per cacheline.</strong></p>
+<p>There are <strong>depth / bits_per_word full words</strong> and <strong>depth % bits_per_word bits left over</strong>. In bitwise arithmetic:</p>
+<div class="highlight"><pre><span></span>        bits_per_word = 1 &lt;&lt; shift
+        depth / bits_per_word = depth &gt;&gt; shift
+        depth % bits_per_word = depth &amp; ((1 &lt;&lt; shift) - 1)
+</pre></div>
+
+
+<p>round-robin 是对 cacheline 来说，一个 cacheline 只从 alloc hint 开始尝试一次 find，不再 loop around，这样每个 cacheline 都有机会提供 bit 来 rr</p>
+<div class="highlight"><pre><span></span>    struct sbitmap {
+        /* Number of bits used in the whole bitmap. */
+        unsigned int depth;
+
+        /* log2(number of bits used per word) */
+        unsigned int shift;
+
+        /* Number of words (cachelines) being used for the bitmap. */
+        unsigned int map_nr;
+
+        /* Allocated bitmap. */
+        struct sbitmap_word *map;
+    };
+
+
+    #define SB_NR_TO_INDEX(sb, bitnr) ((bitnr) &gt;&gt; (sb)-&gt;shift)
+            nr 对应的 cacheline index
+    #define SB_NR_TO_BIT(sb, bitnr) ((bitnr) &amp; ((1U &lt;&lt; (sb)-&gt;shift) - 1U))
+            nr 对于的 cacheline 内的 offset
+
+    static inline unsigned long *__sbitmap_word(struct sbitmap *sb, unsigned int bitnr)
+            &amp;sb-&gt;map[SB_NR_TO_INDEX(sb, bitnr)].word;
+    static inline void sbitmap_set_bit(struct sbitmap *sb, unsigned int bitnr)
+            set_bit(SB_NR_TO_BIT(sb, bitnr), __sbitmap_word(sb, bitnr))
+    static inline void sbitmap_clear_bit(struct sbitmap *sb, unsigned int bitnr)
+            clear_bit(SB_NR_TO_BIT(sb, bitnr), __sbitmap_word(sb, bitnr))
+    static inline void sbitmap_clear_bit_unlock(struct sbitmap *sb, unsigned int bitnr)
+            clear_bit_unlock(SB_NR_TO_BIT(sb, bitnr), __sbitmap_word(sb, bitnr))
+    static inline int sbitmap_test_bit(struct sbitmap *sb, unsigned int bitnr)
+            test_bit(SB_NR_TO_BIT(sb, bitnr), __sbitmap_word(sb, bitnr))
+
+
+    static inline void __sbitmap_for_each_set(struct sbitmap *sb, unsigned int start, sb_for_each_fn fn, void *data)
+            Iterate over each set bit in a &amp;struct sbitmap.
+                @start: Where to start the iteration.
+                @sb: Bitmap to iterate over.
+                @fn: Callback. Should return true to continue or false to break early.
+                @data: Pointer to pass to callback.
+            This is inline even though it&#39;s non-trivial so that the function calls to the
+            callback will hopefully get optimized away. 
+
+    static inline void sbitmap_for_each_set(struct sbitmap *sb, sb_for_each_fn fn, void *data)
+            Iterate over each set bit in a &amp;struct sbitmap.
+                @sb: Bitmap to iterate over.
+                @fn: Callback. Should return true to continue or false to break early.
+                @data: Pointer to pass to callback.
+
+
+    /*
+     * This one is special, since it doesn&#39;t actually clear the bit, rather it
+     * sets the corresponding bit in the -&gt;cleared mask instead. Paired with
+     * the caller doing sbitmap_deferred_clear() if a given index is full, which
+     * will clear the previously freed entries in the corresponding -&gt;word.
+     */
+    static inline void sbitmap_deferred_clear_bit(struct sbitmap *sb, unsigned int bitnr)
+            unsigned long *addr = &amp;sb-&gt;map[SB_NR_TO_INDEX(sb, bitnr)].cleared;
+            set_bit(SB_NR_TO_BIT(sb, bitnr), addr);
+            延迟更新到 .word
+</pre></div>
+
+
+<h4>struct sbitmap_word - CACHELINE - word in a &amp;struct sbitmap</h4>
+<div class="highlight"><pre><span></span>    <span class="n">struct</span> <span class="n">sbitmap_word</span> <span class="p">{</span>
+        <span class="o">/*</span>  <span class="n">Number</span> <span class="n">of</span> <span class="n">bits</span> <span class="n">being</span> <span class="n">used</span> <span class="n">in</span> <span class="o">@</span><span class="n">word</span><span class="o">/@</span><span class="n">cleared</span> <span class="o">*/</span>
+        <span class="n">unsigned</span> <span class="n">long</span> <span class="n">depth</span><span class="p">;</span>        同一个 <span class="n">sbitmap</span> 中的 <span class="n">words</span> 其 <span class="n">depth</span> 不一定相同，
+                                    最后一个 <span class="n">word</span> 和之前的 <span class="n">words</span> 可能取值不同，
+                                    但是同一个 <span class="n">sbitmap</span> 中的 <span class="n">words</span> <span class="n">depth</span> 累加等于 <span class="n">sbitmap</span><span class="o">-&gt;</span><span class="n">depth</span>
+
+        <span class="o">/*</span> <span class="n">word</span> <span class="n">holding</span> <span class="n">free</span> <span class="n">bits</span> <span class="o">*/</span>
+        <span class="n">unsigned</span> <span class="n">long</span> <span class="n">word</span> <span class="n">____cacheline_aligned_in_smp</span><span class="p">;</span>
+                                    <span class="n">word</span> 跟 <span class="n">cleared</span> 的更新不是同步的，所以有 
+                                    <span class="n">sbitmap_deferred_clear</span> 的定义，根据 <span class="n">cleared</span> 更新 <span class="n">word</span>
+
+        <span class="o">/*</span> <span class="n">word</span> <span class="n">holding</span> <span class="n">cleared</span> <span class="n">bits</span> <span class="o">*/</span>
+        <span class="n">unsigned</span> <span class="n">long</span> <span class="n">cleared</span> <span class="n">____cacheline_aligned_in_smp</span><span class="p">;</span>
+
+        <span class="o">/*</span> <span class="n">Held</span> <span class="n">while</span> <span class="n">swapping</span> <span class="n">word</span> <span class="o">&lt;-&gt;</span> <span class="n">cleared</span> <span class="o">*/</span>
+        <span class="n">spinlock_t</span> <span class="n">swap_lock</span><span class="p">;</span>
+    <span class="p">}</span> <span class="n">____cacheline_aligned_in_smp</span><span class="p">;</span>
+</pre></div>
+
+
+<h3>sbitmap API</h3>
+<ul>
+<li>int <strong>sbitmap_init_node</strong>(struct sbitmap *sb, unsigned int depth, int shift, gfp_t flags, int node)</li>
+</ul>
+<div class="highlight"><pre><span></span>    <span class="nt">Initialize</span> <span class="nt">a</span> <span class="o">&amp;</span><span class="nt">struct</span> <span class="nt">sbitmap</span> <span class="nt">on</span> <span class="nt">a</span> <span class="nt">specific</span> <span class="nt">memory</span> <span class="nt">node</span><span class="o">.</span>
+        <span class="p">@</span><span class="k">sb</span><span class="o">:</span> <span class="nt">Bitmap</span> <span class="nt">to</span> <span class="nt">initialize</span><span class="o">.</span>
+        <span class="p">@</span><span class="k">depth</span><span class="o">:</span> <span class="nt">Number</span> <span class="nt">of</span> <span class="nt">bits</span> <span class="nt">to</span> <span class="nt">allocate</span><span class="o">.</span>
+        <span class="p">@</span><span class="k">shift</span><span class="o">:</span> <span class="nt">Use</span> <span class="nt">2</span><span class="o">^</span><span class="p">@</span><span class="k">shift</span> <span class="nt">bits</span> <span class="nt">per</span> <span class="nt">word</span> <span class="nt">in</span> <span class="nt">the</span> <span class="nt">bitmap</span><span class="p">;</span> <span class="nt">if</span> <span class="nt">a</span> <span class="nt">negative</span> 
+                <span class="nt">number</span> <span class="nt">if</span> <span class="nt">given</span><span class="o">,</span> <span class="nt">a</span> <span class="nt">good</span> <span class="nt">default</span> <span class="nt">is</span> <span class="nt">chosen</span><span class="o">.</span>
+        <span class="p">@</span><span class="k">flags</span><span class="o">:</span> <span class="nt">Allocation</span> <span class="nt">flags</span><span class="o">.</span>
+        <span class="p">@</span><span class="k">node</span><span class="o">:</span> <span class="nt">Memory</span> <span class="nt">node</span> <span class="nt">to</span> <span class="nt">allocate</span> <span class="nt">on</span><span class="o">.</span>
+
+    <span class="nt">Return</span><span class="o">:</span> <span class="nt">Zero</span> <span class="nt">on</span> <span class="nt">success</span> <span class="nt">or</span> <span class="nt">negative</span> <span class="nt">errno</span> <span class="nt">on</span> <span class="nt">failure</span><span class="o">.</span>
+            <span class="nt">-ENOMEM</span> <span class="nt">分配</span> <span class="nt">map</span> <span class="nt">失败</span>
+    <span class="nt">如果</span> <span class="p">@</span><span class="k">depth</span> <span class="o">==</span> <span class="nt">0</span><span class="err">，</span><span class="nt">则会设置</span> <span class="nt">sb-</span><span class="o">&gt;</span><span class="nt">map</span> <span class="o">=</span> <span class="nt">NULL</span> <span class="nt">也同时返回</span> <span class="nt">0</span>
+
+    <span class="nt">对</span> <span class="p">@</span><span class="k">shift</span> <span class="nt">可能的调整</span>
+        <span class="nt">if</span> <span class="o">(</span><span class="nt">shift</span> <span class="o">&lt;</span> <span class="nt">0</span><span class="o">)</span> <span class="p">{</span>
+            <span class="nt">shift</span> <span class="o">=</span> <span class="nt">ilog2</span><span class="o">(</span><span class="nt">BITS_PER_LONG</span><span class="o">);</span>
+            <span class="c">/*</span>
+<span class="c">             * If the bitmap is small, shrink the number of bits per word so</span>
+<span class="c">             * we spread over a few cachelines, at least. If less than 4</span>
+<span class="c">             * bits, just forget about it, it&#39;s not going to work optimally</span>
+<span class="c">             * anyway.</span>
+<span class="c">             */</span>
+            <span class="nt">if</span> <span class="o">(</span><span class="nt">depth</span> <span class="o">&gt;=</span> <span class="nt">4</span><span class="o">)</span> <span class="p">{</span>
+                <span class="err">while</span> <span class="err">((4U</span> <span class="err">&lt;&lt;</span> <span class="err">shift)</span> <span class="err">&gt;</span> <span class="err">depth)</span>
+                    <span class="err">shift--</span><span class="p">;</span>
+            <span class="p">}</span>   
+        <span class="p">}</span>
+        <span class="nt">假设调整到</span> <span class="o">(</span><span class="nt">4U</span> <span class="o">&lt;&lt;</span> <span class="nt">shift</span><span class="o">)</span> <span class="o">==</span> <span class="nt">depth</span> <span class="nt">而</span> <span class="nt">bits_per_word</span> <span class="o">=</span> <span class="nt">1U</span> <span class="o">&lt;&lt;</span> <span class="nt">shift</span><span class="err">，</span>
+        <span class="nt">则需要</span> <span class="nt">4</span> <span class="nt">个</span> <span class="nt">sbitmap_words</span><span class="o">(</span><span class="nt">cachelines</span><span class="o">)</span><span class="err">，</span>
+        <span class="nt">最浪费空间的情况是</span> <span class="nt">1</span> <span class="nt">bit</span> <span class="nt">per</span> <span class="nt">word</span>
+        <span class="nt">对于</span> <span class="nt">depth</span> <span class="o">&lt;</span> <span class="nt">4</span> <span class="nt">的情况</span><span class="err">，</span><span class="nt">只使用</span> <span class="nt">1</span> <span class="nt">个</span> <span class="nt">cacheline</span>
+</pre></div>
+
+
+<ul>
+<li>
+<p>static inline void <strong>sbitmap_free</strong>(struct sbitmap *sb)
+Free memory used by a &amp;struct sbitmap.</p>
+</li>
+<li>
+<p>void <strong>sbitmap_resize</strong>(struct sbitmap *sb, unsigned int depth)</p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span>    Resize a &amp;struct sbitmap.
+        @sb: Bitmap to resize.
+        @depth: New number of bits to resize to.
+    Doesn&#39;t reallocate anything. It&#39;s up to the caller to ensure that the new
+    depth doesn&#39;t exceed the depth that the sb was initialized with.
+    不会检测是否 exceed，只能靠 caller 自觉
+    shift 不会改变，即开始部分的 words 存放的 depth 不变，改变的是后面 words 的 depth
+</pre></div>
+
+
+<ul>
+<li>
+<p>bool <strong>sbitmap_any_bit_set</strong>(const struct sbitmap *sb)
+Return: true if any bit in the bitmap is set, false otherwise.</p>
+</li>
+<li>
+<p>bool <strong>sbitmap_any_bit_clear</strong>(const struct sbitmap *sb)
+Return: true if any bit in the bitmap is clear, false otherwise.</p>
+</li>
+<li>
+<p>int <strong>sbitmap_get</strong>(struct sbitmap *sb, unsigned int alloc_hint, bool round_robin)</p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span>    <span class="nt">Try</span> <span class="nt">to</span> <span class="nt">allocate</span> <span class="nt">a</span> <span class="nt">free</span> <span class="nt">bit</span> <span class="nt">from</span> <span class="nt">a</span> <span class="o">&amp;</span><span class="nt">struct</span> <span class="nt">sbitmap</span><span class="o">.</span>
+        <span class="p">@</span><span class="k">sb</span><span class="o">:</span> <span class="nt">Bitmap</span> <span class="nt">to</span> <span class="nt">allocate</span> <span class="nt">from</span><span class="o">.</span>
+        <span class="p">@</span><span class="k">alloc_hint</span><span class="o">:</span> <span class="nt">Hint</span> <span class="nt">for</span> <span class="nt">where</span> <span class="nt">to</span> <span class="nt">start</span> <span class="nt">searching</span> <span class="nt">for</span> <span class="nt">a</span> <span class="nt">free</span> <span class="nt">bit</span><span class="o">.</span>
+        <span class="p">@</span><span class="k">round_robin</span><span class="o">:</span> <span class="nt">If</span> <span class="nt">true</span><span class="o">,</span> <span class="nt">be</span> <span class="nt">stricter</span> <span class="nt">about</span> <span class="nt">allocation</span> <span class="nt">order</span><span class="p">;</span> <span class="nt">always</span> <span class="nt">allocate</span>
+                <span class="nt">starting</span> <span class="nt">from</span> <span class="nt">the</span> <span class="nt">last</span> <span class="nt">allocated</span> <span class="nt">bit</span><span class="o">.</span> <span class="nt">This</span> <span class="nt">is</span> <span class="nt">less</span> <span class="nt">efficient</span>
+                <span class="nt">than</span> <span class="nt">the</span> <span class="nt">default</span> <span class="nt">behavior</span> <span class="o">(</span><span class="nt">false</span><span class="o">).</span>
+        <span class="nt">round-robin</span> <span class="nt">是对</span> <span class="nt">cachelines</span> <span class="nt">来说</span><span class="err">，</span><span class="nt">一个</span> <span class="nt">cacheline</span> <span class="nt">只从</span> <span class="nt">alloc</span> <span class="nt">hint</span> <span class="nt">开始</span>
+        <span class="nt">尝试一次</span> <span class="nt">find</span><span class="err">，</span><span class="nt">不再</span> <span class="nt">loop</span> <span class="nt">around</span><span class="err">，</span><span class="nt">这样每个</span> <span class="nt">cacheline</span> <span class="nt">都有机会提供</span> <span class="nt">bit</span> <span class="nt">来</span> <span class="nt">rr</span>
+    <span class="nt">This</span> <span class="nt">operation</span> <span class="nt">provides</span> <span class="nt">acquire</span> <span class="nt">barrier</span> <span class="nt">semantics</span> <span class="nt">if</span> <span class="nt">it</span> <span class="nt">succeeds</span><span class="o">.</span>
+    <span class="nt">Return</span><span class="o">:</span> <span class="nt">Non-negative</span> <span class="nt">allocated</span> <span class="nt">bit</span> <span class="nt">number</span> <span class="nt">if</span> <span class="nt">successful</span><span class="o">,</span> <span class="nt">-1</span> <span class="nt">otherwise</span><span class="o">.</span>
+</pre></div>
+
+
+<ul>
+<li>int <strong>sbitmap_get_shallow</strong>(struct sbitmap *sb, unsigned int alloc_hint, unsigned long shallow_depth)</li>
+</ul>
+<div class="highlight"><pre><span></span>    Try to allocate a free bit from a &amp;struct sbitmap, limiting the depth used from each word.
+        @sb: Bitmap to allocate from.
+        @alloc_hint: Hint for where to start searching for a free bit.
+        @shallow_depth: The maximum number of bits to allocate from a single word.
+
+    This rather specific operation allows for having multiple users with
+    different allocation limits. E.g., there can be a high-priority class that
+    uses sbitmap_get() and a low-priority class that uses sbitmap_get_shallow()
+    with a @shallow_depth of (1 &lt;&lt; (@sb-&gt;shift - 1)). Then, the low-priority
+    class can only allocate half of the total bits in the bitmap, preventing it
+    from starving out the high-priority class.
+
+    Return: Non-negative allocated bit number if successful, -1 otherwise
+</pre></div>
+
+
+<ul>
+<li>void <strong>sbitmap_bitmap_show</strong>(struct sbitmap <em>sb, struct seq_file </em>m)
+Write a <strong>hex dump</strong> of a &amp;struct sbitmap to a &amp;struct seq_file. This is intended for debugging. The output isn't guaranteed to be internally consistent.</li>
+</ul>
+<h2>struct sbitmap_queue - scalable bitmap with the added ability to wait on free bits</h2>
+<p>A &amp;struct sbitmap_queue uses <strong>multiple wait queues and rolling wakeups to avoid contention on the wait queue spinlock</strong>. This ensures that we <strong>don't hit a scalability wall when we run out of free bits and have to start putting tasks to sleep</strong>.</p>
+<div class="highlight"><pre><span></span>    #define SBQ_WAIT_QUEUES 8
+    #define SBQ_WAKE_BATCH 8
+
+    struct sbitmap_queue {
+        /* Scalable bitmap. */
+        struct sbitmap sb;
+
+        /*
+         * Cache of last successfully allocated or freed bit.
+         * This is per-cpu, which allows multiple users to stick to different
+         * cachelines until the map is exhausted.
+         */
+        unsigned int __percpu *alloc_hint;
+
+        /* Number of bits which must be freed before we wake up any waiters. */
+        unsigned int wake_batch;            初始化为 sbq_calc_wake_batch(sbq, depth)
+                                            resize 后如果导致 wake_batch 变化会设置为 1
+
+        /* Next wait queue in @ws to wake up. */
+        atomic_t wake_index;                初始化为 0
+
+        /* Wait queues. */
+        struct sbq_wait_state *ws;          SBQ_WAIT_QUEUES 个 wqs
+                                            atomic_set(&amp;sbq-&gt;ws[i].wait_cnt, sbq-&gt;wake_batch)
+
+        /* count of currently active ws waitqueues */
+        atomic_t ws_active;                 初始化为 0
+                                            关联的 sbq_wait 数量
+
+        /* Allocate bits in strict round-robin order. */
+        bool round_robin;
+
+        /**
+         * minimum shallow depth which may be passed to
+         * sbitmap_queue_get_shallow() or __sbitmap_queue_get_shallow().
+         */
+        unsigned int min_shallow_depth;     初始化为 UINT_MAX
+    };
+</pre></div>
+
+
+<h4>struct sbq_wait_state - wait queue in a &amp;struct sbitmap_queue</h4>
+<div class="highlight"><pre><span></span>    struct sbq_wait_state {
+        /* Number of frees remaining before we wake up. */
+        atomic_t wait_cnt;                  初始化为 atomic_set(&amp;sbq-&gt;ws[i].wait_cnt, sbq-&gt;wake_batch)
+
+        /* Wait queue. */
+        wait_queue_head_t wait;
+    } ____cacheline_aligned_in_smp;
+</pre></div>
+
+
+<h3>sbitmap_queue API</h3>
+<ul>
+<li>int <strong>sbitmap_queue_init_node</strong>(struct sbitmap_queue *sbq, unsigned int depth, int shift, bool round_robin, gfp_t flags, int node)</li>
+</ul>
+<div class="highlight"><pre><span></span>    Initialize a &amp;struct sbitmap_queue on a specific memory node.
+        @sbq: Bitmap queue to initialize.
+        @depth: See sbitmap_init_node().
+        @shift: See sbitmap_init_node().
+        @round_robin: See sbitmap_get().
+        @flags: Allocation flags.
+        @node: Memory node to allocate on.
+    Return: Zero on success or negative errno on failure.
+
+    sbq-&gt;wake_batch = sbq_calc_wake_batch(sbq, depth)
+
+    if (depth &amp;&amp; !round_robin) { 随机的起始 alloc hint
+        for_each_possible_cpu(i)
+            *per_cpu_ptr(sbq-&gt;alloc_hint, i) = prandom_u32() % depth;
+    }
+</pre></div>
+
+
+<ul>
+<li>static unsigned int <strong>sbq_calc_wake_batch</strong>(struct sbitmap_queue *sbq, unsigned int depth)</li>
+</ul>
+<div class="highlight"><pre><span></span>    /*
+     * For each batch, we wake up one queue. We need to make sure that our
+     * batch size is small enough that the full depth of the bitmap,
+     * potentially limited by a shallow depth, is enough to wake up all of
+     * the queues.
+     *
+     * Each full word of the bitmap has bits_per_word bits, and there might
+     * be a partial word. There are depth / bits_per_word full words and
+     * depth % bits_per_word bits left over. In bitwise arithmetic:
+     *
+     * bits_per_word = 1 &lt;&lt; shift
+     * depth / bits_per_word = depth &gt;&gt; shift
+     * depth % bits_per_word = depth &amp; ((1 &lt;&lt; shift) - 1)
+     *
+     * Each word can be limited to sbq-&gt;min_shallow_depth bits.
+     */
+    shallow_depth = min(1U &lt;&lt; sbq-&gt;sb.shift, sbq-&gt;min_shallow_depth);
+    depth = ((depth &gt;&gt; sbq-&gt;sb.shift) * shallow_depth +
+         min(depth &amp; ((1U &lt;&lt; sbq-&gt;sb.shift) - 1), shallow_depth));
+    wake_batch = clamp_t(unsigned int, depth / SBQ_WAIT_QUEUES, 1,
+                 SBQ_WAKE_BATCH);
+</pre></div>
+
+
+<ul>
+<li>
+<p>static inline void <strong>sbitmap_queue_free</strong>(struct sbitmap_queue *sbq)
+Free memory used by a &amp;struct sbitmap_queue</p>
+</li>
+<li>
+<p>void <strong>sbitmap_queue_resize</strong>(struct sbitmap_queue *sbq, unsigned int depth)</p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span>    Resize a &amp;struct sbitmap_queue.
+        @sbq: Bitmap queue to resize.
+        @depth: New number of bits to resize to.
+    Like sbitmap_resize(), this doesn&#39;t reallocate anything. It has to do
+    some extra work on the &amp;struct sbitmap_queue, so it&#39;s not safe to just
+    resize the underlying &amp;struct sbitmap.
+
+    如果改动了 sbq-&gt;wake_batch 则会 atomic_set(&amp;sbq-&gt;ws[i].wait_cnt, 1) 
+    而不是使用更新后的 wake_batch
+</pre></div>
+
+
+<ul>
+<li>static inline int <strong>sbitmap_queue_get</strong>(struct sbitmap_queue <em>sbq, unsigned int </em>cpu)
+Try to allocate a free bit from a &amp;struct sbitmap_queue.</li>
+<li>int <strong>__sbitmap_queue_get</strong>(struct sbitmap_queue *sbq)</li>
+</ul>
+<div class="highlight"><pre><span></span>    Try to allocate a free bit from a &amp;struct sbitmap_queue with preemption already disabled.
+        @sbq: Bitmap queue to allocate from.
+    Return: Non-negative allocated bit number if successful, -1 otherwise.
+</pre></div>
+
+
+<ul>
+<li>static inline int <strong>sbitmap_queue_get_shallow</strong>(struct sbitmap_queue <em>sbq, unsigned int </em>cpu, unsigned int shallow_depth)</li>
+<li>int <strong>__sbitmap_queue_get_shallow</strong>(struct sbitmap_queue *sbq, unsigned int shallow_depth)</li>
+</ul>
+<div class="highlight"><pre><span></span>    Try to allocate a free bit from a &amp;struct sbitmap_queue, limiting the depth 
+    used from each word, with preemption already disabled.
+        @sbq: Bitmap queue to allocate from.
+        @shallow_depth: The maximum number of bits to allocate from a single word.
+                See sbitmap_get_shallow().
+    If you call this, make sure to call sbitmap_queue_min_shallow_depth() after
+    initializing @sbq. 因为 sbq-&gt;min_shallow_depth 初始化为 UINT_MAX
+    Return: Non-negative allocated bit number if successful, -1 otherwise.
+</pre></div>
+
+
+<ul>
+<li>void <strong>sbitmap_queue_min_shallow_depth</strong>(struct sbitmap_queue *sbq, unsigned int min_shallow_depth)</li>
+</ul>
+<div class="highlight"><pre><span></span>    Inform a &amp;struct sbitmap_queue of the minimum shallow depth that will be used.
+        @sbq: Bitmap queue in question.
+        @min_shallow_depth: The minimum shallow depth that will be passed to
+                sbitmap_queue_get_shallow() or __sbitmap_queue_get_shallow().
+    sbitmap_queue_clear() batches wakeups as an optimization. The batch size
+    depends on the depth of the bitmap. Since the shallow allocation functions
+    effectively operate with a different depth, the shallow depth must be taken
+    into account when calculating the batch size. This function must be called
+    with the minimum shallow depth that will be used. Failure to do so can result
+    in missed wakeups. 
+
+        sbq-&gt;min_shallow_depth 初始化为 UINT_MAX
+
+        sbq-&gt;min_shallow_depth = min_shallow_depth;
+        sbitmap_queue_update_wake_batch(sbq, sbq-&gt;sb.depth);
+</pre></div>
+
+
+<ul>
+<li>void <strong>sbitmap_queue_show</strong>(struct sbitmap_queue <em>sbq, struct seq_file </em>m)</li>
+</ul>
+<div class="highlight"><pre><span></span>    Dump &amp;struct sbitmap_queue information to a &amp;struct seq_file.
+    This is intended for debugging. The format may change at any time.
+</pre></div>
+
+
+<ul>
+<li>void <strong>sbitmap_queue_clear</strong>(struct sbitmap_queue *sbq, unsigned int nr, unsigned int cpu)</li>
+</ul>
+<div class="highlight"><pre><span></span>    Free an allocated bit and wake up waiters on a &amp;struct sbitmap_queue.
+        @sbq: Bitmap to free from.
+        @nr: Bit number to free.
+        @cpu: CPU the bit was allocated on.
+</pre></div>
+
+
+<ul>
+<li>static inline struct sbq_wait_state * <strong>sbq_wait_ptr</strong>(struct sbitmap_queue <em>sbq, atomic_t </em>wait_index)</li>
+</ul>
+<div class="highlight"><pre><span></span>    Get the next wait queue to use for a &amp;struct sbitmap_queue.
+        @sbq: Bitmap queue to wait on.
+        @wait_index: A counter per &quot;user&quot; of @sbq.
+    还会 inc @wait_index
+</pre></div>
+
+
+<ul>
+<li>void <strong>sbitmap_queue_wake_all</strong>(struct sbitmap_queue *sbq)</li>
+</ul>
+<div class="highlight"><pre><span></span>    Wake up everything waiting on a &amp;struct sbitmap_queue.
+</pre></div>
+
+
+<ul>
+<li>void <strong>sbitmap_queue_wake_up</strong>(struct sbitmap_queue *sbq)</li>
+</ul>
+<div class="highlight"><pre><span></span>    Wake up some of waiters in one waitqueue on a &amp;struct sbitmap_queue.
+</pre></div>
+
+
+<h2>struct sbq_wait</h2>
+<div class="highlight"><pre><span></span>    struct sbq_wait {
+        struct sbitmap_queue    *sbq;   /* if set, sbq_wait is accounted */
+        struct wait_queue_entry wait;
+    };
+
+    #define DEFINE_SBQ_WAIT(name)                       \
+        struct sbq_wait name = {                        \
+            .sbq = NULL,                                \
+            .wait = {                                   \
+                .private    = current,                  \
+                .func       = autoremove_wake_function, \
+                .entry      = LIST_HEAD_INIT((name).wait.entry),    \
+            }                                           \
+        }
+</pre></div>
+
+
+<ul>
+<li>void <strong>sbitmap_prepare_to_wait</strong>(struct sbitmap_queue <em>sbq, struct sbq_wait_state </em>ws, struct sbq_wait *sbq_wait, int state)</li>
+</ul>
+<div class="highlight"><pre><span></span>    Wrapper around prepare_to_wait_exclusive(), which maintains some extra internal state.
+
+    if (!sbq_wait-&gt;sbq) {
+        atomic_inc(&amp;sbq-&gt;ws_active);
+        sbq_wait-&gt;sbq = sbq;
+    }
+    prepare_to_wait_exclusive(&amp;ws-&gt;wait, &amp;sbq_wait-&gt;wait, state);
+</pre></div>
+
+
+<ul>
+<li>void <strong>sbitmap_finish_wait</strong>(struct sbitmap_queue <em>sbq, struct sbq_wait_state </em>ws, struct sbq_wait *sbq_wait)</li>
+</ul>
+<div class="highlight"><pre><span></span>    Must be paired with sbitmap_prepare_to_wait().
+
+    finish_wait(&amp;ws-&gt;wait, &amp;sbq_wait-&gt;wait);
+    if (sbq_wait-&gt;sbq) {
+        atomic_dec(&amp;sbq-&gt;ws_active);
+        sbq_wait-&gt;sbq = NULL;
+    }
+</pre></div>
+
+
+<ul>
+<li>void <strong>sbitmap_add_wait_queue</strong>(struct sbitmap_queue <em>sbq, struct sbq_wait_state </em>ws, struct sbq_wait *sbq_wait)</li>
+</ul>
+<div class="highlight"><pre><span></span>    Wrapper around add_wait_queue(), which maintains some extra internal state
+
+    if (!sbq_wait-&gt;sbq) {
+        sbq_wait-&gt;sbq = sbq;
+        atomic_inc(&amp;sbq-&gt;ws_active);
+    }
+    add_wait_queue(&amp;ws-&gt;wait, &amp;sbq_wait-&gt;wait);
+</pre></div>
+
+
+<ul>
+<li>void <strong>sbitmap_del_wait_queue</strong>(struct sbq_wait *sbq_wait)</li>
+</ul>
+<div class="highlight"><pre><span></span>    Must be paired with sbitmap_add_wait_queue()
+
+    list_del_init(&amp;sbq_wait-&gt;wait.entry);
+    if (sbq_wait-&gt;sbq) {
+        atomic_dec(&amp;sbq_wait-&gt;sbq-&gt;ws_active);
+        sbq_wait-&gt;sbq = NULL;
+    }
+</pre></div>
+                </div><!-- /.entry-content -->
+        </article>
+</section>
+        </div><!--/span-->
+
+                <div class="span3 well sidebar-nav" id="sidebar">
+<ul class="nav nav-list">
+
+<li class="nav-header"><h4><i class="icon-folder-close icon-large"></i>Categories</h4></li>
+<li>
+<a href="/category/bing-fa.html">
+    <i class="icon-folder-open icon-large"></i>并发
+</a>
+</li>
+<li>
+<a href="/category/block-io.html">
+    <i class="icon-folder-open icon-large"></i>Block I/O
+</a>
+</li>
+<li>
+<a href="/category/device-mapper.html">
+    <i class="icon-folder-open icon-large"></i>device-mapper
+</a>
+</li>
+<li>
+<a href="/category/fio.html">
+    <i class="icon-folder-open icon-large"></i>fio
+</a>
+</li>
+<li>
+<a href="/category/wei-fen-lei.html">
+    <i class="icon-folder-open icon-large"></i>未分类
+</a>
+</li>
+<li>
+<a href="/category/wen-jian-xi-tong.html">
+    <i class="icon-folder-open icon-large"></i>文件系统
+</a>
+</li>
+
+<li class="nav-header"><h4><i class="icon-tags icon-large"></i>Tags</h4></li>
+<li class="tag-4">
+    <a href="/tag/cfq.html">
+        <i class="icon-tag icon-large"></i>CFQ
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/sbitmap.html">
+        <i class="icon-tag icon-large"></i>sbitmap
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/request-tagging.html">
+        <i class="icon-tag icon-large"></i>request tagging
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/virtualbox.html">
+        <i class="icon-tag icon-large"></i>virtualbox
+    </a>
+</li>
+<li class="tag-1">
+    <a href="/tag/blkparse.html">
+        <i class="icon-tag icon-large"></i>blkparse
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/kyber.html">
+        <i class="icon-tag icon-large"></i>kyber
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/util-linux.html">
+        <i class="icon-tag icon-large"></i>util-linux
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/blk-mq.html">
+        <i class="icon-tag icon-large"></i>blk-mq
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/btrecord.html">
+        <i class="icon-tag icon-large"></i>btrecord
+    </a>
+</li>
+<li class="tag-2">
+    <a href="/tag/btt.html">
+        <i class="icon-tag icon-large"></i>btt
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/iotop.html">
+        <i class="icon-tag icon-large"></i>iotop
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/atomic_ops.html">
+        <i class="icon-tag icon-large"></i>atomic_ops
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/seekwatcher.html">
+        <i class="icon-tag icon-large"></i>seekwatcher
+    </a>
+</li>
+<li class="tag-1">
+    <a href="/tag/blktrace.html">
+        <i class="icon-tag icon-large"></i>blktrace
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/dkms.html">
+        <i class="icon-tag icon-large"></i>dkms
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/sbitmap_queue.html">
+        <i class="icon-tag icon-large"></i>sbitmap_queue
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/btreplay.html">
+        <i class="icon-tag icon-large"></i>btreplay
+    </a>
+</li>
+<li class="tag-2">
+    <a href="/tag/device-mapper.html">
+        <i class="icon-tag icon-large"></i>device-mapper
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/bfq.html">
+        <i class="icon-tag icon-large"></i>BFQ
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/blkiomon.html">
+        <i class="icon-tag icon-large"></i>blkiomon
+    </a>
+</li>
+<li class="tag-2">
+    <a href="/tag/fio.html">
+        <i class="icon-tag icon-large"></i>fio
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/relayfs.html">
+        <i class="icon-tag icon-large"></i>relayfs
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/bno_plot.html">
+        <i class="icon-tag icon-large"></i>bno_plot
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/workqueue.html">
+        <i class="icon-tag icon-large"></i>workqueue
+    </a>
+</li>
+<li class="tag-2">
+    <a href="/tag/multiqueue.html">
+        <i class="icon-tag icon-large"></i>multiqueue
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/e2fsprogs.html">
+        <i class="icon-tag icon-large"></i>e2fsprogs
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/relay.html">
+        <i class="icon-tag icon-large"></i>relay
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/btrace.html">
+        <i class="icon-tag icon-large"></i>btrace
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/blkrawverify.html">
+        <i class="icon-tag icon-large"></i>blkrawverify
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/bvec.html">
+        <i class="icon-tag icon-large"></i>bvec
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/bio.html">
+        <i class="icon-tag icon-large"></i>bio
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/iostat.html">
+        <i class="icon-tag icon-large"></i>iostat
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/iowatcher.html">
+        <i class="icon-tag icon-large"></i>iowatcher
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/verify_blkparse.html">
+        <i class="icon-tag icon-large"></i>verify_blkparse
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/single-queue.html">
+        <i class="icon-tag icon-large"></i>single queue
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/f2fs.html">
+        <i class="icon-tag icon-large"></i>f2fs
+    </a>
+</li>
+
+
+</ul>        </div><!--/.well -->
+
+      </div><!--/row-->
+
+      <hr>
+
+      <footer>
+        <address id="about">
+                Proudly powered by <a href="http://pelican.notmyidea.org/">Pelican <i class="icon-external-link"></i></a>,
+                                which takes great advantage of <a href="http://python.org">Python <i class="icon-external-link"></i></a>.
+        </address><!-- /#about -->
+
+        <p>The theme is from <a href="http://twitter.github.com/bootstrap/">Bootstrap from Twitter <i class="icon-external-link"></i></a>,
+                   and <a href="http://fortawesome.github.com/Font-Awesome/">Font-Awesome <i class="icon-external-link"></i></a>, thanks!</p>
+      </footer>
+
+    </div><!--/.fluid-container-->
+
+
+
+    <!-- Le javascript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/theme/js/jquery-1.7.2.min.js"></script>
+    <script src="/theme/js/bootstrap.min.js"></script>
+  </body>
+</html>

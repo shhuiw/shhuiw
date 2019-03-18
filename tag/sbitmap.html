@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>shhuiw's Technotes - Jens Axboe <axboe@kernel.dk></title>
+    <title>shhuiw's Technotes - sbitmap</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="shenghui">
@@ -110,33 +110,32 @@
       <div class="row">
         <div class="span9" id="content">
         <div class="article">
-                <h1><a href="/blk-mq-new-multi-queue-block-io-queueing-mechanism.html">blk-mq: new multi-queue block IO queueing mechanism</a></h1>
+                <h1><a href="/sbitmap-sbitmap_queue-sbq_wait.html">sbitmap & sbitmap_queue & sbq_wait</a></h1>
                 <div class="well small"><footer class="post-info">
 <span class="label">Date</span>
-<abbr class="published" title="2019-03-01T22:00:00+08:00">
-        <i class="icon-calendar"></i>Fri 01 March 2019
+<abbr class="published" title="2019-03-18T19:00:00+08:00">
+        <i class="icon-calendar"></i>Mon 18 March 2019
 </abbr>
 <span class="label">By</span>
-<a href="/author/jens-axboe.html"><i class="icon-user"></i>Jens Axboe <axboe@kernel.dk></a>
+<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
 <span class="label">Category</span>
 <a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
 
 
 <span class="label">Tags</span>
 	<a href="/tag/blk-mq.html"><i class="icon-tag"></i>blk-mq</a>
-	<a href="/tag/multiqueue.html"><i class="icon-tag"></i>multiqueue</a>
+	<a href="/tag/sbitmap.html"><i class="icon-tag"></i>sbitmap</a>
+	<a href="/tag/sbitmap_queue.html"><i class="icon-tag"></i>sbitmap_queue</a>
 </footer><!-- /.post-info --></div>
                 <div class="summary"><ul>
-<li><a href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=320ae51feed5c2f13664aa05a76bec198967e04d">blk-mq: new multi-queue block IO queueing mechanism</a></li>
+<li><a href="https://elixir.bootlin.com/linux/latest/source/include/linux/sbitmap.h">sbitmap.h</a></li>
+<li><a href="https://elixir.bootlin.com/linux/latest/source/lib/sbitmap.c">sbitmap.c</a></li>
 </ul>
-<p>Linux currently has <strong>two models</strong> for block devices: </p>
-<ul>
-<li>
-<p><strong>The classic request_fn based approach, where drivers use struct request units for IO. The block layer provides various helper functionalities to let drivers share code, things like tag management, timeout handling, queueing, etc.</strong></p>
-</li>
-<li>
-<p><strong>The "stacked …</strong></p></li></ul>
-                        <a class="btn primary xsmall" href="/blk-mq-new-multi-queue-block-io-queueing-mechanism.html">more ...</a>
+<h2>struct sbitmap - scalable bitmap</h2>
+<p><strong>A &amp;struct sbitmap is spread over multiple cachelines to avoid ping-pong. This trades off higher memory usage for better scalability 最浪费空间的情况是 1 bit per cacheline.</strong></p>
+<p>There are <strong>depth / bits_per_word full words</strong> and <strong>depth % bits_per_word bits left over</strong>. In bitwise arithmetic:</p>
+<div class="highlight"><pre><span></span>        bits_per_word = 1 …</pre></div>
+                        <a class="btn primary xsmall" href="/sbitmap-sbitmap_queue-sbq_wait.html">more ...</a>
                 </div>
         </div>
         <hr />
