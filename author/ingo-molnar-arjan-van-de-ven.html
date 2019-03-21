@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>bno_plot - generate interactive 3D plot of IO blocks and sizes</title>
+    <title>shhuiw's Technotes - Ingo Molnar <mingo@redhat.com>, Arjan van de Ven <arjan@linux.intel.com></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="shenghui">
@@ -69,7 +69,7 @@
 						<i class="icon-folder-open icon-large"></i>并发
 					</a>
                   </li>
-                  <li class="active">
+                  <li >
                     <a href="/category/block-io.html">
 						<i class="icon-folder-open icon-large"></i>Block I/O
 					</a>
@@ -114,55 +114,34 @@
     <div class="container-fluid">
       <div class="row">
         <div class="span9" id="content">
-<section id="content">
-        <article>
-                <header>
-                        <h1>
-                                <a href=""
-                                        rel="bookmark"
-                                        title="Permalink to bno_plot - generate interactive 3D plot of IO blocks and sizes">
-                                        bno_plot - generate interactive 3D plot of IO blocks and sizes
-                                </a>
-                        </h1>
-                </header>
-                <div class="entry-content">
-                <div class="well">
-<footer class="post-info">
+        <div class="article">
+                <h1><a href="/lockdep-design-of-v2618-rc1.html">lockdep-design of v2.6.18-rc1</a></h1>
+                <div class="well small"><footer class="post-info">
 <span class="label">Date</span>
-<abbr class="published" title="2019-02-24T17:00:00+08:00">
-        <i class="icon-calendar"></i>Sun 24 February 2019
+<abbr class="published" title="2019-03-21T20:00:00+08:00">
+        <i class="icon-calendar"></i>Thu 21 March 2019
 </abbr>
 <span class="label">By</span>
-<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
+<a href="/author/ingo-molnar-arjan-van-de-ven.html"><i class="icon-user"></i>Ingo Molnar <mingo@redhat.com>, Arjan van de Ven <arjan@linux.intel.com></a>
 <span class="label">Category</span>
-<a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
+<a href="/category/locking.html"><i class="icon-folder-open"></i>locking</a>.
 
 
 <span class="label">Tags</span>
-	<a href="/tag/blktrace.html"><i class="icon-tag"></i>blktrace</a>
-	<a href="/tag/btt.html"><i class="icon-tag"></i>btt</a>
-	<a href="/tag/bno_plot.html"><i class="icon-tag"></i>bno_plot</a>
-</footer><!-- /.post-info -->                </div>
-                <ul>
-<li><a href="https://git.kernel.org/pub/scm/linux/kernel/git/axboe/blktrace.git">blktrace.git</a></li>
-<li>man bno_plot</li>
-<li><strong>/usr/share/doc/blktrace/btt.pdf</strong></li>
+	<a href="/tag/lockdep.html"><i class="icon-tag"></i>lockdep</a>
+</footer><!-- /.post-info --></div>
+                <div class="summary"><ul>
+<li><a href="https://elixir.bootlin.com/linux/v2.6.18-rc1/source/Documentation/lockdep-design.txt">lockdep-design.txt</a></li>
 </ul>
-<p>To use this utility, the <strong>gnuplot</strong> package needs to be installed.</p>
-<p>bno_plot is a visualization tool for the block layer IO tracing tool called blktrace(8).  As noted in its documentation, blktrace is a block layer IO tracing mechanism which provides detailed information about request queue operations up to user space.</p>
-<p>bno_plot utilizes gnuplot to generate a 3D plot of the block number output from btt.  If no <code>&lt;files&gt;</code> are specified, it will utilize all files generated after btt was run with <strong>-B blknos</strong> (meaning:  all files of the form <strong>blknos*[rw].dat</strong>). The display will display <strong>each IO generated, with the time (seconds) along the X-axis, the block number (start) along the Y-axis and the number of blocks transferred in the IO represented along the Z-axis</strong>.</p>
-<div class="highlight"><pre><span></span>    bno_plot    [ -h | --help ]
-                [ -v | --verbose ]
-                [ -K | --keys-below ]
-                [ &lt;file...&gt; ]
-</pre></div>
+<h2>Runtime locking correctness validator</h2>
+<h3>Lock-class</h3>
+<p>The basic object the validator operates upon is a <strong>'class' of locks</strong>.</p>
+<p>A class of locks is a group of locks that are <strong>logically the same with respect to locking rules</strong>, even if the locks may have multiple (possibly tens of thousands of …</p>
+                        <a class="btn primary xsmall" href="/lockdep-design-of-v2618-rc1.html">more ...</a>
+                </div>
+        </div>
+        <hr />
 
-
-<p>The -K option forces bno_plot to put the keys below the graph.  If it is not specified, all keys for input files are put in the upper right corner of the graph. If the number of devices exceed <strong>10</strong>,  then bno_plot will <strong>automatically</strong> push the keys under the graph.</p>
-<p>To exit the plotter, enter <strong>'quit' or ^D at the 'gnuplot&gt; '</strong> prompt.</p>
-                </div><!-- /.entry-content -->
-        </article>
-</section>
         </div><!--/span-->
 
                 <div class="span3 well sidebar-nav" id="sidebar">

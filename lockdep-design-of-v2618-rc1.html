@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>bno_plot - generate interactive 3D plot of IO blocks and sizes</title>
+    <title>lockdep-design of v2.6.18-rc1</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="shenghui">
@@ -69,7 +69,7 @@
 						<i class="icon-folder-open icon-large"></i>并发
 					</a>
                   </li>
-                  <li class="active">
+                  <li >
                     <a href="/category/block-io.html">
 						<i class="icon-folder-open icon-large"></i>Block I/O
 					</a>
@@ -84,7 +84,7 @@
 						<i class="icon-folder-open icon-large"></i>fio
 					</a>
                   </li>
-                  <li >
+                  <li class="active">
                     <a href="/category/locking.html">
 						<i class="icon-folder-open icon-large"></i>locking
 					</a>
@@ -120,8 +120,8 @@
                         <h1>
                                 <a href=""
                                         rel="bookmark"
-                                        title="Permalink to bno_plot - generate interactive 3D plot of IO blocks and sizes">
-                                        bno_plot - generate interactive 3D plot of IO blocks and sizes
+                                        title="Permalink to lockdep-design of v2.6.18-rc1">
+                                        lockdep-design of v2.6.18-rc1
                                 </a>
                         </h1>
                 </header>
@@ -129,37 +129,104 @@
                 <div class="well">
 <footer class="post-info">
 <span class="label">Date</span>
-<abbr class="published" title="2019-02-24T17:00:00+08:00">
-        <i class="icon-calendar"></i>Sun 24 February 2019
+<abbr class="published" title="2019-03-21T20:00:00+08:00">
+        <i class="icon-calendar"></i>Thu 21 March 2019
 </abbr>
 <span class="label">By</span>
-<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
+<a href="/author/ingo-molnar-arjan-van-de-ven.html"><i class="icon-user"></i>Ingo Molnar <mingo@redhat.com>, Arjan van de Ven <arjan@linux.intel.com></a>
 <span class="label">Category</span>
-<a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
+<a href="/category/locking.html"><i class="icon-folder-open"></i>locking</a>.
 
 
 <span class="label">Tags</span>
-	<a href="/tag/blktrace.html"><i class="icon-tag"></i>blktrace</a>
-	<a href="/tag/btt.html"><i class="icon-tag"></i>btt</a>
-	<a href="/tag/bno_plot.html"><i class="icon-tag"></i>bno_plot</a>
+	<a href="/tag/lockdep.html"><i class="icon-tag"></i>lockdep</a>
 </footer><!-- /.post-info -->                </div>
                 <ul>
-<li><a href="https://git.kernel.org/pub/scm/linux/kernel/git/axboe/blktrace.git">blktrace.git</a></li>
-<li>man bno_plot</li>
-<li><strong>/usr/share/doc/blktrace/btt.pdf</strong></li>
+<li><a href="https://elixir.bootlin.com/linux/v2.6.18-rc1/source/Documentation/lockdep-design.txt">lockdep-design.txt</a></li>
 </ul>
-<p>To use this utility, the <strong>gnuplot</strong> package needs to be installed.</p>
-<p>bno_plot is a visualization tool for the block layer IO tracing tool called blktrace(8).  As noted in its documentation, blktrace is a block layer IO tracing mechanism which provides detailed information about request queue operations up to user space.</p>
-<p>bno_plot utilizes gnuplot to generate a 3D plot of the block number output from btt.  If no <code>&lt;files&gt;</code> are specified, it will utilize all files generated after btt was run with <strong>-B blknos</strong> (meaning:  all files of the form <strong>blknos*[rw].dat</strong>). The display will display <strong>each IO generated, with the time (seconds) along the X-axis, the block number (start) along the Y-axis and the number of blocks transferred in the IO represented along the Z-axis</strong>.</p>
-<div class="highlight"><pre><span></span>    bno_plot    [ -h | --help ]
-                [ -v | --verbose ]
-                [ -K | --keys-below ]
-                [ &lt;file...&gt; ]
+<h2>Runtime locking correctness validator</h2>
+<h3>Lock-class</h3>
+<p>The basic object the validator operates upon is a <strong>'class' of locks</strong>.</p>
+<p>A class of locks is a group of locks that are <strong>logically the same with respect to locking rules</strong>, even if the locks may have multiple (possibly tens of thousands of) instantiations. <strong>For example a lock in the inode struct is one class, while each inode has its own instantiation of that lock class.</strong></p>
+<p>The validator tracks the 'state' of lock-classes, and it tracks dependencies between different lock-classes. The validator maintains a rolling proof that the state and the dependencies are correct.</p>
+<p>Unlike an lock instantiation, the lock-class itself never goes away: <strong>when a lock-class is used for the first time after bootup it gets registered</strong>, and <strong>all subsequent uses</strong> of that lock-class will be <strong>attached to</strong> this lock-class.</p>
+<h3>State</h3>
+<p>The validator tracks lock-class usage history into 5 separate state bits:</p>
+<div class="highlight"><pre><span></span>    - &#39;ever held in hardirq context&#39;                    [ == hardirq-safe   ]
+    - &#39;ever held in softirq context&#39;                    [ == softirq-safe   ]
+    - &#39;ever held with hardirqs enabled&#39;                 [ == hardirq-unsafe ]
+    - &#39;ever held with softirqs and hardirqs enabled&#39;    [ == softirq-unsafe ]
+    - &#39;ever used&#39;                                       [ == !unused        ]
 </pre></div>
 
 
-<p>The -K option forces bno_plot to put the keys below the graph.  If it is not specified, all keys for input files are put in the upper right corner of the graph. If the number of devices exceed <strong>10</strong>,  then bno_plot will <strong>automatically</strong> push the keys under the graph.</p>
-<p>To exit the plotter, enter <strong>'quit' or ^D at the 'gnuplot&gt; '</strong> prompt.</p>
+<h3>Single-lock state rules</h3>
+<p><strong>A softirq-unsafe lock-class is automatically hardirq-unsafe</strong> as well. The following states are exclusive, and only one of them is allowed to be set for any lock-class:</p>
+<div class="highlight"><pre><span></span>    &lt;hardirq-safe&gt; and &lt;hardirq-unsafe&gt;
+    &lt;softirq-safe&gt; and &lt;softirq-unsafe&gt;
+</pre></div>
+
+
+<p>The validator detects and reports <strong>lock usage that violate these single-lock state rules</strong>.</p>
+<h3>Multi-lock dependency rules</h3>
+<p>The <strong>same lock-class must not be acquired twice</strong>, because this could lead to lock recursion deadlocks.</p>
+<p>Furthermore, two locks may not be taken in different order:</p>
+<div class="highlight"><pre><span></span>    &lt;L1&gt; -&gt; &lt;L2&gt;
+    &lt;L2&gt; -&gt; &lt;L1&gt;
+</pre></div>
+
+
+<p>because this could lead to lock inversion deadlocks. (The validator finds such dependencies in arbitrary complexity, <strong>i.e. there can be any other locking sequence between the acquire-lock operations, the validator will still track all dependencies between locks</strong>.)</p>
+<p>Furthermore, the following usage based lock dependencies are <strong>not allowed</strong> between any two lock-classes:</p>
+<div class="highlight"><pre><span></span>    &lt;hardirq-safe&gt;   -&gt;  &lt;hardirq-unsafe&gt;
+    &lt;softirq-safe&gt;   -&gt;  &lt;softirq-unsafe&gt;
+</pre></div>
+
+
+<p>The first rule comes from the fact the <strong>a hardirq-safe lock could be taken by a hardirq context, interrupting a hardirq-unsafe lock</strong> - and thus could result in a lock inversion deadlock. Likewise, <strong>a softirq-safe lock could be taken by an softirq context, interrupting a softirq-unsafe lock</strong>.</p>
+<p>The above rules are enforced for any locking sequence that occurs in the kernel: when acquiring a new lock, the validator checks whether there is any rule violation between the new lock and any of the held locks.</p>
+<p>When a lock-class changes its state, the following aspects of the above dependency rules are enforced:</p>
+<ul>
+<li>
+<p><strong>if a new hardirq-safe lock is discovered, we check whether it took any hardirq-unsafe lock in the past.</strong></p>
+</li>
+<li>
+<p><strong>if a new softirq-safe lock is discovered, we check whether it took any softirq-unsafe lock in the past</strong>.</p>
+</li>
+<li>
+<p><strong>if a new hardirq-unsafe lock is discovered, we check whether any hardirq-safe lock took it in the past</strong>.</p>
+</li>
+<li>
+<p><strong>if a new softirq-unsafe lock is discovered, we check whether any softirq-safe lock took it in the past</strong>.</p>
+</li>
+</ul>
+<p>(Again, we do these checks too on the basis that <strong>an interrupt context could interrupt <em>any</em> of the irq-unsafe or hardirq-unsafe locks, which could lead to a lock inversion deadlock - even if that lock scenario did not trigger in practice yet</strong>.)</p>
+<h3>Exception: Nested data dependencies leading to nested locking</h3>
+<p>There are <strong>a few cases where the Linux kernel acquires more than one instance of the same lock-class. Such cases typically happen when there is some sort of hierarchy within objects of the same type</strong>. In these cases there is an inherent "natural" ordering between the two objects (defined by the properties of the hierarchy), and the kernel grabs the locks in this fixed order on each of the objects.</p>
+<p>An example of such an object hieararchy that results in "nested locking" is that of a "whole disk" block-dev object and a "partition" block-dev object; the partition is "part of" the whole device and as long as one always takes the whole disk lock as a higher lock than the partition lock, the lock ordering is fully correct. <strong>The validator does not automatically detect this natural ordering, as the locking rule behind the ordering is not static</strong>.</p>
+<p>In order to teach the validator about this correct usage model, new versions of the various locking primitives were added that allow you to specify a "nesting level". An example call, for the block device mutex, looks like this:</p>
+<div class="highlight"><pre><span></span>    <span class="k">enum</span> <span class="n">bdev_bd_mutex_lock_class</span>
+    {
+           <span class="n">BD_MUTEX_NORMAL</span>,
+           <span class="n">BD_MUTEX_WHOLE</span>,
+           <span class="n">BD_MUTEX_PARTITION</span>
+    };
+
+    <span class="n">mutex_lock_nested</span>(<span class="nv">&amp;bdev-</span>&gt;<span class="n">bd_contains-</span>&gt;<span class="n">bd_mutex</span>, <span class="n">BD_MUTEX_PARTITION</span>);
+</pre></div>
+
+
+<p>In this case the locking is done on a bdev object that is known to be a partition.</p>
+<p>The validator <strong>treats a lock that is taken in such a nested fasion as a separate (sub)class for the purposes of validation</strong>.</p>
+<p><strong>Note: When changing code to use the _nested() primitives, be careful and check really thoroughly that the hiearchy is correctly mapped; otherwise you can get false positives or false negatives.</strong></p>
+<h3>Proof of 100% correctness</h3>
+<p>The validator achieves perfect, mathematical 'closure' (proof of locking correctness) in the sense that for every simple, standalone single-task locking sequence that occured at least once during the lifetime of the kernel, the validator proves it with a 100% certainty that no combination and timing of these locking sequences can cause any class of lock related deadlock. [*]</p>
+<p>I.e. complex multi-CPU and multi-task locking scenarios do not have to occur in practice to prove a deadlock: only the simple 'component' locking chains have to occur at least once (anytime, in any task/context) for the validator to be able to prove correctness. (For example, complex deadlocks that would normally need more than 3 CPUs and a very unlikely constellation of tasks, irq-contexts and timings to occur, can be detected on a plain, lightly loaded single-CPU system as well!)</p>
+<p>This radically decreases the complexity of locking related QA of the kernel: what has to be done during QA is to trigger as many "simple" single-task locking dependencies in the kernel as possible, at least once, to prove locking correctness - instead of having to trigger every possible combination of locking interaction between CPUs, combined with every possible hardirq and softirq nesting scenario (which is impossible to do in practice).</p>
+<p>[*] assuming that the validator itself is 100% correct, and no other part of the system corrupts the state of the validator in any way. We also assume that all NMI/SMM paths [which could interrupt even hardirq-disabled codepaths] are correct and do not interfere with the validator. We also assume that the 64-bit 'chain hash' value is unique for every lock-chain in the system. Also, lock recursion must not be higher than 20.</p>
+<h3>Performance</h3>
+<p>The above rules <strong>require <em>massive</em> amounts of runtime checking</strong>. If we did that for every lock taken and for every irqs-enable event, it would render the system practically unusably slow. The complexity of checking is O(N^2), so even with just a few hundred lock-classes we'd have to do tens of thousands of checks for every event.</p>
+<p><strong>This problem is solved by checking any given 'locking scenario' (unique sequence of locks taken after each other) only once. A simple stack of held locks is maintained, and a lightweight 64-bit hash value is calculated, which hash is unique for every lock chain. The hash value, when the chain is validated for the first time, is then put into a hash table, which hash-table can be checked in a lockfree manner. If the locking chain occurs again later on, the hash table tells us that we dont have to validate the chain again.</strong></p>
                 </div><!-- /.entry-content -->
         </article>
 </section>
