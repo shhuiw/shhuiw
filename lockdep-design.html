@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>lockdep-design</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="shenghui">
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="/theme/css/bootstrap.min.css" type="text/css" />
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+      .tag-1 {
+        font-size: 13pt;
+      }
+      .tag-2 {
+        font-size: 10pt;
+      }
+      .tag-2 {
+        font-size: 8pt;
+      }
+      .tag-4 {
+        font-size: 6pt;
+     }
+    </style>
+    <link href="/theme/css/bootstrap-responsive.min.css" rel="stylesheet">
+        <link href="/theme/css/font-awesome.css" rel="stylesheet">
+
+    <link href="/theme/css/pygments.css" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="/theme/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/theme/images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/theme/images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/theme/images/apple-touch-icon-114x114.png">
+
+    <link href="/" type="application/atom+xml" rel="alternate" title="shhuiw's Technotes ATOM Feed" />
+
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/index.html">shhuiw's Technotes </a>
+          <div class="nav-collapse">
+            <ul class="nav">
+                          <li class="divider-vertical"></li>
+                  <li >
+                    <a href="/category/bing-fa.html">
+						<i class="icon-folder-open icon-large"></i>并发
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/block-io.html">
+						<i class="icon-folder-open icon-large"></i>Block I/O
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/device-mapper.html">
+						<i class="icon-folder-open icon-large"></i>device-mapper
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/fio.html">
+						<i class="icon-folder-open icon-large"></i>fio
+					</a>
+                  </li>
+                  <li class="active">
+                    <a href="/category/locking.html">
+						<i class="icon-folder-open icon-large"></i>locking
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/wei-fen-lei.html">
+						<i class="icon-folder-open icon-large"></i>未分类
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/wen-jian-xi-tong.html">
+						<i class="icon-folder-open icon-large"></i>文件系统
+					</a>
+                  </li>
+
+                          <ul class="nav pull-right">
+                                <li><a href="/archives.html"><i class="icon-th-list"></i>Archives</a></li>
+                          </ul>
+
+            </ul>
+            <!--<p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>-->
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span9" id="content">
+<section id="content">
+        <article>
+                <header>
+                        <h1>
+                                <a href=""
+                                        rel="bookmark"
+                                        title="Permalink to lockdep-design">
+                                        lockdep-design
+                                </a>
+                        </h1>
+                </header>
+                <div class="entry-content">
+                <div class="well">
+<footer class="post-info">
+<span class="label">Date</span>
+<abbr class="published" title="2019-03-22T20:00:00+08:00">
+        <i class="icon-calendar"></i>Fri 22 March 2019
+</abbr>
+<span class="label">By</span>
+<a href="/author/ingo-molnar-arjan-van-de-ven.html"><i class="icon-user"></i>Ingo Molnar <mingo@redhat.com>, Arjan van de Ven <arjan@linux.intel.com></a>
+<span class="label">Category</span>
+<a href="/category/locking.html"><i class="icon-folder-open"></i>locking</a>.
+
+
+<span class="label">Tags</span>
+	<a href="/tag/lockdep.html"><i class="icon-tag"></i>lockdep</a>
+</footer><!-- /.post-info -->                </div>
+                <ul>
+<li><a href="https://elixir.bootlin.com/linux/latest/source/Documentation/locking/lockdep-design.txt">lockdep-design.txt</a></li>
+</ul>
+<h2>Runtime locking correctness validator</h2>
+<h3>Lock-class</h3>
+<p>The basic object the validator operates upon is a 'class' of locks.</p>
+<p><strong>A class of locks is a group of locks that are logically the same with respect to locking rules, even if the locks may have multiple (possibly tens of thousands of) instantiations</strong>. For example a lock in the inode struct is one class, while each inode has its own instantiation of that lock class.</p>
+<p>The validator tracks the 'state' of lock-classes, and it <strong>tracks dependencies between different lock-classes (而不是 dependencies between instantiations)</strong>. The validator maintains a rolling proof that the state and the dependencies are correct.</p>
+<p>Unlike an lock instantiation, the lock-class itself never goes away: <strong>when a lock-class is used for the first time after bootup it gets registered, and all subsequent uses of that lock-class will be attached to this lock-class 首次出现定义了 order</strong>.</p>
+<h3>State</h3>
+<p>The validator tracks lock-class usage history into <strong>4 * nSTATEs + 1 separate state bits</strong>:</p>
+<div class="highlight"><pre><span></span>    - &#39;ever held in STATE context&#39;
+    - &#39;ever held as readlock in STATE context&#39;
+    - &#39;ever held with STATE enabled&#39;
+    - &#39;ever held as readlock with STATE enabled&#39;
+</pre></div>
+
+
+<p>Where STATE can be either one of (kernel/locking/lockdep_states.h)</p>
+<div class="highlight"><pre><span></span>    - hardirq
+    - softirq
+    - &#39;ever used&#39;                                       [ == !unused        ]
+</pre></div>
+
+
+<p>When locking rules are violated, these state bits are presented in the locking error messages, inside curlies. A contrived example:</p>
+<div class="highlight"><pre><span></span>   modprobe/2287 is trying to acquire lock:
+    (&amp;sio_locks[i].lock){-.-...}, at: [&lt;c02867fd&gt;] mutex_lock+0x21/0x24
+
+   but task is already holding lock:
+    (&amp;sio_locks[i].lock){-.-...}, at: [&lt;c02867fd&gt;] mutex_lock+0x21/0x24
+</pre></div>
+
+
+<p>The bit position indicates <strong>STATE, STATE-read</strong>, for each of the states listed above, and the character displayed in each indicates:</p>
+<div class="highlight"><pre><span></span>   &#39;.&#39;  acquired while irqs disabled and not in irq context
+   &#39;-&#39;  acquired in irq context
+   &#39;+&#39;  acquired with irqs enabled
+   &#39;?&#39;  acquired in irq context with irqs enabled.
+</pre></div>
+
+
+<p><strong>Unused mutexes cannot be part of the cause of an error</strong>.</p>
+<h3>Single-lock state rules</h3>
+<p><strong>A softirq-unsafe lock-class is automatically hardirq-unsafe</strong> as well. The following states are exclusive, and only one of them is allowed to be set for any lock-class:</p>
+<div class="highlight"><pre><span></span>    &lt;hardirq-safe&gt; and &lt;hardirq-unsafe&gt;
+    &lt;softirq-safe&gt; and &lt;softirq-unsafe&gt;
+</pre></div>
+
+
+<p><strong>The validator detects and reports lock usage that violate these single-lock state rules</strong>.</p>
+<h3>Multi-lock dependency rules</h3>
+<p>The same lock-class must not be acquired twice, because this could lead
+to lock recursion deadlocks.</p>
+<p>Furthermore, two locks may not be taken in different order:</p>
+<div class="highlight"><pre><span></span> &lt;L1&gt; -&gt; &lt;L2&gt;
+ &lt;L2&gt; -&gt; &lt;L1&gt;
+</pre></div>
+
+
+<p>because this could lead to lock inversion deadlocks. (The validator finds such dependencies in arbitrary complexity, i.e. there can be any other locking sequence between the acquire-lock operations, the validator will still track all dependencies between locks.)</p>
+<p>Furthermore, the following usage based lock dependencies are <strong>not allowed</strong> between any two lock-classes:</p>
+<div class="highlight"><pre><span></span>   &lt;hardirq-safe&gt;   -&gt;  &lt;hardirq-unsafe&gt;
+   &lt;softirq-safe&gt;   -&gt;  &lt;softirq-unsafe&gt;
+</pre></div>
+
+
+<p>The first rule comes from the fact that a hardirq-safe lock could be taken by a hardirq context, interrupting a hardirq-unsafe lock - and thus could result in a lock inversion deadlock. Likewise, a softirq-safe lock could be taken by an softirq context, interrupting a softirq-unsafe lock.</p>
+<p>The above rules are enforced for any locking sequence that occurs in the kernel: <strong>when acquiring a new lock, the validator checks whether there is any rule violation between the new lock and any of the held locks</strong>.</p>
+<p>When a lock-class changes its state, the following aspects of the above dependency rules are enforced:
+- <strong>if a new hardirq-safe lock is discovered, we check whether it took any hardirq-unsafe lock in the past</strong>.
+- <strong>if a new softirq-safe lock is discovered, we check whether it took any softirq-unsafe lock in the past</strong>.
+- <strong>if a new hardirq-unsafe lock is discovered, we check whether any  hardirq-safe lock took it in the past</strong>.
+- <strong>if a new softirq-unsafe lock is discovered, we check whether any  softirq-safe lock took it in the past</strong>.</p>
+<p>(Again, we do these checks too on the basis that an interrupt context could interrupt <em>any</em> of the irq-unsafe or hardirq-unsafe locks, which could lead to a lock inversion deadlock - even if that lock scenario did not trigger in practice yet.)</p>
+<h3>Exception: Nested data dependencies leading to nested locking</h3>
+<p>There are a few cases where the Linux kernel acquires more than one instance of the same lock-class. Such cases typically happen when there is <strong>some sort of hierarchy within objects of the same type</strong>. In these cases there is an <strong>inherent "natural" ordering</strong> between the two objects (defined by the properties of the hierarchy), and the kernel grabs the locks in this fixed order on each of the objects.</p>
+<p>An example of such an object hierarchy that results in "nested locking" is that of a "whole disk" block-dev object and a "partition" block-dev object; the partition is "part of" the whole device and as long as one always takes the whole disk lock as a higher lock than the partition lock, the lock ordering is fully correct. The validator <strong>does not automatically detect (注意是不会自动而不是不会检测)</strong> this natural ordering, as the locking rule behind the ordering is not static.</p>
+<p>In order to <strong>teach</strong> the validator about this correct usage model, new versions of the various locking primitives were added that allow you to specify a "nesting level". An example call, for the block device mutex, looks like this:</p>
+<div class="highlight"><pre><span></span>    <span class="k">enum</span> <span class="n">bdev_bd_mutex_lock_class</span>
+    {
+           <span class="n">BD_MUTEX_NORMAL</span>,
+           <span class="n">BD_MUTEX_WHOLE</span>,
+           <span class="n">BD_MUTEX_PARTITION</span>
+    };
+
+    <span class="n">mutex_lock_nested</span>(<span class="nv">&amp;bdev-</span>&gt;<span class="n">bd_contains-</span>&gt;<span class="n">bd_mutex</span>, <span class="n">BD_MUTEX_PARTITION</span>);
+</pre></div>
+
+
+<p>In this case the locking is done on a bdev object that is known to be a partition.</p>
+<p>The validator treats a lock that is taken in such a nested fashion as a <strong>separate (sub)class</strong> for the purposes of validation.</p>
+<p>Note: <strong>When changing code to use the _nested() primitives, be careful and check really thoroughly that the hierarchy is correctly mapped; otherwise you can get false positives or false negatives</strong>.</p>
+<h3>Annotations</h3>
+<p>Two constructs can be used to annotate and check where and if certain locks
+must be held: <strong>lockdep_assert_held<em>(&amp;lock) and lockdep_</em>pin_lock(&amp;lock)</strong>.</p>
+<p>As the name suggests, <strong>lockdep_assert_held</strong>* family of macros assert that a particular lock is held at a certain time (and generate a WARN() otherwise). This annotation is largely used all over the kernel, e.g. kernel/sched/core.c</p>
+<div class="highlight"><pre><span></span>  void update_rq_clock(struct rq *rq)
+  {
+    s64 delta;
+
+    lockdep_assert_held(&amp;rq-&gt;lock);
+    [...]
+  }
+</pre></div>
+
+
+<p>where holding rq-&gt;lock is required to safely update a rq's clock.</p>
+<p>The other family of macros is <strong>lockdep_*pin_lock()</strong>, which is admittedly only used for rq-&gt;lock ATM. Despite their limited adoption these annotations generate a WARN() if the lock of interest is "accidentally" unlocked. This turns out to be especially helpful to debug code with callbacks, where an upper layer assumes a lock remains taken, but a lower layer thinks it can maybe drop and reacquire the lock ("unwittingly" introducing races). lockdep_pin_lock() returns a 'struct pin_cookie' that is then used by lockdep_unpin_lock() to check that nobody tampered with the lock, e.g. kernel/sched/sched.h</p>
+<div class="highlight"><pre><span></span>  static inline void rq_pin_lock(struct rq *rq, struct rq_flags *rf)
+  {
+    rf-&gt;cookie = lockdep_pin_lock(&amp;rq-&gt;lock);
+    [...]
+  }
+
+  static inline void rq_unpin_lock(struct rq *rq, struct rq_flags *rf)
+  {
+    [...]
+    lockdep_unpin_lock(&amp;rq-&gt;lock, rf-&gt;cookie);
+  }
+</pre></div>
+
+
+<p>While comments about locking requirements might provide useful information, the runtime checks performed by annotations are invaluable when debugging locking problems and they carry the same level of details when inspecting code.  Always prefer annotations when in doubt!</p>
+<h3>Proof of 100% correctness</h3>
+<p>The validator achieves perfect, mathematical 'closure' (proof of locking correctness) in the sense that for every simple, standalone single-task locking sequence that occurred at least once during the lifetime of the kernel, the validator proves it with a 100% certainty that no combination and timing of these locking sequences can cause any class of lock related deadlock. [*]</p>
+<p><strong>I.e. complex multi-CPU and multi-task locking scenarios do not have to occur in practice to prove a deadlock: only the simple 'component' locking chains have to occur at least once (anytime, in any task/context) for the validator to be able to prove correctness. (For example, complex deadlocks that would normally need more than 3 CPUs and a very unlikely constellation of tasks, irq-contexts and timings to occur, can be detected on a plain, lightly loaded single-CPU system as well!)</strong></p>
+<p>This radically decreases the complexity of locking related QA of the kernel: what has to be done during QA is to trigger as many "simple" single-task locking dependencies in the kernel as possible, at least once, to prove locking correctness - instead of having to trigger every possible combination of locking interaction between CPUs, combined with every possible hardirq and softirq nesting scenario (which is impossible to do in practice).</p>
+<p>[*] assuming that the validator itself is 100% correct, and no other part of the system corrupts the state of the validator in any way. We also assume that all NMI/SMM paths [which could interrupt even hardirq-disabled codepaths] are correct and do not interfere with the validator. We also assume that the 64-bit <strong>'chain hash'</strong> value is unique for every lock-chain in the system. Also, lock recursion must not be higher than 20.</p>
+<h3>Performance</h3>
+<p>The above rules require <em>massive</em> amounts of runtime checking. If we did that for every lock taken and for every irqs-enable event, it would render the system practically unusably slow. The complexity of checking is O(N^2), so even with just a few hundred lock-classes we'd have to do tens of thousands of checks for every event.</p>
+<p>This problem is <strong>solved by checking any given 'locking scenario' (unique sequence of locks taken after each other) only once. A simple stack of held locks is maintained, and a lightweight 64-bit hash value is calculated, which hash is unique for every lock chain. The hash value when the chain is validated for the first time, is then put into a hash table, which hash-table can be checked in a lockfree manner. If the locking chain occurs again later on, the hash table tells us that we don't have to validate the chain again</strong>.</p>
+<h3>Troubleshooting</h3>
+<p>The validator tracks a maximum of MAX_LOCKDEP_KEYS number of lock classes. Exceeding this number will trigger the following lockdep warning:</p>
+<div class="highlight"><pre><span></span>    (DEBUG_LOCKS_WARN_ON(id &gt;= MAX_LOCKDEP_KEYS))
+</pre></div>
+
+
+<p>By default, MAX_LOCKDEP_KEYS is currently set to 8191, and typical desktop systems have less than 1,000 lock classes, so this warning normally results from lock-class leakage or failure to properly initialize locks. These two problems are illustrated below:</p>
+<ul>
+<li>
+<p>Repeated module loading and unloading while running the validator will result in lock-class leakage.  The issue here is that each load of the module will create a new set of lock classes for that module's locks, but module unloading does not remove old classes (see below discussion of reuse of lock classes for why). Therefore, if that module is loaded and unloaded repeatedly, the number of lock classes will eventually reach the maximum.</p>
+</li>
+<li>
+<p>Using structures such as arrays that have large numbers of locks that are not explicitly initialized.  For example, a hash table with 8192 buckets where each bucket has its own spinlock_t will consume 8192 lock classes -unless- each spinlock is explicitly initialized at runtime, for example, using the run-time spin_lock_init() as opposed to compile-time initializers such as __SPIN_LOCK_UNLOCKED().  Failure to properly initialize the per-bucket spinlocks would guarantee lock-class overflow. In contrast, a loop that called spin_lock_init() on each lock would place all 8192 locks into a single lock class. The moral of this story is that you should always explicitly initialize your locks.</p>
+</li>
+</ul>
+<p>One might argue that the validator should be modified to allow lock classes to be reused.  However, if you are tempted to make this argument, first review the code and think through the changes that would be required, keeping in mind that the lock classes to be removed are likely to be linked into the lock-dependency graph.  This turns out to be harder to do than to say.</p>
+<p>Of course, if you do run out of lock classes, the next thing to do is to find the offending lock classes.  First, the following command gives you the number of lock classes currently in use along with the maximum:</p>
+<div class="highlight"><pre><span></span>    grep &quot;lock-classes&quot; /proc/lockdep_stats
+</pre></div>
+
+
+<p>This command produces the following output on a modest system:</p>
+<div class="highlight"><pre><span></span>     lock-classes:                          748 [max: 8191]
+</pre></div>
+
+
+<p>If the number allocated (748 above) increases continually over time, then there is likely a leak.  The following command can be used to identify the leaking lock classes:</p>
+<div class="highlight"><pre><span></span>    grep &quot;BD&quot; /proc/lockdep
+</pre></div>
+
+
+<p>Run the command and save the output, then compare against the output from a later run of this command to identify the leakers.  This same output can also help you find situations where runtime lock initialization has been omitted.</p>
+                </div><!-- /.entry-content -->
+        </article>
+</section>
+        </div><!--/span-->
+
+                <div class="span3 well sidebar-nav" id="sidebar">
+<ul class="nav nav-list">
+
+<li class="nav-header"><h4><i class="icon-folder-close icon-large"></i>Categories</h4></li>
+<li>
+<a href="/category/bing-fa.html">
+    <i class="icon-folder-open icon-large"></i>并发
+</a>
+</li>
+<li>
+<a href="/category/block-io.html">
+    <i class="icon-folder-open icon-large"></i>Block I/O
+</a>
+</li>
+<li>
+<a href="/category/device-mapper.html">
+    <i class="icon-folder-open icon-large"></i>device-mapper
+</a>
+</li>
+<li>
+<a href="/category/fio.html">
+    <i class="icon-folder-open icon-large"></i>fio
+</a>
+</li>
+<li>
+<a href="/category/locking.html">
+    <i class="icon-folder-open icon-large"></i>locking
+</a>
+</li>
+<li>
+<a href="/category/wei-fen-lei.html">
+    <i class="icon-folder-open icon-large"></i>未分类
+</a>
+</li>
+<li>
+<a href="/category/wen-jian-xi-tong.html">
+    <i class="icon-folder-open icon-large"></i>文件系统
+</a>
+</li>
+
+<li class="nav-header"><h4><i class="icon-tags icon-large"></i>Tags</h4></li>
+<li class="tag-4">
+    <a href="/tag/iowatcher.html">
+        <i class="icon-tag icon-large"></i>iowatcher
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/e2fsprogs.html">
+        <i class="icon-tag icon-large"></i>e2fsprogs
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/bfq.html">
+        <i class="icon-tag icon-large"></i>BFQ
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/f2fs.html">
+        <i class="icon-tag icon-large"></i>f2fs
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/atomic_ops.html">
+        <i class="icon-tag icon-large"></i>atomic_ops
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/seekwatcher.html">
+        <i class="icon-tag icon-large"></i>seekwatcher
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/sbitmap.html">
+        <i class="icon-tag icon-large"></i>sbitmap
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/util-linux.html">
+        <i class="icon-tag icon-large"></i>util-linux
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/blkiomon.html">
+        <i class="icon-tag icon-large"></i>blkiomon
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/btreplay.html">
+        <i class="icon-tag icon-large"></i>btreplay
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/bvec.html">
+        <i class="icon-tag icon-large"></i>bvec
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/request-tagging.html">
+        <i class="icon-tag icon-large"></i>request tagging
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/verify_blkparse.html">
+        <i class="icon-tag icon-large"></i>verify_blkparse
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/kyber.html">
+        <i class="icon-tag icon-large"></i>kyber
+    </a>
+</li>
+<li class="tag-2">
+    <a href="/tag/multiqueue.html">
+        <i class="icon-tag icon-large"></i>multiqueue
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/virtualbox.html">
+        <i class="icon-tag icon-large"></i>virtualbox
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/bno_plot.html">
+        <i class="icon-tag icon-large"></i>bno_plot
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/workqueue.html">
+        <i class="icon-tag icon-large"></i>workqueue
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/dkms.html">
+        <i class="icon-tag icon-large"></i>dkms
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/single-queue.html">
+        <i class="icon-tag icon-large"></i>single queue
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/btrecord.html">
+        <i class="icon-tag icon-large"></i>btrecord
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/btrace.html">
+        <i class="icon-tag icon-large"></i>btrace
+    </a>
+</li>
+<li class="tag-1">
+    <a href="/tag/blktrace.html">
+        <i class="icon-tag icon-large"></i>blktrace
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/blkrawverify.html">
+        <i class="icon-tag icon-large"></i>blkrawverify
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/lockdep.html">
+        <i class="icon-tag icon-large"></i>lockdep
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/cfq.html">
+        <i class="icon-tag icon-large"></i>CFQ
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/iostat.html">
+        <i class="icon-tag icon-large"></i>iostat
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/relayfs.html">
+        <i class="icon-tag icon-large"></i>relayfs
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/blk-mq.html">
+        <i class="icon-tag icon-large"></i>blk-mq
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/iotop.html">
+        <i class="icon-tag icon-large"></i>iotop
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/relay.html">
+        <i class="icon-tag icon-large"></i>relay
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/sbitmap_queue.html">
+        <i class="icon-tag icon-large"></i>sbitmap_queue
+    </a>
+</li>
+<li class="tag-2">
+    <a href="/tag/btt.html">
+        <i class="icon-tag icon-large"></i>btt
+    </a>
+</li>
+<li class="tag-2">
+    <a href="/tag/device-mapper.html">
+        <i class="icon-tag icon-large"></i>device-mapper
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/bio.html">
+        <i class="icon-tag icon-large"></i>bio
+    </a>
+</li>
+<li class="tag-1">
+    <a href="/tag/blkparse.html">
+        <i class="icon-tag icon-large"></i>blkparse
+    </a>
+</li>
+<li class="tag-2">
+    <a href="/tag/fio.html">
+        <i class="icon-tag icon-large"></i>fio
+    </a>
+</li>
+
+
+</ul>        </div><!--/.well -->
+
+      </div><!--/row-->
+
+      <hr>
+
+      <footer>
+        <address id="about">
+                Proudly powered by <a href="http://pelican.notmyidea.org/">Pelican <i class="icon-external-link"></i></a>,
+                                which takes great advantage of <a href="http://python.org">Python <i class="icon-external-link"></i></a>.
+        </address><!-- /#about -->
+
+        <p>The theme is from <a href="http://twitter.github.com/bootstrap/">Bootstrap from Twitter <i class="icon-external-link"></i></a>,
+                   and <a href="http://fortawesome.github.com/Font-Awesome/">Font-Awesome <i class="icon-external-link"></i></a>, thanks!</p>
+      </footer>
+
+    </div><!--/.fluid-container-->
+
+
+
+    <!-- Le javascript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/theme/js/jquery-1.7.2.min.js"></script>
+    <script src="/theme/js/bootstrap.min.js"></script>
+  </body>
+</html>
