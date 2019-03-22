@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>lsblk - list information about block devices</title>
+    <title>shhuiw's Technotes</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="shenghui">
@@ -69,7 +69,7 @@
 						<i class="icon-folder-open icon-large"></i>并发
 					</a>
                   </li>
-                  <li class="active">
+                  <li >
                     <a href="/category/block-io.html">
 						<i class="icon-folder-open icon-large"></i>Block I/O
 					</a>
@@ -114,23 +114,12 @@
     <div class="container-fluid">
       <div class="row">
         <div class="span9" id="content">
-<section id="content">
-        <article>
-                <header>
-                        <h1>
-                                <a href=""
-                                        rel="bookmark"
-                                        title="Permalink to lsblk - list information about block devices">
-                                        lsblk - list information about block devices
-                                </a>
-                        </h1>
-                </header>
-                <div class="entry-content">
-                <div class="well">
-<footer class="post-info">
+        <div class="article">
+                <h1><a href="/iostat - Device Utilization Report.html">iostat - Device Utilization Report</a></h1>
+                <div class="well small"><footer class="post-info">
 <span class="label">Date</span>
-<abbr class="published" title="2018-10-11T17:00:00+08:00">
-        <i class="icon-calendar"></i>Thu 11 October 2018
+<abbr class="published" title="2018-10-01T00:00:00+08:00">
+        <i class="icon-calendar"></i>Mon 01 October 2018
 </abbr>
 <span class="label">By</span>
 <a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
@@ -139,240 +128,39 @@
 
 
 <span class="label">Tags</span>
-	<a href="/tag/util-linux.html"><i class="icon-tag"></i>util-linux</a>
-</footer><!-- /.post-info -->                </div>
-                <ul>
-<li>
-<p><a href="http://man7.org/linux/man-pages/man8/lsblk.8.html">http://man7.org/linux/man-pages/man8/lsblk.8.html</a></p>
-</li>
-<li>
-<p><a href="https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git">https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git</a></p>
-</li>
-<li>
-<p><a href="https://github.com/karelzak/util-linux">https://github.com/karelzak/util-linux</a></p>
-</li>
-</ul>
-<p>The lsblk command is part of the <strong>util-linux</strong> package. lsblk lists information about all available or the specified block devices. The lsblk command reads the <code>sysfs filesystem</code> and <code>udev db</code> to gather information. <strong>If the udev db is not available or lsblk is compiled without udev support than it tries to read LABELs, UUIDs and filesystem types from the block device</strong>. In this case root permissions are necessary.</p>
-<div class="highlight"><pre><span></span>    lsblk [options] [device...]
+	<a href="/tag/iostat.html"><i class="icon-tag"></i>iostat</a>
+</footer><!-- /.post-info --></div>
+                <div class="summary"><p><a href="https://linux.die.net/man/1/iostat">https://linux.die.net/man/1/iostat</a></p>
+<div class="highlight"><pre><span></span>IO statistics
+        /proc/diskstats
+        /sys/block/&lt;disk&gt;/stat
+        /sys/block/&lt;disk&gt;/&lt;partiton&gt;/stat
 </pre></div>
 
 
-<p>The lsblk command needs to be able to look up each block device by  <strong>major:minor</strong> numbers, which is done by using <code>/sys/dev/block</code>.  This sysfs block directory appeared in kernel 2.6.27 (October 2008).  In case of problems with a new enough kernel, check that <strong>CONFIG_SYSFS</strong> was enabled at the time of the kernel build.</p>
-<p>For <strong>partitions</strong>, some information  (e.g. queue attributes) is inherited from the parent device.</p>
-<p>The command prints all block devices (<strong>except RAM disks, by default</strong>) in a tree-like format by default.</p>
-<p>Use <code>lsblk --help</code> to get a list of all available columns.</p>
-<p>The default output, as well as the default output from options like --fs and --topology, is subject to change. So whenever possible, you <strong>should avoid using default outputs in your scripts</strong>. <strong>Always explicitly define expected columns</strong> by using <code>--output columns-list</code> in environments where a stable output is required.</p>
-<p><strong>脚本里面用到 lsblk 需要使用 --output columns-list 显示指定输出列</strong></p>
-<p>Note that lsblk might be executed in time <strong>when udev does not have all</strong> information about recently added or modified devices yet. In this case it is recommended to <strong>use udevadm settle before lsblk to synchronize with udev</strong>. </p>
-<p><strong>设备变动后需要先用 udevadm 同步一下 udev db，之后再使用 lsblk 命令</strong></p>
-<h4>Available output columns</h4>
-<div class="highlight"><pre><span></span>    NAME        device name
-    MAJ:MIN     major:minor device number
+<div class="highlight"><pre><span></span>    -t      Print the time for each report displayed. The timestamp format may
+            depend on the value of the S_TIME_FORMAT environment variable 
 
-    KNAME       internal kernel device name
-    PKNAME      internal parent kernel device name
+    -x      Display extended statistics.
 
-    FSTYPE      filesystem type
-    MOUNTPOINT  where the device is mounted
-    LABEL       filesystem LABEL
-    UUID        filesystem UUID
+The interval parameter &#39;-d&#39; specifies …</pre></div>
+                        <a class="btn primary xsmall" href="/iostat - Device Utilization Report.html">more ...</a>
+                </div>
+        </div>
+        <hr />
 
-    PARTTYPE    partition type UUID
-    PARTLABEL   partition LABEL
-    PARTUUID    partition UUID
-    PARTFLAGS   partition flags
+        <div class="pagination">
+        <ul>
+                        <li class="prev"><a href="/index4.html">&larr; Previous</a></li>
+                        <li class=""><a href="/index.html">1</a></li>
+                        <li class=""><a href="/index2.html">2</a></li>
+                        <li class=""><a href="/index3.html">3</a></li>
+                        <li class=""><a href="/index4.html">4</a></li>
+                        <li class="active"><a href="/index5.html">5</a></li>
+                        <li class="next disabled"><a href="#">&rarr; Next</a></li>
+        </ul>
+        </div>
 
-    TYPE        device type
-    MODEL       device identifier
-    SERIAL      disk serial number
-    REV         device revision
-    VENDOR      device vendor
-
-    SCHED       I/O scheduler name
-    RQ-SIZE     request queue size  
-    SIZE        size of the device  
-    ALIGNMENT   alignment offset
-    MIN-IO      minimum I/O size
-    OPT-IO      optimal I/O size
-    PHY-SEC     physical sector size
-    LOG-SEC     logical sector size 
-
-    WWN         unique storage identifier
-    HCTL        Host:Channel:Target:Lun for SCSI
-    TRAN        device transport type
-    SUBSYSTEMS  de-duplicated chain of subsystems
-
-    RM          removable device
-    HOTPLUG     removable or hotplug device (usb, pcmcia, ...)
-
-    STATE       state of the device
-
-    OWNER       user name
-    GROUP       group name
-    MODE        device node permissions
-
-    ROTA        rotational device
-    RA          read-ahead of the device
-    RO          read-only device
-
-    DISC-ALN    discard alignment offset
-    DISC-GRAN   discard granularity
-    DISC-MAX    discard max bytes
-    DISC-ZERO   discard zeroes data
-
-    WSAME       write same max bytes
-
-    RAND        adds randomness
-
-    ZONED       zone model
-</pre></div>
-
-
-<h4>OPTIONS</h4>
-<div class="highlight"><pre><span></span>    -a, --all
-            Also list empty devices and RAM disk devices.
-
-    -n, --noheadings
-            Do not print a header line.
-
-    -p, --paths
-            Print full device paths.
-
-    -S, --scsi
-            Output info about SCSI devices only.  
-            All partitions, slaves and holder devices are ignored.
-
-    -t, --topology
-            Output info about block-device topology. This option is
-            equivalent to
-                -o NAME,ALIGNMENT,MIN-IO,OPT-IO,PHY-SEC, \
-                   LOG-SEC,ROTA,SCHED,RQ-SIZE,RA,WSAME
-
-    -o, --output list
-            Specify which output columns to print. 
-            Use --help to get a list of all supported columns.
-
-            The default list of columns may be extended if list is
-            specified in the format
-                            +list (e.g. lsblk -o +UUID)
-
-    -O, --output-all
-            Output all available columns.
-
-    -i, --ascii
-            Use ASCII characters for tree formatting.
-
-    -J, --json
-            Use JSON output format.
-
-    -l, --list
-            Produce output in the form of a list.
-
-    -b, --bytes
-            Print the SIZE column in bytes rather than in a 
-            human-readable format.
-
-    -D, --discard
-            Print information about the discarding capabilities 
-            (TRIM, UNMAP) for each device.
-
-    -d, --nodeps
-            Do not print holder devices or slaves.  
-            For example, 
-                    lsblk --nodeps /dev/sda
-            prints information about the sda device only.
-
-    -f, --fs
-            Output info about filesystems. This option is equivalent to
-                    -o NAME,FSTYPE,LABEL,UUID,MOUNTPOINT 
-            The authoritative information about filesystems and raids
-            is provided by the blkid(8) command.
-
-    -e, --exclude list
-            Exclude the devices specified by the comma-separated
-            list of major device numbers.
-            The filter is applied to the top-level devices only. This
-            maybe be confusing for --list output format where
-            hierarchy of the devices is not obvious.
-
-            Note that RAM disks (major=1) are excluded by default if 
-            --all is no specified.
-
-    -I, --include list
-            Include devices specified by the comma-separated list of
-            major device numbers.
-            The filter is applied to the top-level devices only. This 
-            maybe be confusing for --list output format where
-            hierarchy of the devices is not obvious.
-
-    -m, --perms
-            Output info about device owner, group and mode.  
-            This option is equivalent to
-                    -o NAME,SIZE,OWNER,GROUP,MODE.
-
-    -P, --pairs
-            Produce output in the form of key=&quot;value&quot; pairs.  
-            All potentially unsafe characters are hex-escaped (\x&lt;code&gt;).
-
-    -r, --raw
-            Produce output in raw format. All potentially unsafe
-            characters are hex-escaped (\x&lt;code&gt;) in the
-                NAME, KNAME, LABEL, PARTLABEL,MOUNTPOINT     
-            columns.
-
-    -s, --inverse
-            Print dependencies in inverse order. If the --list output 
-            is requested then the lines are still ordered by dependencies.
-
-    -x, --sort column
-            Sort output lines by column. This option enables --list
-            output format by default. It is possible to use the option 
-            --tree to force tree-like output and than the tree branches
-            are sorted by the column.
-
-    -z, --zoned
-            Print the zone model for each device.
-
-    --sysroot directory
-            Gather data for a Linux instance other than the instance
-            from which the lsblk command is issued. The specified
-            directory is the system root of the Linux instance to be
-            inspected.  
-            This option is designed for the testing purpose.
-
-    -h, --help
-            Display help text and exit.
-
-    -V, --version
-            Display version information and exit.
-</pre></div>
-
-
-<h4>RETURN CODES</h4>
-<div class="highlight"><pre><span></span>    0   success
-    1   failure
-    32  none of specified devices found
-    64  some specified devices found, some not found
-</pre></div>
-
-
-<h4>ENVIRONMENT</h4>
-<div class="highlight"><pre><span></span>    LSBLK_DEBUG=all     enables lsblk debug output.
-
-    LIBBLKID_DEBUG=all  enables libblkid debug output.
-
-    LIBMOUNT_DEBUG=all  enables libmount debug output.
-
-    LIBSMARTCOLS_DEBUG=all
-                        enables libsmartcols debug output.
-
-    LIBSMARTCOLS_DEBUG_PADDING=on
-                        use visible padding characters. 
-                        Requires enabled LIBSMARTCOLS_DEBUG.
-</pre></div>
-                </div><!-- /.entry-content -->
-        </article>
-</section>
         </div><!--/span-->
 
                 <div class="span3 well sidebar-nav" id="sidebar">
