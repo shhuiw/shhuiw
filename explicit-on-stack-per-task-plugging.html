@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>explicit on-stack per-task plugging</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="shenghui">
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="/theme/css/bootstrap.min.css" type="text/css" />
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+      .tag-1 {
+        font-size: 13pt;
+      }
+      .tag-2 {
+        font-size: 10pt;
+      }
+      .tag-2 {
+        font-size: 8pt;
+      }
+      .tag-4 {
+        font-size: 6pt;
+     }
+    </style>
+    <link href="/theme/css/bootstrap-responsive.min.css" rel="stylesheet">
+        <link href="/theme/css/font-awesome.css" rel="stylesheet">
+
+    <link href="/theme/css/pygments.css" rel="stylesheet">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="/theme/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/theme/images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/theme/images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/theme/images/apple-touch-icon-114x114.png">
+
+    <link href="/" type="application/atom+xml" rel="alternate" title="shhuiw's Technotes ATOM Feed" />
+
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/index.html">shhuiw's Technotes </a>
+          <div class="nav-collapse">
+            <ul class="nav">
+                          <li class="divider-vertical"></li>
+                  <li >
+                    <a href="/category/bing-fa.html">
+						<i class="icon-folder-open icon-large"></i>并发
+					</a>
+                  </li>
+                  <li class="active">
+                    <a href="/category/block-io.html">
+						<i class="icon-folder-open icon-large"></i>Block I/O
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/device-mapper.html">
+						<i class="icon-folder-open icon-large"></i>device-mapper
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/fio.html">
+						<i class="icon-folder-open icon-large"></i>fio
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/locking.html">
+						<i class="icon-folder-open icon-large"></i>locking
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/wei-fen-lei.html">
+						<i class="icon-folder-open icon-large"></i>未分类
+					</a>
+                  </li>
+                  <li >
+                    <a href="/category/wen-jian-xi-tong.html">
+						<i class="icon-folder-open icon-large"></i>文件系统
+					</a>
+                  </li>
+
+                          <ul class="nav pull-right">
+                                <li><a href="/archives.html"><i class="icon-th-list"></i>Archives</a></li>
+                          </ul>
+
+            </ul>
+            <!--<p class="navbar-text pull-right">Logged in as <a href="#">username</a></p>-->
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span9" id="content">
+<section id="content">
+        <article>
+                <header>
+                        <h1>
+                                <a href=""
+                                        rel="bookmark"
+                                        title="Permalink to explicit on-stack per-task plugging">
+                                        explicit on-stack per-task plugging
+                                </a>
+                        </h1>
+                </header>
+                <div class="entry-content">
+                <div class="well">
+<footer class="post-info">
+<span class="label">Date</span>
+<abbr class="published" title="2019-04-05T18:00:00+08:00">
+        <i class="icon-calendar"></i>Fri 05 April 2019
+</abbr>
+<span class="label">By</span>
+<a href="/author/shenghui.html"><i class="icon-user"></i>shenghui</a>
+<span class="label">Category</span>
+<a href="/category/block-io.html"><i class="icon-folder-open"></i>Block I/O</a>.
+
+
+<span class="label">Tags</span>
+	<a href="/tag/plugging.html"><i class="icon-tag"></i>plugging</a>
+</footer><!-- /.post-info -->                </div>
+                <ul>
+<li>末节的 Discussion 很精彩，大神 Neil Brown 答疑解惑</li>
+<li><a href="https://lwn.net/Articles/736534/">A block layer introduction part 1: the bio layer, Neil Brown, October 25, 2017, lwn.net</a></li>
+<li><a href="https://lwn.net/Articles/438256/">Explicit block device plugging, Jens Axboe, April 13, 2011, lwn.net</a></li>
+<li><a href="https://lwn.net/Articles/75233/">No more global unplugging, corbet, March 10, 2004, lwn.net</a></li>
+</ul>
+<p><br /></p>
+<h3>plugging 进化</h3>
+<ul>
+<li>
+<p><strong>global plugging/unplugging</strong> : performance and scalability problem</p>
+<ul>
+<li>It has a <strong>single, global lock</strong> which keeps multiple processors from trying to restart the queues at the same time; this lock has become a bit of a contention point on some systems. </li>
+<li>A call to blk_run_queues() <strong>also restarts all block devices on the system, even though there is typically only one queue that truly needs to be unplugged</strong>.</li>
+</ul>
+</li>
+<li>
+<p><strong><a href="https://lwn.net/Articles/75099/">per-queue plugging</a></strong></p>
+<ul>
+<li><strong>no way to unplug all</strong> devices when going to sleep waiting for page I/O. This meant that the virtual memory subsystem had to be able to unplug the specific device that would be servicing page I/O. A special hack was added for this: <strong>sync_page() in struct address_space_operations</strong><ul>
+<li><strong>the sync_page() hook was always hated by the memory management people</strong></li>
+</ul>
+</li>
+<li>MD/DM stack: would in turn unplug any lower-level device. The unplug event would thus <strong>percolate down the stack</strong> --- the device was automatically plugged but <strong>had to be explicitly unplugged</strong>. 对此引入了 auto-unplugging: Some heuristics were added to auto-unplug the device if a certain depth of requests had been added, or if some period of time had passed before the unplug event was seen. 虽然粗暴但是 <strong>would chuck along if someone missed an unplug call after I/O submission</strong><ul>
+<li><strong>The asymmetric nature of the API was always ugly and a source of bugs</strong></li>
+</ul>
+</li>
+<li>对于快速设备比如 SSD，plugging had become a scalability problem: hacks were again added to avoid this.<ul>
+<li><strong>Essentially we disabled plugging on solid-state devices that were able to do queueing, while plugging originally was a good win</strong>. </li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong><a href="https://lwn.net/Articles/438256/">explicit on-stack per-task plugging</a></strong></p>
+<ul>
+<li><strong>commit 73c101011926 block: initial patch for on-stack per-task plugging</strong></li>
+<li><strong>Instead of maintaining these I/O fragments as shared state in the device, a new on-stack structure was created to contain this I/O for a short period, allowing the submitter to build up a small queue of related requests.</strong><ul>
+<li>tracking plug inside the task structure of the current process <strong>支持 auto-unplug</strong>: be able to <strong>automatically flush the queued I/O</strong> should the task end up blocking between the call to blk_start_plug() and blk_finish_plug(). If that happens, we want to ensure that pending I/O is sent off to the devices immediately. This is <strong>important from a performance perspective 性能, but also to ensure that we don't deadlock</strong>. If the task is blocking for a memory allocation, memory management reclaim could end up wanting to free a page belonging to a request that is currently residing on our private plug. Similarly, the caller may itself end up waiting for some of the plugged I/O to finish. By <strong>flushing this list when the process goes to sleep 规避死锁</strong>, we avoid these types of deadlocks.</li>
+<li>排序: Since the plug state is now device agnostic, we <strong>may end up in a situation where multiple devices have pending I/O on this plug list. These may end up on the plug list in an interleaved fashion, potentially causing blk_finish_plug() to grab and release the related queue locks multiple times</strong>. To avoid this problem, a should_sort flag in the blk_plug structure is used to keep track of whether we <strong>have I/O belonging to more than I/O distinct queue pending</strong>. If we do, the list is sorted to group identical queues together. This scales better than grabbing and releasing the same locks multiple times.</li>
+<li><code>blk_delay_queue(queue, delay_in_msecs);</code> unplug_fn() 被丢弃，但是 <strong>some drivers used plugging to delay I/O operations in response to resource shortages. One example of that was the SCSI midlayer; if we failed to map a new SCSI request due to a memory shortage, the queue was plugged to ensure that we would call back into the dispatch functions later on.</strong> blk_delay_queue() <strong>must only be used for conditions</strong> where the caller doesn't necessarily know when that condition will change states. <strong>If resources internal to the driver cause it to need to halt operations for a while, it is more efficient to use blk_stop_queue() and blk_start_queue() to manage those directly.</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><br /></p>
+<ul>
+<li>Neil Brown 给出了一些细节<ul>
+<li><a href="https://lwn.net/Articles/438974/">https://lwn.net/Articles/438974</a><ul>
+<li>There is <strong>no unplugging timer</strong>.  There was a timer in the previous code that would unplug after 3ms, but that was mainly a 'just in case' measure. Normally the unplug would happen much earlier. If it was only the timer that triggered an unplug then you are right, performance would be terrible.</li>
+<li><strong>plugging was only relevant when the device was idle</strong>. If the queue was not empty it would not get plugged. So with long, nearly continuous writes, the queue would <strong>only be plugged once at the very beginning</strong>. <ul>
+<li>I think it is very hard to imaging plugging slowing down even a very fast low latency device. The page cache has a bunch of pages that it wants to perform IO on and it assembles them into a big chunk and sends them all to the device. <strong>It is true that the first request won't get there quite as soon</strong>, but unless the device is as fast as memory, then it will still get there fast enough that you probably cannot measure the difference. </li>
+<li>And if a device is as fast as memory, then it probably shouldn't be under the request_queue code at all - a driver more like the <strong>umem.c</strong> driver might be appropriate. <strong>It just takes bios directly and turns them into DMA descriptors.. But even that uses plugging so it can start a chain of dmas at once rather than just one</strong>.</li>
+</ul>
+</li>
+<li>The purpose of plugging is primarily <strong>about latency 传统磁盘访问磁头花费时间长，通过 plug 来减少磁头移动时间, not bandwidth</strong>. If bandwidth is an issue, your queue will not be empty <strong>(plug 只是在磁盘 idle 时作用，如果磁盘 busy 那就不会有 plug 的影响，不会影响到 bandwidth)</strong>, so the time it takes for a request to get to the front of the queue is long enough for any other related requests to be seen and merged so there is no point in plugging (at least the old style - the new style still brings benefits).</li>
+<li>The new plugging code is a bit different. Rather than only plugging idle devices it doesn't really plug devices at all. It <strong>plugs request submitters instead</strong>. (So the new code is a lot closer to the page cache than the old code). <ul>
+<li>So <strong>when a process submits a request, it gets queued in the process, not in the device. Once a process has submitted all that it wants to submit (or whenever it schedules - to avoid deadlocks), the requests queued in the process are released.</strong></li>
+<li>So you get a similar effect on the starting transient - a large number of pre-sorted requests gets handled all at once. However there are other advantages as well in terms of lock contention.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="https://lwn.net/Articles/440619/">https://lwn.net/Articles/440619/</a><ul>
+<li><strong>In the linux kernel, plugging is not timer based.</strong> (There was a timer in the previous implementation, but it was only a last-ditch unplug in case there were bugs: <strong>slow is better than frozen</strong>). I agree that <strong>having a timed unplug event doesn't make much sense</strong></li>
+<li><strong>In the old code a device would plug whenever it wanted to which was typically when a new request arrived for an empty queue. It would then unplug as soon as some thread started waiting for a request on that device to complete</strong>.</li>
+<li><strong>The new plugging code is quite different. The unplug happens when the thread submitting requests has finished submitting a bunch of requests. It is explicit rather than using the heuristic of 'unplug when someone waits'. This means it happens a little bit sooner - there is never any timer delay at all.</strong></li>
+<li>Rather than thinking of it as 'plugging' it is probably best to think of it as <strong>early-aggregation</strong></li>
+</ul>
+</li>
+<li><a href="https://lwn.net/Articles/440788/">https://lwn.net/Articles/440788/</a><ul>
+<li><strong>a partial answer to "how can the kernel know when the application has finished submitting a bunch of requests" is "the application calls 'fsync' - if it cares".</strong></li>
+<li><strong>the kernel does break things into a bunch of requests which then need to be sorted. If a file is not contiguous on disk, then you need at least one request each separate chunk. Plugging allows this sorting to happen before the first request is started.</strong></li>
+<li>There is a good reason why the page cache submits lots of individual requests rather than a single list with lots of requests. Every request requires an allocation. when memory gets tight (which affects writes more than reads) it could be that I cannot allocate memory for another request until the previous ones have been submitted and completed. So we submit the requests individually, but combine them at a level a little lower down, and 'unplug' that queue either when all have been submitted or when the thread 'schedules' - which it will typically only do if it blocks on a memory allocation.</li>
+<li>page cache 和 plug<ul>
+<li><strong>Firstly there is the page cache which deliberately delays writes and expedites reads to allow large requests independent of the request size used by the application.</strong></li>
+<li><strong>Then there is the fact that the page cache sends smallish requests to the device, but tends to send a lot in quick succession. These need to be combined when possible, but also flushed as soon as there is any sign of any complication. This last is what "plugging" does.</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><br /></p>
+<h3><a href="https://lwn.net/Articles/736534/">Device queue plugging</a></h3>
+<p>Storage devices often have significant per-request overheads, so it can be more efficient to gather a batch of requests together and submit them as a unit. When the device is relatively slow it will often have a large queue of pending requests and that queue provides plenty of opportunity for identifying suitable batches. When a device is quite fast, or when a slow device is idle, there is less opportunity to find batches naturally. To address this challenge, the Linux block layer has a concept called "plugging".</p>
+<p><strong>Originally, plugging applied only to an empty queue</strong>. Before submitting a request to an empty queue, the queue would be plugged so that no requests could flow through to the underlying device for a while. Bios submitted by the filesystem could then queue up and allow batches to be identified. The queue would be unplugged explicitly by the filesystem requesting it, or implicitly after a short timeout. It is hoped that by this time some suitable batches would have been found and that the small delay in starting work is more than compensated for by the larger batches that are ultimately submitted. Since Linux 2.6.39 <a href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=73c101011926c58">a new plugging mechanism</a> has been in place that <strong>works on a per-process basis rather than per-device</strong>. This scales better on multi-CPU machines.</p>
+<p>When a filesystem or other client of a block device submits requests it will normally bracket a collection of generic_make_request() calls with blk_start_plug() and blk_finish_plug(). This sets up current-&gt;plug to point to a <a href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/include/linux/blkdev.h?h=v4.13#n1258">data structure</a> that can contain a list of struct blk_plug_cb (and also a list of struct request that we find out more about in the next article). <strong>As these lists are per-process, entries can be added without any locking</strong>. The make_request_fn that is given individual bios can choose to add the bio to a list in the plug if that might allow it to work more efficiently.</p>
+<p><strong>When blk_finish_plug() is called, or whenever the process calls schedule() (such as when waiting for a mutex, or when waiting for memory allocation), each entry stored in current-&gt;plug is processed.</strong> This processing will complete everything that the driver would have done if it had not decided to add the bio to the plug list, or if no plug has been enabled.</p>
+<p>The fact that <strong>the plug is processed from schedule() calls means that bios are only delayed while new bios are being produced</strong>. If the <strong>process blocks to wait</strong> for anything, the list assembled so far is processed <strong>immediately</strong>. This protects against the possibility that the process might be waiting for a bio that has already been submitted, but is currently queued behind the plug.</p>
+<p>Performing the plugging at the process level like this maintains the benefit that <strong>好处一 batches of related bios are easy to detect and keep together</strong>, and adds the benefit that <strong>好处二 locking can be reduced</strong>. Without this per-process plugging a spinlock, or at least an atomic memory operation, would be needed to handle every individual bio. With per-process plugging, it is often possible to create a per-process list of bios, and then take the spinlock just once to merge them all into the common queue.</p>
+<p><br /></p>
+<h3><a href="https://lwn.net/Articles/438256/">Explicit block device plugging</a></h3>
+<p>Since the dawn of time, or for at least as long as I have been involved, the Linux kernel has deployed a concept called "plugging" on block devices. <strong>(plug 存在的意义) When I/O is queued to an empty device, that device enters a plugged state. This means that I/O isn't immediately dispatched to the low level device driver, instead it is held back by this plug. When a process is going to wait on the I/O to finish (如果有进程等待 IO 完成则 unplug 设备来进行 IO 操作以免让进程等待时间过长), the device is unplugged and request dispatching to the device driver is started. The idea behind plugging is to allow a buildup of requests to better utilize the hardware and to allow merging of sequential requests into one single larger request. The latter is an especially big win on most hardware; writing or reading bigger chunks of data at the time usually yields good improvements in bandwidth</strong>. With the release of the 2.6.39-rc1 kernel, block device plugging was drastically changed. Before we go into that, lets take a historic look at how plugging has evolved.</p>
+<p>Back in the early days, plugging a device involved <strong>global state</strong>. This was before SMP scalability was an issue, and having global state made it easier to handle the unplugging. If a process was about to block for I/O, any plugged device was simply unplugged. This scheme persisted in pretty much the same form until the early versions of the 2.6 kernel, where it began to <strong>severely impact SMP scalability on I/O-heavy workloads</strong>.</p>
+<p>In response to this problem, the plug state was <a href="(https://lwn.net/Articles/75233/)">turned into a per-device entity</a> in 2004. This scaled well, but now you suddenly had <strong>no way to unplug all</strong> devices when going to sleep waiting for page I/O. This meant that the virtual memory subsystem had to be able to unplug the specific device that would be servicing page I/O. A special hack was added for this: <strong>sync_page() in struct address_space_operations</strong>; this hook would unplug the device of interest.</p>
+<p>If you have a more complicated I/O setup with device mapper or RAID components, those layers would in turn unplug any lower-level device. The unplug event would thus percolate down the stack. <strong>Some heuristics were also added to auto-unplug</strong> the device if a certain depth of requests had been added, or if some period of time had passed before the unplug event was seen. With the <strong>asymmetric</strong> nature of plugging where the device was automatically plugged but <strong>had to be explicitly unplugged</strong>, we've had our fair share of I/O stall bugs in the kernel. While crude, the auto-unplug would at least ensure that we would chuck along if someone missed an unplug call after I/O submission.</p>
+<p>With really fast devices hitting the market, once again plugging had become a scalability problem and hacks were again added to avoid this. <strong>Essentially we disabled plugging on solid-state devices that were able to do queueing. While plugging originally was a good win</strong>, it was time to reevaluate things. <strong>The asymmetric nature of the API was always ugly and a source of bugs, and the sync_page() hook was always hated by the memory management people</strong>. The time had come to rewrite the whole thing.</p>
+<p>The primary use of plugging was to allow an I/O submitter to send down multiple pieces of I/O before handing it to the device. <strong>Instead of maintaining these I/O fragments as shared state in the device, a new on-stack structure was created to contain this I/O for a short period, allowing the submitter to build up a small queue of related requests.</strong> The state is now tracked in struct blk_plug, which is little more than a linked list and a should_sort flag informing blk_finish_plug() whether or not to sort this list before flushing the I/O. We'll come back to that later.</p>
+<div class="highlight"><pre><span></span>    struct blk_plug {
+        unsigned long magic;
+        struct list_head list;
+        unsigned int should_sort;
+    };
+</pre></div>
+
+
+<p>The magic member is a temporary addition to detect uninitialized use cases, it will eventually be removed. The new API to do this is straightforward and simple to use:</p>
+<div class="highlight"><pre><span></span>    struct blk_plug plug;
+
+    blk_start_plug(&amp;plug);
+    submit_batch_of_io();
+    blk_finish_plug(&amp;plug);
+</pre></div>
+
+
+<p>blk_start_plug() takes care of initializing the structure and tracking it inside the task structure of the current process. <strong>The latter is important to be able to automatically flush the queued I/O should the task end up blocking between the call to blk_start_plug() and blk_finish_plug()</strong>. If that happens, we want to ensure that pending I/O is sent off to the devices immediately. <strong>This is important from a performance perspective, but also to ensure that we don't deadlock</strong>. If the task is blocking for a memory allocation, memory management reclaim could end up wanting to free a page belonging to a request that is currently residing on our private plug. Similarly, the caller may itself end up waiting for some of the plugged I/O to finish. By <strong>flushing this list when the process goes to sleep</strong>, we avoid these types of deadlocks.</p>
+<p>If blk_start_plug() is called and the task already has a plug structure registered, it is simply ignored. <strong>(重复注册 plug) This can happen in cases where the upper layers plug for submitting a series of I/O, and further down in the call chain someone else does the same</strong>. I/O submitted without the knowledge of the original plugger will thus end up on the originally assigned plug, and be flushed whenever the original caller ends the plug by calling blk_finish_plug(), or if some part of the call path goes to sleep or is scheduled out.</p>
+<p>Since the plug state is now device agnostic, we <strong>(sort 的原因) may end up in a situation where multiple devices 多个设备的 request 在一个列表中，需要排序 have pending I/O on this plug list. These may end up on the plug list in an interleaved fashion, potentially causing blk_finish_plug() to grab and release the related queue locks multiple times</strong>. To avoid this problem, a should_sort flag in the blk_plug structure is used to keep track of whether we <strong>have I/O belonging to more than I/O distinct queue pending</strong>. If we do, the list is sorted to group identical queues together. This scales better than grabbing and releasing the same locks multiple times.</p>
+<p>With this new scheme in place, the device need no longer be notified of unplug events. The queue unplug_fn() used to exist for this purpose alone, it has now been removed. For most drivers it is safe to just remove this hook and the related code. However, <strong>some drivers used plugging to delay I/O operations in response to resource shortages. One example of that was the SCSI midlayer; if we failed to map a new SCSI request due to a memory shortage, the queue was plugged to ensure that we would call back into the dispatch functions later on</strong>. Since this mechanism no longer exists, a similar API has been provided for such use cases. Drivers may now use blk_delay_queue() for this:</p>
+<div class="highlight"><pre><span></span>    blk_delay_queue(queue, delay_in_msecs);
+</pre></div>
+
+
+<p>The block layer will re-invoke request queueing after the specified number of milliseconds have passed. It will be <strong>invoked from process context, just as it would have been with the unplug event</strong>. blk_delay_queue() <strong>honors the queue stopped state</strong>, so if blk_stop_queue() was called before blk_delay_queue(), or if is called after the fact but before the delay has passed, the request handler will not be invoked. blk_delay_queue() <strong>must only be used for conditions 注意适用场合</strong> where the caller doesn't necessarily know when that condition will change states. <strong>If resources internal to the driver cause it to need to halt operations for a while, it is more efficient to use blk_stop_queue() and blk_start_queue() to manage those directly.</strong></p>
+<p>These changes have been merged for the 2.6.39 kernel. While a few problems have been found (and fixed), it would appear that the plugging changes have been integrated without greatly disturbing Linus's calm development cycle.</p>
+<p><br /></p>
+<h3><strong><a href="https://lwn.net/Articles/75233/">No more global unplugging</a></strong> — <strong>引入 per-queue plugging，去掉 global unplugging</strong></h3>
+<p>The block layer supports the notion of "plugging" a request queue for a block device. <strong>(解释什么是 plug) A plugged queue passes no requests to the underlying device; it allows them to accumulate, instead, so that the I/O scheduler has a chance to reorder them and optimize performance</strong>. There comes a time, however, when the plug has to be pulled and the device restarted. Often, code within the filesystem or virtual memory layers decides that, for whatever reason, it's time to get block I/O moving again. In the current 2.6 kernel, there is a function (<strong>blk_run_queues()</strong>) which performs this task.</p>
+<p>The problem is that blk_run_queues() has turned out to be a bit of a performance and scalability problem. <strong>(不足一)</strong> It has a <strong>single, global lock</strong> which keeps multiple processors from trying to restart the queues at the same time; this lock has become a bit of a contention point on some systems. <strong>(不足二)</strong> A call to blk_run_queues() <strong>also restarts all block devices on the system, even though there is typically only one queue that truly needs to be unplugged</strong>.</p>
+<p>To address these problems, Jens Axboe has posted <a href="https://lwn.net/Articles/75099/">a patch</a> which does away with blk_run_queues() altogether. This change is a result of a fundamental realization: there is always one specific queue which needs to be kickstarted. So <strong>blk_run_queues() has been replaced with blk_run_queue() (which takes the specific queue to start as a parameter</strong>) and <strong>blk_run_address_space() (which takes a pointer to a address_space structure)</strong>. With these functions, higher-level code can fire up the request queue which belongs to a specific device or which ultimately underlies a particular non-anonymous mapping.</p>
+<p>This patch is going straight into the -mm tree; Andrew Morton <a href="https://lwn.net/Articles/75239/">commented</a> "This is such an improvement over what we have now it isn't funny." He also noted that "...the next -mm is starting to look like linux-3.1.0..." The 2.6 kernel looks to be interesting for a while.</p>
+<p><br />
+<br /></p>
+<h3>COMMENTS</h3>
+<ul>
+<li><a href="https://lwn.net/Articles/438850/">Posted Apr 15, 2011 23:31 UTC (Fri) by giraffedata</a></li>
+</ul>
+<blockquote>
+<p>The idea behind plugging is to allow a buildup of requests to better utilize the hardware and to allow merging of sequential requests into one single larger request. The latter is an especially big win on most hardware; writing or reading bigger chunks of data at the time usually yields good improvements in bandwidth.</p>
+</blockquote>
+<p><strong>理解错误</strong> I have never understood this analysis.</p>
+<p>First of all, <strong>plugging doesn't improve utilization -- it decreases it. It causes the device to be idle more than it otherwise would for a given workload</strong>. Improved utilization would be eliminating waste of hardware so you can have less hardware. Plug-free I/O doesn't waste hardware; it uses only time that in a plugged scenario would be unused.</p>
+<p>"Bandwidth" here means the amount you can shove down the pipe to the disk, and is meaningful only in a situation where you drive the disk as fast as it will go -- it is never idle. In that case, plugging plays no role.</p>
+<p>I saw plugging help once, when the device was poorly designed so that it sucked up all the I/Os at interface speed into a large buffer, then proceeded to do the mechanical processing without reordering or coalescing. In that case, defeating that in-device queue via Linux plugging was a win. The device should have simply pushed back as soon as it had one turnaround time's worth of I/O in its queue, then the block layer would have coalesced and reordered without any need for plugging.</p>
+<p>I've also imagined some carefully constructed burst patterns where response time (not bandwidth or utilization) improves with plugging. <strong>But in more common cases, plugging hurts response time for the obvious reason that it lets the device be idle for a brief period while the user is waiting for I/O</strong>.</p>
+<ul>
+<li><a href="https://lwn.net/Articles/438967/">Posted Apr 17, 2011 7:05 UTC (Sun) by walex</a></li>
+</ul>
+<p><strong>。。。被 Neil 怼了</strong></p>
+<p>This comment about plugging is amazingly misguided because it attacks the one good point about plugging: that it <strong>does improve device utilization</strong>.</p>
+<p>The reason is that "giraffedata" seems to be entirely unaware that there are devices called <strong>"disks" that have extremely high and variable latencies, and given these it is possible that bunching IO requests allows the elevator to minimize latencies in such a way that the pauses imposed by plugging may be worthwhile</strong>.</p>
+<p>There are two very big problems with plugging, or rather its current implementation, which makes it a tremendously stupid thing as a result:</p>
+<ul>
+<li>
+<p>Putting it in the block layer is extremely bad, because there are storage devices that don't have high and variable latencies and for which plugging is counterproductive. If plugging makes any sense it should be in the device drivers.</p>
+</li>
+<li>
+<p>Plugging quantizes the flow of IO requests making them essentially synchronous with the periodic expiry of the plugging timer, and the resulting bunching, which is indeed the intended effect as to scheduling, can have bad consequences on page cache usage, and limits the bandwidth usable for the device in common cases (long nearly contiguous writes).</p>
+</li>
+</ul>
+<p>Plugging was introduced IIRC as a way to cheat on some common benchmark.</p>
+<p>Plugging is a gross mistake that should be entirely removed from the page cache, and perhaps turned into some kind of scheduling library available to device drivers for use when the relevant device latency profiles might conceivably benefit (almost never actually).</p>
+<ul>
+<li><a href="https://lwn.net/Articles/438974/">Posted Apr 17, 2011 9:44 UTC (Sun) by neilbrown</a></li>
+</ul>
+<p>Your comments make it sound to make like you don't understand how Linux plugging works - though maybe I misunderstand you...</p>
+<p>There is <strong>no unplugging timer</strong>. There was a timer in the previous code that would unplug after 3ms, but that was mainly a 'just in case' measure. Normally the unplug would happen much earlier. If it was only the timer that triggered an unplug then you are right, performance would be terrible.</p>
+<p>Also <strong>plugging was only relevant when the device was idle. If the queue was not empty it would not get plugged. So with long, nearly continuous writes, the queue would only be plugged once at the very beginning</strong>.</p>
+<p><strong>The purpose of plugging is primarily about latency, not bandwidth. If bandwidth is an issue, your queue will not be empty, so the time it takes for a request to get to the front of the queue is long enough for any other related requests to be seen and merged so there is no point in plugging (at least the old style - the new style still brings benefits).</strong></p>
+<p><strong>The new plugging code is a bit different. Rather than only plugging idle devices it doesn't really plug devices at all. It plugs request submitters instead. (So the new code is a lot closer to the page cache than the old code).</strong> So when a process submits a request, it <strong>gets queued in the process, not in the device</strong>. Once a process has submitted all that it wants to submit (or whenever it schedules - to avoid deadlocks), the requests queued in the process are released.</p>
+<p>So you get a similar effect on the starting transient - a large number of pre-sorted requests gets handled all at once. However there are other advantages as well in terms of lock contention.</p>
+<p>I think it is very hard to imaging plugging slowing down even a very fast low latency device. The page cache has a bunch of pages that it wants to perform IO on and it assembles them into a big chunk and sends them all to the device. <strong>It is true that the first request won't get there quite as soon, but unless the device is as fast as memory, then it will still get there fast enough that you probably cannot measure the difference</strong>. And if a device is as fast as memory, then it probably shouldn't be under the request_queue code at all - a driver more like the <strong>umem.c</strong> driver might be appropriate. <strong>It just takes bios directly and turns them into DMA descriptors.. But even that uses plugging so it can start a chain of dmas at once rather than just one</strong>.</p>
+<p>I've probably rambled a but there, but I really think you aren't being fair to plugging. It may not be perfect but I would need a lot more evidence before I could see any justification for it being a gross mistake.</p>
+<ul>
+<li><a href="https://lwn.net/Articles/440261/">Posted Apr 27, 2011 5:26 UTC (Wed) by dlang</a></li>
+</ul>
+<p>I'm also puzzled about this issue.</p>
+<p>we had a similar discussion in rsyslog when we introduced the capability to write log entries to databases in batches rather than individually. my initial proposal was to try and queue a set number of entries to write at once (with a timer to make sure they get written <em>reasonably</em> soon in any case), but it was pointed out that if you just write what's ready, and let everything else queue up in the meantime, the size of the writes auto-tunes itself. i.e. <strong>by always writing whatever's pending in the queue (up to a max) when you have the ability to write, you achieve both low-latency for the initial writes (and low load), and high efficiency under heavy load (because the queue backs up while you are doing the 'inefficient' small writes). This auto-tunes for the lowest available latency 但是考虑到磁盘磁头寻址的花费就不一样了，毕竟 rsyslog 不需要考虑这个问题</strong>.</p>
+<p>I see two costs in doing this.
+1. more device actions than an optimally batched mode
+2. more CPU cycles used to process the small batches</p>
+<p>if the system is idle enough, these don't matter, I could see them becoming an issue if they either cost more power, or use a resource that could otherwise be used by another process (cpu cycles, or bus bandwidth)</p>
+<p>has anyone tried just doing away with plugging and see what the results are? (especially on anything that measures more than how short the device utilized time can be)</p>
+<ul>
+<li><a href="https://lwn.net/Articles/440593/">Posted Apr 29, 2011 7:04 UTC (Fri) by andresfreund</a></li>
+</ul>
+<blockquote>
+<p>we had a similar discussion in rsyslog when we introduced the capability to write log entries to databases in batches rather than individually. my initial proposal was to try and queue a set number of entries to write at once (with a timer to make sure they get written <em>reasonably</em> soon in any case), but it was pointed out that if you just write what's ready, and let everything else queue up in the meantime, the size of the writes auto-tunes itself.</p>
+</blockquote>
+<p>If your piece of code does two writes to a normal rotating media disk without plugging - as far as I understand it - the first write will cause a disk activity which will take up to 15ms for an idle disk. <strong>Some microseconds later your code will submit a second page. Unfortunately that will wait in some queue until the disk is finished writing the first block. Which means you will need ~30ms in the worst case.</strong></p>
+<p>On the other hand, if you plugged the device before doing those writes, it will sort those writes to be in disk order and the disk will be able to <strong>do it in one rotation</strong>. Which means its ~15ms.</p>
+<ul>
+<li><a href="https://lwn.net/Articles/440594/">Posted Apr 29, 2011 7:27 UTC (Fri) by dlang</a></li>
+</ul>
+<p>almost correct if you have just a couple of writes.</p>
+<p>if the second write arrives 15ms after the first and the device has been plugged, then with plugging it takes 30ms to get both writes on disk (15ms of delay + 15 ms of activity), without plugging it takes 15ms to get both writes on disk (15ms of activity for the first one and 15ms of activity for the second one)</p>
+<p><strong>if the data is submitted in a shorter period of time, then the two writes may finish faster with plugging, but if they arrive further apart (and the device remains plugged) all you are doing is delaying how long it takes for the first one to get to disk.</strong></p>
+<p>so you should never plug longer than it would take to write the first block to disk, but figuring out how long that will be is hard, so the timer to unplug is set long</p>
+<p>but if you are writing a larger amount, during the 15ms while the disk is processing the first write, multiple additional requests will queue up and be able to be combined.</p>
+<p>and if they don't, then the disk is active for 30ms instead of for 15ms, but nothing else had a need for it so why do you care? If anything else had a need for the disk it would have generated additional requests that would be combined with the second request instead of the first and second being combined and finished with the third being processed independently (possibly with plugging of it's own)</p>
+<p>yes, some mobile users may care in an attempt to save power, but in that case they really want to have much higher latency, on the order of seconds or tens of seconds to avoid spinning up the drive, so that's not the relevant use case.</p>
+<p>if this was being done under application control (because after all, the application is the only thing that knows what's going to happen in the future) I could see it. <strong>but you are trying to have the kernel guess if there is going to be more activity in the near future</strong>.</p>
+<p><strong>case 1. if there is no activity in the near future the plug just delayed the write</strong>. if there is a tiny bit of activity in the near future, each one can be treated independently as if there is no activity in the future.</p>
+<p><strong>case 2. if there is a lot of activity, the second request will get delayed by the time it takes to process the first request instead of by the time the plug is in place.</strong></p>
+<p>is there really good enough prediction of future activity to make the the kernel guessing correctly that case 2 will happen be worth the complexity, time spent manging the plugs, nd increased latency for the first activity?</p>
+<ul>
+<li><a href="https://lwn.net/Articles/440596/">Posted Apr 29, 2011 7:40 UTC (Fri) by dlang</a></li>
+</ul>
+<p>or possibly a better way of putting it</p>
+<p>assume that each disk action takes 15ms and data arrives every 10ms</p>
+<p>with plugging of up to 15ms or a second item you write</p>
+<p>2 blocks starting at 10ms finishing at 25ms
+2 blocks starting at 30ms finishing at 45ms
+2 blocks starting at 50ms finishing at 65ms
+2 blocks starting at 70ms finishing at 85ms
+etc</p>
+<p>without plugging you write</p>
+<p>1 block starting at 0ms finishing at 15ms
+1 block starting at 15ms finishing at 30ms
+2 blocks starting at 30ms finishing at 45ms
+1 block starting at 45 ms finishing at 60ms
+2 blocks starting at 60ms finishing at 75ms
+1 block starting at 75ms finishing at 90ms
+etc</p>
+<p>does this really make a difference? yes, in the second case the disk is busy continuously rather than having a 5ms pause between activity but does that matter?</p>
+<p>say the data arrives twice as fast (ever 5ms)</p>
+<p>with plugging
+2 blocks starting at 5ms finishing at 20ms
+3 blocks starting at 20ms finishing at 35ms
+3 blocks starting at 35ms finishing at 50ms</p>
+<p>without plugging
+1 block starting at 0ms finishing at 15ms
+3 blocks starting at 15ms finishing at 30ms
+3 blocks starting at 30ms finishing at 45ms</p>
+<p>where is the gain?</p>
+<ul>
+<li><a href="https://lwn.net/Articles/440619/">Posted Apr 29, 2011 9:29 UTC (Fri) by neilbrown</a></li>
+</ul>
+<p>While I don't disagree with your logic, I do disagree with its relevance.</p>
+<p><strong>In the linux kernel, plugging is not timer based.</strong> (There was a timer in the previous implementation, but it was only a last-ditch unplug in case there were bugs: <strong>slow is better than frozen</strong>).</p>
+<p><strong>In the old code a device would plug whenever it wanted to which was typically when a new request arrived for an empty queue. It would then unplug as soon as some thread started waiting for a request on that device to complete</strong>. I think it also would unplug explicitly in some cases after submitting lots of writes that were expected to by synchronous, but I'm not 100% certain.</p>
+<p>So in the read case for example a read syscall would submit a request to read a page, then another request to read the next page (Because it was an 8K read), then maybe a few more requests to read-ahead some more pages, then wait for that first read to complete. Waiting for the read-ahead requests maybe isn't critical, but waiting for that second page would reduce latency. Now to be fair, if the two pages were adjacent on the disk they would probably have been combined into a single request before begin submitted, and if there aren't then maybe keeping them together isn't so important. <strong>But as soon as you get 3 non-adjacent pages in the read, there is a real possible gain from sorting before starting IO.</strong></p>
+<p><strong>The new plugging code is quite different. The unplug happens when the thread submitting requests has finished submitting a bunch of requests. It is explicit rather than using the heuristic of 'unplug when someone waits' (hence the title of the article). This means it happens a little bit sooner - there is never any timer delay at all.</strong></p>
+<p>Rather than thinking of it as 'plugging' it is probably best to think of it as <strong>early-aggregation</strong>. hch has <strong>suggested that this be even more explicit. i.e.</strong> the thread generates a collection of related requests (quite possibly several files full of writes in the write-back case) and submits them all to the device at once. <strong>Not only does this clearly give a good opportunity to sort requests - more importantly it means we only take the per-device lock once for a large number of requests. If multiple threads are writing to a device concurrently, this will reduce lock contention making it useful even when the device queue is fairly full (when normal plugging would not apply at all).</strong></p>
+<p>The equivalent logic in a 'syslogd' style program would be to simply always service read requests before write requests. So when a log message comes in, it is queued to be written. Before you actually write it though you check if another log message is ready to be read from some incoming socket. If it is you read it and queue it. You only write when there is nothing to be read, or your queue is full <strong>(sort 的好处)</strong>.</p>
+<p>I agree that <strong>having a timed unplug event doesn't make much sense</strong>.</p>
+<ul>
+<li><a href="https://lwn.net/Articles/440656/">Posted Apr 29, 2011 14:57 UTC (Fri) by dlang</a></li>
+</ul>
+<p>note that in my example, the timer was only used to indicate the max amount of time to wait for the next item to be submitted.</p>
+<p><strong>how can the kernel know when the application has finished submitting a bunch of requests?</strong></p>
+<p>or is it that the application submits one request, but something in the kernel is breaking it into a bunch of requests that all get submitted at once, and plugging is an attempt to allow the kernel to recombine them? (but that doesn't match your comment about sorting 3 non-adjacent requests being a win, how can one action by an application generate 3 non-adjacent requests?)</p>
+<p>I'm obviously missing something here.</p>
+<p>if the application is doing multiple read/write commands, I don't see how the kernel can possibly know how soon the next activity will be submitted after each command is run.</p>
+<p>if the application is doing something with a single command, it seems like the problem is that it shouldn't be broken up to begin with, so there would be no need to plug to try and combine them</p>
+<ul>
+<li><a href="https://lwn.net/Articles/440788/">Posted Apr 29, 2011 22:58 UTC (Fri) by neilbrown</a></li>
+</ul>
+<p>The actual times between plug and unplug are typically microseconds (I suspect). The old timeout was set at 3 milliseconds and that was very slow. It is almost nothing compared to device IO times.</p>
+<p>Actions of the application and requests to devices are fairly well disconnected thanks to the page cache. An app writes to the page cache and the page cache doesn't even think about writing to the device for typically 30 seconds. Of course if the app calls fsync, that expedites things. <strong>So a partial answer to "how can the kernel know when the application has finished submitting a bunch of requests" is "the application calls 'fsync' - if it cares".</strong></p>
+<p>On the read side, the page cache performs read-ahead so that hopefully every read request can be served from cache - and certainly the device gets large read requests even if the app is making lots of small read requests.</p>
+<p>Also <strong>the kernel does break things into a bunch of requests which then need to be sorted. If a file is not contiguous on disk, then you need at least one request each separate chunk. Plugging allows this sorting to happen before the first request is started.</strong></p>
+<p>There is a good reason why the page cache submits lots of individual requests rather than a single list with lots of requests. Every request requires an allocation. when memory gets tight (which affects writes more than reads) it could be that I cannot allocate memory for another request until the previous ones have been submitted and completed. So we submit the requests individually, but combine them at a level a little lower down, and 'unplug' that queue either when all have been submitted or when the thread 'schedules' - which it will typically only do if it blocks on a memory allocation.</p>
+<p>So there are two distinct things here that could get confused.</p>
+<p><strong>Firstly there is the page cache which deliberately delays writes and expedites reads to allow large requests independent of the request size used by the application.</strong></p>
+<p><strong>Then there is the fact that the page cache sends smallish requests to the device, but tends to send a lot in quick succession. These need to be combined when possible, but also flushed as soon as there is any sign of any complication. This last is what "plugging" does.</strong></p>
+                </div><!-- /.entry-content -->
+        </article>
+</section>
+        </div><!--/span-->
+
+                <div class="span3 well sidebar-nav" id="sidebar">
+<ul class="nav nav-list">
+
+<li class="nav-header"><h4><i class="icon-folder-close icon-large"></i>Categories</h4></li>
+<li>
+<a href="/category/bing-fa.html">
+    <i class="icon-folder-open icon-large"></i>并发
+</a>
+</li>
+<li>
+<a href="/category/block-io.html">
+    <i class="icon-folder-open icon-large"></i>Block I/O
+</a>
+</li>
+<li>
+<a href="/category/device-mapper.html">
+    <i class="icon-folder-open icon-large"></i>device-mapper
+</a>
+</li>
+<li>
+<a href="/category/fio.html">
+    <i class="icon-folder-open icon-large"></i>fio
+</a>
+</li>
+<li>
+<a href="/category/locking.html">
+    <i class="icon-folder-open icon-large"></i>locking
+</a>
+</li>
+<li>
+<a href="/category/wei-fen-lei.html">
+    <i class="icon-folder-open icon-large"></i>未分类
+</a>
+</li>
+<li>
+<a href="/category/wen-jian-xi-tong.html">
+    <i class="icon-folder-open icon-large"></i>文件系统
+</a>
+</li>
+
+<li class="nav-header"><h4><i class="icon-tags icon-large"></i>Tags</h4></li>
+<li class="tag-4">
+    <a href="/tag/atomic_ops.html">
+        <i class="icon-tag icon-large"></i>atomic_ops
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/blkiomon.html">
+        <i class="icon-tag icon-large"></i>blkiomon
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/plugging.html">
+        <i class="icon-tag icon-large"></i>plugging
+    </a>
+</li>
+<li class="tag-1">
+    <a href="/tag/blktrace.html">
+        <i class="icon-tag icon-large"></i>blktrace
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/util-linux.html">
+        <i class="icon-tag icon-large"></i>util-linux
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/verify_blkparse.html">
+        <i class="icon-tag icon-large"></i>verify_blkparse
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/kyber.html">
+        <i class="icon-tag icon-large"></i>kyber
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/bio.html">
+        <i class="icon-tag icon-large"></i>bio
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/e2fsprogs.html">
+        <i class="icon-tag icon-large"></i>e2fsprogs
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/sbitmap_queue.html">
+        <i class="icon-tag icon-large"></i>sbitmap_queue
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/sbitmap.html">
+        <i class="icon-tag icon-large"></i>sbitmap
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/bfq.html">
+        <i class="icon-tag icon-large"></i>BFQ
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/relayfs.html">
+        <i class="icon-tag icon-large"></i>relayfs
+    </a>
+</li>
+<li class="tag-2">
+    <a href="/tag/btt.html">
+        <i class="icon-tag icon-large"></i>btt
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/bvec.html">
+        <i class="icon-tag icon-large"></i>bvec
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/dkms.html">
+        <i class="icon-tag icon-large"></i>dkms
+    </a>
+</li>
+<li class="tag-2">
+    <a href="/tag/fio.html">
+        <i class="icon-tag icon-large"></i>fio
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/single-queue.html">
+        <i class="icon-tag icon-large"></i>single queue
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/iotop.html">
+        <i class="icon-tag icon-large"></i>iotop
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/btreplay.html">
+        <i class="icon-tag icon-large"></i>btreplay
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/virtualbox.html">
+        <i class="icon-tag icon-large"></i>virtualbox
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/iostat.html">
+        <i class="icon-tag icon-large"></i>iostat
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/blk-mq.html">
+        <i class="icon-tag icon-large"></i>blk-mq
+    </a>
+</li>
+<li class="tag-2">
+    <a href="/tag/device-mapper.html">
+        <i class="icon-tag icon-large"></i>device-mapper
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/btrace.html">
+        <i class="icon-tag icon-large"></i>btrace
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/cfq.html">
+        <i class="icon-tag icon-large"></i>CFQ
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/iowatcher.html">
+        <i class="icon-tag icon-large"></i>iowatcher
+    </a>
+</li>
+<li class="tag-3">
+    <a href="/tag/btrecord.html">
+        <i class="icon-tag icon-large"></i>btrecord
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/relay.html">
+        <i class="icon-tag icon-large"></i>relay
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/lock_stat.html">
+        <i class="icon-tag icon-large"></i>lock_stat
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/f2fs.html">
+        <i class="icon-tag icon-large"></i>f2fs
+    </a>
+</li>
+<li class="tag-2">
+    <a href="/tag/lockdep.html">
+        <i class="icon-tag icon-large"></i>lockdep
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/request-tagging.html">
+        <i class="icon-tag icon-large"></i>request tagging
+    </a>
+</li>
+<li class="tag-1">
+    <a href="/tag/blkparse.html">
+        <i class="icon-tag icon-large"></i>blkparse
+    </a>
+</li>
+<li class="tag-2">
+    <a href="/tag/multiqueue.html">
+        <i class="icon-tag icon-large"></i>multiqueue
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/blkrawverify.html">
+        <i class="icon-tag icon-large"></i>blkrawverify
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/seekwatcher.html">
+        <i class="icon-tag icon-large"></i>seekwatcher
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/workqueue.html">
+        <i class="icon-tag icon-large"></i>workqueue
+    </a>
+</li>
+<li class="tag-4">
+    <a href="/tag/bno_plot.html">
+        <i class="icon-tag icon-large"></i>bno_plot
+    </a>
+</li>
+
+
+</ul>        </div><!--/.well -->
+
+      </div><!--/row-->
+
+      <hr>
+
+      <footer>
+        <address id="about">
+                Proudly powered by <a href="http://pelican.notmyidea.org/">Pelican <i class="icon-external-link"></i></a>,
+                                which takes great advantage of <a href="http://python.org">Python <i class="icon-external-link"></i></a>.
+        </address><!-- /#about -->
+
+        <p>The theme is from <a href="http://twitter.github.com/bootstrap/">Bootstrap from Twitter <i class="icon-external-link"></i></a>,
+                   and <a href="http://fortawesome.github.com/Font-Awesome/">Font-Awesome <i class="icon-external-link"></i></a>, thanks!</p>
+      </footer>
+
+    </div><!--/.fluid-container-->
+
+
+
+    <!-- Le javascript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/theme/js/jquery-1.7.2.min.js"></script>
+    <script src="/theme/js/bootstrap.min.js"></script>
+  </body>
+</html>
